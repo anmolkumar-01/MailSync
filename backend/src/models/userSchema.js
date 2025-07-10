@@ -6,6 +6,11 @@ const userSchema = new Schema(
             type: 'String',
             required: true,
             unique: true
+        },
+        fullName: {
+            type: 'String',
+            required: true,
+            unique: true,
         }
 
     },

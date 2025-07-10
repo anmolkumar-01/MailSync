@@ -2,15 +2,169 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {User} from "../models/userSchema.js"
+import { readFileContent } from "../utils/readFileContent.js";
+import { geminiAI } from "../../services/geminiApi.js";
+import { convertToJson } from "../../services/convertToJson.js";
+import { transporter } from "../../services/mailTransporter.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { generateEmailFileCardHTML } from "../../services/generateEmailFileCard.js";
+import fs from 'fs'
 
-// 1. uploading the file
-const uploadFile = asyncHandler( async(req, res) => {})
+// 1. uploading the file and extract emails
+const uploadFile = asyncHandler( async(req, res) => {
 
-// 2. Asking ai for the promts
-const askAI = asyncHandler( async(req, res) => {})
+    // 1.  -------- Getting files
+    const {emailData} = req.files;
+    // console.log("Data is here" ,emailData);
+
+    const filePath = emailData?.[0]?.path;
+    const originalName = emailData?.[0]?.originalname;
+
+    if(!filePath || !originalName){
+        throw new ApiError(400 , "File is required")
+    }
+
+    // 2. -------- Extracting the written text data
+    const textData = await readFileContent(filePath, originalName)
+    // console.log(textData);
+
+    if(!textData){
+        throw new ApiError(400 , "Error in fetching data from file")
+    }
+    
+    // additional filteration
+    const regex = /[\w.-]+@[\w.-]+\.\w{2,}/g;
+    const extractedEmails = textData.match(regex);
+
+    console.log('here is extractedEmails',extractedEmails)
+
+
+    return res.status(201).json(
+        new ApiResponse(200, extractedEmails , "Emails extraction successful")
+    )
+})
+
+// 2. generate email subject and body
+const askAI = asyncHandler( async(req, res) => {
+
+    const {query} = req.body
+
+    if(!query){
+        throw new ApiError(400 , "query is required")
+    }
+
+    const prompt = `
+    You are an AI assistant who generate emails. Based on the following user query, generate a formal email with:
+    - a subject line
+    - a body message
+
+    Return the response in **pure JSON format** as:
+
+    {
+    "subject": "your generated subject",
+    "body": "your generated body text"
+    }
+
+    Only return the JSON object, nothing else. Avoid explanations or markdown formatting.
+
+    User Query:
+    "${query}"
+    `;
+    
+    const geminiResponse = await geminiAI(prompt);
+
+    if(!geminiResponse.trim()){
+        throw new ApiError(400 , "Please elaborate more")
+    }
+
+    const email = await convertToJson(geminiResponse);
+    if(!email){
+        throw new ApiError(400 , "Please elaborate more..")
+    }
+    // console.log(email.body);
+
+    return res.status(201).json(
+        new ApiResponse(200, email , " successfully generated email")
+    )
+})
 
 // 3. sending email
-const send = asyncHandler( async(req, res) => {})
+const send = asyncHandler( async(req, res) => {
+
+    const {emails, subject, body} = req.body
+    const currentUser = req.user;
+
+    if([subject, body].some((field)=> !field.trim())){
+        throw new ApiError(400, 'All fields are required');
+    }
+
+    if (!Array.isArray(emails) || emails.length === 0) {
+        throw new ApiError(400, 'Emails should be a non-empty array');
+    }
+
+    // handling the uploaded files
+    const fileData = req.files || []
+
+    let localFilePathArray = []
+    let requiredData = []
+
+    if(fileData.length){
+        for(const file of fileData){
+            localFilePathArray.push(file.path)
+        }
+        const cloudinaryResponses = await uploadOnCloudinary(localFilePathArray)
+        // console.log(cloudinaryResponses)
+        requiredData = cloudinaryResponses.map(file => ({
+                    name: file.original_filename,
+                    url: file.secure_url
+                }));
+
+    }
+
+    const files = generateEmailFileCardHTML(requiredData)
+    const formattedBody = body.replace(/\n/g, '<br />');
+
+    const html = `
+        <div">
+            ${formattedBody}
+            <br />
+            ${files}
+        </div>
+        <hr/>
+        <p style="font-size: 0.9em; color: #555;">
+            This message was sent by <strong>${currentUser.fullName}</strong> (${currentUser.email}) through the <strong>MailSync</strong> app.
+        </p>
+    `;
+
+        
+    let users = 0;
+    // sending parallelly
+    await Promise.all(
+    emails.map(async (email) => {
+        try {
+            await transporter.sendMail({
+                from: `${currentUser.fullName} <${process.env.EMAIL_USER}>`,
+                to: email,
+                subject,
+                html,
+                replyTo: currentUser.email
+            });
+            users = users+1;
+
+        } catch (err) {
+        console.error(`Failed to send email to ${email}:`, err.message);
+        }
+    })
+    );
+
+    
+    // localFilePathArray.forEach(filePath => fs.unlinkSync(filePath))
+    
+    return res.status(201).json(
+        new ApiResponse(200, requiredData , `Emails sent to ${users} users`)
+    )
+
+})
 
 export{
     uploadFile,

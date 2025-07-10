@@ -8,18 +8,18 @@ import jwt from 'jsonwebtoken'
 // 1. Signup or login => sign in
 const signin = asyncHandler( async(req,res) => {
 
-    const {email} = req.body;
+    const {email, fullName} = req.body;
     // console.log("Data coming in signup call : " , req.body)
 
-    if(!email.trim()){
-        throw new ApiError(400 , "Email is required")
+    if(!email.trim() || !fullName.trim()){
+        throw new ApiError(400 , "All fields are required")
     }
 
     let user = await User.findOne({email:email})
     // if user doesn't exist create one
     if(!user){
 
-        user = await User.create({email})
+        user = await User.create({email, fullName})
     }
 
     if(!user){
