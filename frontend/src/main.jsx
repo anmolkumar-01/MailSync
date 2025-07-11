@@ -3,12 +3,16 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
+import { BrowserRouter } from 'react-router'
+
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <GoogleOAuthProvider clientId="791805750949-otni0llo1fgh8iitmi4ao7jarsuoie3l.apps.googleusercontent.com">
-      <App />
+      <BrowserRouter>
+        <App/>
+      </BrowserRouter>
     </GoogleOAuthProvider>
   </StrictMode>,
 )
