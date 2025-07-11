@@ -1,6 +1,12 @@
 export const generateEmailFileCardHTML = (files) => {
   if (!files.length) return '';
 
+  function shortenName(name, maxLength = 25) {
+    const [baseName, ext] = name.split(/\.(?=[^\.]+$)/); // splits only at last dot
+    if (baseName.length <= maxLength) return name;
+    return `${baseName.slice(0, maxLength)}...${ext ? '.' + ext : ''}`;
+  }
+
   return `
     <hr style="margin:16px 0;">
     <h3 style="margin-bottom:10px;font-family:sans-serif;">
@@ -29,7 +35,7 @@ export const generateEmailFileCardHTML = (files) => {
             <img src="https://img.icons8.com/ios-filled/18/000000/document--v1.png" 
                  alt="Download" style="margin-right: 10px; flex-shrink: 0;" />
             <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-              ${file.name}
+              ${shortenName(file.name)}
             </div>
           </div>
         </a>
