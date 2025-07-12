@@ -11,11 +11,18 @@ export const useAppStore = create((set, get) => ({
     isAskingAi: false,
     isSendingEmail: false,
 
-    extractedEmails: [],
+    extractedEmails: JSON.parse(localStorage.getItem("extractedEmails")) || [],
+    selectedEmails: [],
+
     uploadedFiles:[],
     aiResponse: null,
     sendEmailReply: '',
     error: null,
+
+    setSelectedEmails: (emails) => {
+        console.log(emails)
+        set({ selectedEmails: emails });
+    },
 
     // 1. Sign In
     signin: async(formData) => {
@@ -46,7 +53,7 @@ export const useAppStore = create((set, get) => ({
             localStorage.removeItem("user");
         } catch (error) {
             set({error: error.response?.data?.message})
-            console.error("Error in logout",error)
+            console.error("Error in logout",error.response?.data?.message)
         }
     },
 
@@ -55,8 +62,9 @@ export const useAppStore = create((set, get) => ({
         set({isExtractingEmails: true})
         try {
             const res = await axiosInstance.post('/user/uploadFile', formData)
-            // console.log("data coming in upload route from axios is " , res.data?.data)
-            set({extractedEmails: res.data.data})
+            console.log("data coming in upload route from axios is " , res.data?.data)
+            set({extractedEmails: res.data.data || []})
+            localStorage.setItem("extractedEmails", JSON.stringify(res.data.data));
 
         } catch (error) {
             console.error("Error in uploading file: ", error.response?.data?.message);

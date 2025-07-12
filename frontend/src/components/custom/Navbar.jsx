@@ -36,7 +36,7 @@ function NavBar() {
 
   return (
 
-   <header className="w-full my-3 py-3 px-4 lg:px-10 rounded-md shadow-md border text-card-foreground bg-card flex justify-between items-center">
+   <header className="w-full mt-1 my-3 p-3 px-4 lg:px-10 rounded-md shadow-md border text-card-foreground bg-card flex justify-between items-center">
         {/* Left: Logo */}
         <div className="flex items-center gap-3 text-lg font-semibold tracking-tight">
             <img

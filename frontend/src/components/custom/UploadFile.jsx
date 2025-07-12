@@ -46,17 +46,20 @@ function UploadFile() {
 
   return (
     <div className="bg-card w-full rounded-md shadow-md border p-4 text-card-foreground">
-      <div className="flex flex-col justify-between items-center gap-6 ">
+      <div className="flex flex-col justify-between items-center gap-4 ">
 
-        {/* Text Left */}
+        {/* Text up */}
         <div className="w-full space-y-2">
             <div className="flex items-center gap-2">
                 <Upload className="w-6 h-6 text-foreground" />
-                <h2 className="text-2xl font-semibold text-foreground">STEP 1: Upload File</h2>
+                <h2 className="text-2xl font-semibold text-foreground">STEP 1: Upload file</h2>
+            </div>
+            <div>
+              <h4 className="mx-1 text-md text-muted-foreground">Upload a file to automatically extract emails</h4>
             </div>
         </div>
 
-        {/* File Upload Right */}
+        {/* File Upload down */}
         <div className="w-full flex justify-center">
           <input
             type="file"
@@ -67,8 +70,8 @@ function UploadFile() {
           />
           <label
             htmlFor="file-upload"
-            className={`w-full h-40 flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl px-4 py-6 bg-background text-muted-foreground cursor-pointer transition hover:border-ring
-            ${isDragging ? "border-ring bg-accent/30" : "border-input shadow-inner-md"}
+            className={`w-full h-40 flex flex-col items-center justify-center gap-2 hover:border-2 border-dashed shadow-inner-md rounded-xl px-4 py-6 bg-background text-muted-foreground cursor-pointer transition hover:border-ring
+            ${isDragging ? "border-ring bg-accent/30" : "border-input"}
             `}
 
             onDragOver={(e) => {e.preventDefault(); setIsDragging(true);}}

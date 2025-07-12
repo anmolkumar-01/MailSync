@@ -6,19 +6,23 @@ function HomePage() {
 
   return (
 
-    <div className="w-full p-2">
+    <div className="w-full p-2 ">
+
+      {/* -------- Google automatic login --------*/}
       <AutoGoogleLogin />
       
+      {/* -------- Navbar ----------- */}
       <div className="px-4 mx-auto">
         <NavBar />
       </div>
 
+
       <div className="w-full bg-background space-y-6">
         
-        <div className="flex flex-col lg:flex-row gap-6 px-4 mx-auto">
+        <div className="flex flex-col lg:flex-row gap-3 px-4 mx-auto">
 
           {/* Left Column */}
-          <div className="flex flex-col gap-6 w-full lg:w-1/2">
+          <div className="flex flex-col gap-3 w-full lg:w-1/2">
             <UploadFile />
             <SelectRecipients />
           </div>
@@ -29,7 +33,9 @@ function HomePage() {
           </div>
 
         </div>
+
       </div>
+
     </div>
   )
 }

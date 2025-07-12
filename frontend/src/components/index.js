@@ -7,6 +7,7 @@ import UploadFile from "./custom/UploadFile";
 import SelectRecipients from "./custom/SelectRecipients";
 import ComposeAndSend from "./custom/ComposeAndSend";
 import AutoGoogleLogin from "./auth/AutoGoogleLogin";
+import {ScrollArea, ScrollBar} from './ui/scroll-area'
 
 export {
     NavBar,
@@ -14,6 +15,8 @@ export {
     Button,
     Checkbox,
     Textarea,
+    ScrollArea,
+    ScrollBar,
     UploadFile,
     SelectRecipients,
     ComposeAndSend,
