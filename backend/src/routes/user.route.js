@@ -10,7 +10,7 @@ import{
 
 const router = Router()
 
-router.use(verifyJWT);
+// router.use(verifyJWT);
 
 
 router.post("/uploadFile" , upload.fields([{name: 'emailData', maxCount:1}]), uploadFile)

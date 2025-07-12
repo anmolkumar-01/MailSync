@@ -1,8 +1,34 @@
 import { Upload } from "lucide-react";
-
+import { useAppStore } from "../../store/useAppStore";
 
 function UploadFile() {
-  const handleFileChange = () => {}
+
+    let {error, uploadFile} = useAppStore()
+
+    const handleFileChange = async (e) => {
+
+        const file = e.target?.files[0];
+        if(!file){
+            error = "No file selected."
+            return;
+        }
+
+        const acceptedExtensions = ['.txt', '.pdf', '.docx', '.xls', '.xlsx', '.csv'];
+
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+
+        if (!acceptedExtensions.includes(`.${fileExtension}`)) {
+        error = "Unsupported file format. Please upload .txt, .pdf, .docx, .xls, .xlsx, or .csv";
+        return;
+        }
+
+        error = ''
+        const formData = new FormData();
+        formData.append("emailData",file);
+
+        console.log("data in files", e.target.files)
+        await uploadFile(formData);
+    }
 
   return (
     <div className="bg-card w-full rounded-md shadow-md border p-4 text-card-foreground">

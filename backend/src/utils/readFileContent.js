@@ -1,4 +1,4 @@
-// accepted formats = .txt, .pdf, .docx, .xlsx, .csv
+// accepted formats = .txt, .pdf, .docx, .xls, .xlsx, .csv
 
 import fs from 'fs';
 import path from 'path';

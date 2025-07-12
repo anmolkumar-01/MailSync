@@ -3,19 +3,18 @@ import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {User} from "../models/userSchema.js"
 import { readFileContent } from "../utils/readFileContent.js";
-import { geminiAI } from "../../services/geminiApi.js";
-import { convertToJson } from "../../services/convertToJson.js";
-import { transporter } from "../../services/mailTransporter.js";
+import { geminiAI } from "../services/geminiApi.js";
+import { convertToJson } from "../services/convertToJson.js";
+import { transporter } from "../services/mailTransporter.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import { generateEmailFileCardHTML } from "../../services/generateEmailFileCard.js";
-import fs from 'fs'
+import { generateEmailFileCardHTML } from "../services/generateEmailFileCard.js";
 
 // 1. uploading the file and extract emails
 const uploadFile = asyncHandler( async(req, res) => {
 
     // 1.  -------- Getting files
     const {emailData} = req.files;
-    // console.log("Data is here" ,emailData);
+    console.log("Data is here" ,emailData);
 
     const filePath = emailData?.[0]?.path;
     const originalName = emailData?.[0]?.originalname;
