@@ -1,17 +1,31 @@
 import { Upload } from "lucide-react";
 import { useAppStore } from "../../store/useAppStore";
+import { useState } from "react";
 
 function UploadFile() {
 
     let {error, uploadFile} = useAppStore()
+    const [isDragging, setIsDragging] = useState(false);
 
+
+    // file is dropped
+    const handleDrop = (e) => {
+      e.preventDefault();   // prevent opening file in another tab
+      setIsDragging(false);
+
+      const files = e.dataTransfer?.files;
+      // console.log("Drag and dropped file ", files);
+
+      const fileListEvent = {target:{files:files}}
+      handleFileChange(fileListEvent)
+      
+    }
+
+    // calling file upload api
     const handleFileChange = async (e) => {
 
         const file = e.target?.files[0];
-        if(!file){
-            error = "No file selected."
-            return;
-        }
+        if(!file) return;
 
         const acceptedExtensions = ['.txt', '.pdf', '.docx', '.xls', '.xlsx', '.csv'];
 
@@ -26,7 +40,7 @@ function UploadFile() {
         const formData = new FormData();
         formData.append("emailData",file);
 
-        console.log("data in files", e.target.files)
+        // console.log("File to be sent", e.target.files[0])
         await uploadFile(formData);
     }
 
@@ -49,10 +63,17 @@ function UploadFile() {
             id="file-upload"
             className="hidden"
             onChange={handleFileChange}
+            
           />
           <label
             htmlFor="file-upload"
-            className="shadow-inner-md w-full h-40 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-input rounded-xl px-4 py-6 bg-background text-muted-foreground cursor-pointer hover:border-ring transition"
+            className={`w-full h-40 flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl px-4 py-6 bg-background text-muted-foreground cursor-pointer transition hover:border-ring
+            ${isDragging ? "border-ring bg-accent/30" : "border-input shadow-inner-md"}
+            `}
+
+            onDragOver={(e) => {e.preventDefault(); setIsDragging(true);}}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
           >
             <Upload className="w-8 h-8 text-muted-foreground" />
             <p className="text-sm font-medium">Click to upload your file</p>

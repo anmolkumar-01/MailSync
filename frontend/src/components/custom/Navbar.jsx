@@ -1,10 +1,38 @@
 import { useState } from "react"
 import { Button } from ".."
+import { useAppStore } from "../../store/useAppStore";
+import { useGoogleLogin } from '@react-oauth/google';
+import { googleLogout } from '@react-oauth/google';
 
 function NavBar() {
 
-    const isLoggedIn = false;
-    const onAuthClick = () => {}
+
+    const {user, signin, logout} = useAppStore();
+
+    const manualGoogleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+                headers: {
+                    Authorization: `Bearer ${tokenResponse.access_token}`,
+                },
+            });
+
+            const userInfo = await res.json();
+            console.log("Manual login success:", userInfo);
+            signin({fullName: userInfo.name, email: userInfo.email})
+        },
+        onError: () => console.log("Manual Login failed"),
+    })
+
+    const handleAuth = () => {
+
+        if(user){
+            logout();
+            googleLogout();
+        }
+        else manualGoogleLogin();
+    }
+
 
   return (
 
@@ -21,8 +49,8 @@ function NavBar() {
 
 
         {/* Right: Auth Button */}
-        <Button  onClick={onAuthClick}>
-            {isLoggedIn ? "Logout" : "Sign in with Google"}
+        <Button  onClick={()=> handleAuth()}>
+            {user? "Logout" : "Sign in with Google"}
         </Button>
     </header>
 

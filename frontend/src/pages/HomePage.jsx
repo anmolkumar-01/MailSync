@@ -1,12 +1,13 @@
 import { ComposeAndSend, NavBar, SelectRecipients, UploadFile } from "../components"
+import {AutoGoogleLogin} from "../components"
 
 
 function HomePage() {
 
-
   return (
 
     <div className="w-full p-2">
+      <AutoGoogleLogin />
       
       <div className="px-4 mx-auto">
         <NavBar />
@@ -33,4 +34,4 @@ function HomePage() {
   )
 }
 
-export default HomePage
+export {HomePage}

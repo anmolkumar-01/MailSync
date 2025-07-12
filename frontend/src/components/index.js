@@ -1,4 +1,3 @@
-import GoogleLoginButton from "./custom/GoogleLoginButton";
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -7,9 +6,9 @@ import NavBar from "./custom/NavBar";
 import UploadFile from "./custom/UploadFile";
 import SelectRecipients from "./custom/SelectRecipients";
 import ComposeAndSend from "./custom/ComposeAndSend";
+import AutoGoogleLogin from "./auth/AutoGoogleLogin";
 
 export {
-    GoogleLoginButton,
     NavBar,
     Input,
     Button,
@@ -17,5 +16,6 @@ export {
     Textarea,
     UploadFile,
     SelectRecipients,
-    ComposeAndSend
+    ComposeAndSend,
+    AutoGoogleLogin
 }

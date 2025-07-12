@@ -1,17 +1,17 @@
 import {Routes, Route, Navigate} from 'react-router'
 import { useAppStore } from './store/useAppStore'
 
-import {HomePage, SigninPage} from './pages'
+import {HomePage} from './pages/HomePage'
 
 function App() {
 
   const { user } = useAppStore();
+  console.log("here is user" , user);
 
   return (
     <div>
       <Routes>
         <Route path='/' element={<HomePage/>}></Route>
-        <Route path='/signin' element={!user? <SigninPage/> : <Navigate to='/'/>}></Route>
       </Routes>
     </div>
   )

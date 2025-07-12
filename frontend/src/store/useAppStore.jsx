@@ -1,9 +1,10 @@
 import {create} from 'zustand'
 import {axiosInstance} from '../lib/axios'
 
+
 export const useAppStore = create((set, get) => ({
 
-    user: null,
+    user: JSON.parse(localStorage.getItem("user")) || null,
 
     isSigningIn: false,
     isExtractingEmails: false,
@@ -21,14 +22,17 @@ export const useAppStore = create((set, get) => ({
 
         set({isSigningIn : true})
         try {
-            
+            console.log("herer is the data: ", formData)
             const res = await axiosInstance.post('/auth/signin', formData)
-            // console.log("data coming in signin route from axios is " , res)
-            set({user: res.data})
+            console.log("data coming in signin route from axios is " , res.data.data)
+            set({user: res.data.data})
+
+            // saving in store
+            localStorage.setItem("user", JSON.stringify(res.data.data));
 
         } catch (error) {
             set({error: error.response?.data?.message})
-            console.error("Error in Signin : " , error)
+            console.error("Error in Signin : " , error.response?.data?.message)
         }finally{
             set({isSigningIn: false})
         }
@@ -39,6 +43,7 @@ export const useAppStore = create((set, get) => ({
         try {
             await axiosInstance.post('/auth/logout')
             set({user: null})
+            localStorage.removeItem("user");
         } catch (error) {
             set({error: error.response?.data?.message})
             console.error("Error in logout",error)
