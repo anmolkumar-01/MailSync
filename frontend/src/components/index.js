@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import NavBar from "./custom/NavBar";
+import UploadFile from "./custom/UploadFile";
+import SelectRecipients from "./custom/SelectRecipients";
+import ComposeAndSend from "./custom/ComposeAndSend";
 
 export {
     GoogleLoginButton,
@@ -12,4 +15,7 @@ export {
     Button,
     Checkbox,
     Textarea,
+    UploadFile,
+    SelectRecipients,
+    ComposeAndSend
 }
