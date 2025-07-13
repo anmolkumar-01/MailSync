@@ -1,92 +1,74 @@
-import { Upload } from "lucide-react";
-import { useAppStore } from "../../store/useAppStore";
 import { useState } from "react";
+import { UploadCloud } from "lucide-react";
+import { useAppStore } from "../../store/useAppStore";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
 
 function UploadFile() {
+  const { uploadFile, setError } = useAppStore();
+  const [isDragging, setIsDragging] = useState(false);
 
-    let {error, uploadFile} = useAppStore()
-    const [isDragging, setIsDragging] = useState(false);
+  const handleFileChange = async (e) => {
+    const file = e.target?.files?.[0];
+    if (!file) return;
 
+    const acceptedExtensions = ['.csv', '.xlsx'];
+    const fileExtension = `.${file.name.split('.').pop().toLowerCase()}`;
 
-    // file is dropped
-    const handleDrop = (e) => {
-      e.preventDefault();   // prevent opening file in another tab
-      setIsDragging(false);
-
-      const files = e.dataTransfer?.files;
-      // console.log("Drag and dropped file ", files);
-
-      const fileListEvent = {target:{files:files}}
-      handleFileChange(fileListEvent)
-      
+    if (!acceptedExtensions.includes(fileExtension)) {
+      setError("Unsupported format. Please upload .csv or .xlsx files.");
+      return;
     }
 
-    // calling file upload api
-    const handleFileChange = async (e) => {
+    setError('');
+    const formData = new FormData();
+    formData.append("emailData", file);
+    await uploadFile(formData);
+  };
 
-        const file = e.target?.files[0];
-        if(!file) return;
-
-        const acceptedExtensions = ['.txt', '.pdf', '.docx', '.xls', '.xlsx', '.csv'];
-
-        const fileExtension = file.name.split('.').pop().toLowerCase();
-
-        if (!acceptedExtensions.includes(`.${fileExtension}`)) {
-        error = "Unsupported file format. Please upload .txt, .pdf, .docx, .xls, .xlsx, or .csv";
-        return;
-        }
-
-        error = ''
-        const formData = new FormData();
-        formData.append("emailData",file);
-
-        // console.log("File to be sent", e.target.files[0])
-        await uploadFile(formData);
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const fileListEvent = { target: { files: files } };
+      handleFileChange(fileListEvent);
     }
+  };
 
   return (
-    <div className="bg-card w-full rounded-md shadow-md border p-4 text-card-foreground">
-      <div className="flex flex-col justify-between items-center gap-4 ">
-
-        {/* Text up */}
-        <div className="w-full space-y-2">
-            <div className="flex items-center gap-2">
-                <Upload className="w-6 h-6 text-foreground" />
-                <h2 className="text-2xl font-semibold text-foreground">STEP 1: Upload file</h2>
-            </div>
-            <div>
-              <h4 className="mx-1 text-md text-muted-foreground">Upload a file to automatically extract emails</h4>
-            </div>
-        </div>
-
-        {/* File Upload down */}
-        <div className="w-full flex justify-center">
-          <input
-            type="file"
-            id="file-upload"
-            className="hidden"
-            onChange={handleFileChange}
-            
-          />
-          <label
-            htmlFor="file-upload"
-            className={`w-full h-40 flex flex-col items-center justify-center gap-2 hover:border-2 border-dashed shadow-inner-md rounded-xl px-4 py-6 bg-background text-muted-foreground cursor-pointer transition hover:border-ring
-            ${isDragging ? "border-ring bg-accent/30" : "border-input"}
-            `}
-
-            onDragOver={(e) => {e.preventDefault(); setIsDragging(true);}}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={handleDrop}
-          >
-            <Upload className="w-8 h-8 text-muted-foreground" />
-            <p className="text-sm font-medium">Click to upload your file</p>
-            <p className="text-xs text-muted-foreground">Supported: .csv, .xlsx</p>
-          </label>
-        </div>
-
-      </div>
-    </div>
-  )
+    <Card className="shadow-md border-blue-100">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-3 text-xl">
+          <span className="flex items-center justify-center w-8 h-8 text-sm font-bold rounded-full bg-blue-500 text-white">1</span>
+          <span className="text-blue-900">Upload File</span>
+        </CardTitle>
+        <CardDescription className="text-gray-600">Upload a file to automatically extract emails.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <input
+          type="file"
+          id="file-upload"
+          className="hidden"
+          onChange={handleFileChange}
+          accept=".csv,.xlsx"
+        />
+        <label
+          htmlFor="file-upload"
+          className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors
+            ${isDragging ? "border-blue-500 bg-blue-50" : "border-blue-200 hover:border-blue-400 hover:bg-blue-50/80"}`}
+          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+        >
+          <UploadCloud className="w-10 h-10 text-blue-400 mb-2" />
+          <p className="text-sm font-semibold text-blue-800">
+            {isDragging ? "Drop the file here" : "Click or drag file to upload"}
+          </p>
+          <p className="text-xs text-gray-500">Supported formats: .csv, .xlsx</p>
+        </label>
+      </CardContent>
+    </Card>
+  );
 }
 
 export default UploadFile;

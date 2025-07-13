@@ -1,43 +1,37 @@
-import { ComposeAndSend, NavBar, SelectRecipients, UploadFile } from "../components"
-import {AutoGoogleLogin} from "../components"
-
+import { AutoGoogleLogin, NavBar, SelectRecipients, UploadFile, ComposeAndSend } from "../components";
+import { useAppStore } from "../store/useAppStore";
 
 function HomePage() {
+  const { user } = useAppStore();
 
   return (
-
-    <div className="w-full p-2 ">
-
-      {/* -------- Google automatic login --------*/}
+    <div className="min-h-screen bg-secondary">
       <AutoGoogleLogin />
-      
-      {/* -------- Navbar ----------- */}
-      <div className="px-4 mx-auto">
-        <NavBar />
-      </div>
+      <NavBar />
 
+      <main className="p-4 sm:p-6 lg:p-8">
+        {user ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-8 space-y-8 lg:space-y-0">
+            {/* Left Column */}
+            <div className="flex flex-col gap-8">
+              <UploadFile />
+              <SelectRecipients />
+            </div>
 
-      <div className="w-full bg-background space-y-6">
-        
-        <div className="flex flex-col lg:flex-row gap-3 px-4 mx-auto">
-
-          {/* Left Column */}
-          <div className="flex flex-col gap-3 w-full lg:w-1/2">
-            <UploadFile />
-            <SelectRecipients />
+            {/* Right Column */}
+            <div className="w-full">
+              <ComposeAndSend />
+            </div>
           </div>
-
-          {/* Right Column */}
-          <div className="w-full lg:w-1/2">
-            <ComposeAndSend />
+        ) : (
+          <div className="flex flex-col items-center justify-center text-center h-[70vh] bg-card rounded-lg border">
+              <h1 className="text-2xl font-bold tracking-tight">Welcome to MailSync</h1>
+              <p className="text-muted-foreground mt-2">Please sign in with Google to begin.</p>
           </div>
-
-        </div>
-
-      </div>
-
+        )}
+      </main>
     </div>
-  )
+  );
 }
 
-export {HomePage}
+export { HomePage };

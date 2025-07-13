@@ -9,7 +9,7 @@ function App() {
   console.log("here is user" , user);
 
   return (
-    <div className='h-screen overflow-hidden'>
+    <div className='h-screen '>
       <Routes>
         <Route path='/' element={<HomePage/>}></Route>
       </Routes>

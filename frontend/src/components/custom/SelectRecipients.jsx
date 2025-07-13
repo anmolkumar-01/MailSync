@@ -1,97 +1,114 @@
 import { useState } from "react";
-import { Checkbox, ScrollArea } from "..";
 import { useAppStore } from "../../store/useAppStore";
-import { SquareCheck } from "lucide-react";
+import { Checkbox } from "../ui/checkbox";
+import { ScrollArea } from "../ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
+import { Input } from "../ui/input";
+import { Search, UserCircle2 } from "lucide-react";
 
 const SelectRecipients = () => {
-  const { extractedEmails,selectedEmails, setSelectedEmails } = useAppStore();
+  const { extractedEmails, selectedEmails, setSelectedEmails } = useAppStore();
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const allSelected = selectedEmails.length === extractedEmails.length;
+  const filteredEmails = extractedEmails.filter((email) =>
+    email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const allFilteredSelected =
+    filteredEmails.length > 0 &&
+    filteredEmails.every((email) => selectedEmails.includes(email));
 
   const toggleEmail = (email) => {
-    if (selectedEmails.includes(email)) 
-      setSelectedEmails(selectedEmails.filter((e) => e !== email));
-    
-    else 
-      setSelectedEmails([...selectedEmails, email]);
-    
+    setSelectedEmails(
+      selectedEmails.includes(email)
+        ? selectedEmails.filter((e) => e !== email)
+        : [...selectedEmails, email]
+    );
   };
 
-  const toggleSelectAll = () => {
-    if (allSelected) {
-      setSelectedEmails([]);
+  const toggleSelectAllFiltered = () => {
+    if (allFilteredSelected) {
+      setSelectedEmails(selectedEmails.filter(email => !filteredEmails.includes(email)));
     } else {
-      setSelectedEmails([...extractedEmails]);
+      setSelectedEmails([...new Set([...selectedEmails, ...filteredEmails])]);
     }
   };
 
   return (
-    <div className="bg-card w-full rounded-md shadow-md border p-4 text-card-foreground flex flex-col gap-3">
-
-      {/* -------- Text field ------------- */}
-      <div className="w-full space-y-2">
-          <div className="flex items-center gap-2">
-              <SquareCheck className="w-6 h-6 text-foreground" />
-              <h2 className="text-2xl font-semibold text-foreground">Step 2: Select emails</h2>
+    <Card className="shadow-md border-blue-100">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-3 text-xl">
+          <span className="flex items-center justify-center w-8 h-8 text-sm font-bold rounded-full bg-blue-500 text-white">2</span>
+          <span className="text-blue-900">Select Emails</span>
+        </CardTitle>
+        <CardDescription className="text-gray-600">Choose the recipients for your email campaign.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {extractedEmails.length > 0 && (
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search recipients..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 w-full border-blue-200 focus:border-blue-500"
+            />
           </div>
-          <div>
-            <h4 className="mx-1 text-md text-muted-foreground">Select the mails you want to send email to</h4>
-          </div>
-      </div>
-
-      {/* --------Email selection box --------*/}
-
-      <div className=" flex flex-col w-full border-1 rounded-xl p-2 shadow-inner-md bg-background ">
-
-    {extractedEmails.length > 0 ? (
-      <>
-
-        {/* Sticky Select All */}
-        <div className="sticky top-0 z-10 bg-card rounded-md border-b p-2 flex items-center gap-3">
-          <Checkbox
-            className ='cursor-pointer'
-            checked={allSelected}
-            onCheckedChange={toggleSelectAll}
-          />
-          <span className="font-medium">Select All</span>
-        </div>
-
-        {/* Scrollable list of emails */}
-        <ScrollArea className="max-h-[14.25rem] overflow-auto">
-          <div className="space-y-2 py-2">
-            
-            {/* Each element */}
-            {extractedEmails.map((email, index) => (
-              <div
-                key={index}
-                className="flex bg-card items-center gap-3 p-2 border rounded-md shadow-sm"
-              >
-                <Checkbox
-                  className ='cursor-pointer'
-                  checked={selectedEmails.includes(email)}
-                  onCheckedChange={() => toggleEmail(email)}
-                />
-                <span className="text-sm">{email}</span>
+        )}
+        <div className="border rounded-lg bg-white border-blue-100">
+          {extractedEmails.length > 0 ? (
+            <>
+              <div className="p-3 border-b border-blue-100 bg-blue-50/50 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id="select-all"
+                    checked={allFilteredSelected}
+                    onCheckedChange={toggleSelectAllFiltered}
+                    disabled={filteredEmails.length === 0}
+                  />
+                  <label htmlFor="select-all" className="text-sm font-medium text-blue-800 leading-none cursor-pointer">
+                    Select All {filteredEmails.length > 0 ? `(${filteredEmails.length})` : ''}
+                  </label>
+                </div>
+                <div className="text-xs font-semibold text-blue-600">
+                  {selectedEmails.length} / {extractedEmails.length} selected
+                </div>
               </div>
-            ))}
-
-          </div>
-        </ScrollArea>
-
-      </>
-    ) : (
-      // no emails are found
-      <div className="flex items-center justify-center">
-        <p className="text-sm text-muted-foreground p-4 text-center">
-          No emails available.
-        </p>
-      </div>
-    )}
-
-
-      </div>
-
-    </div>
+              <ScrollArea className="h-64">
+                <div className="p-1">
+                  {filteredEmails.length > 0 ? (
+                    filteredEmails.map((email, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 p-2.5 rounded-md hover:bg-blue-50/80 transition-colors"
+                      >
+                        <Checkbox
+                          id={`email-${index}`}
+                          checked={selectedEmails.includes(email)}
+                          onCheckedChange={() => toggleEmail(email)}
+                        />
+                        <UserCircle2 className="h-6 w-6 text-blue-300" />
+                        <label htmlFor={`email-${index}`} className="text-sm font-mono text-gray-600 cursor-pointer flex-1">
+                          {email}
+                        </label>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex items-center justify-center h-40 text-sm text-gray-500">
+                      <p>No emails match your search.</p>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-72 text-sm text-gray-500">
+              <p>Upload a file to see extracted emails here.</p>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
