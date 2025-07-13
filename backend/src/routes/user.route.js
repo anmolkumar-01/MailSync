@@ -10,12 +10,10 @@ import{
 
 const router = Router()
 
-// router.use(verifyJWT);
-
 
 router.post("/uploadFile" , upload.fields([{name: 'emailData', maxCount:1}]), uploadFile)
 router.post("/askAI" , askAI)
-router.post("/send", upload.array('fileData'), send)
+router.post("/send",verifyJWT, upload.array('fileData'), send)
 
 
 export default router

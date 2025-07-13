@@ -47,7 +47,7 @@ const SelectRecipients = () => {
       <>
 
         {/* Sticky Select All */}
-        <div className="sticky top-0 z-10 bg-card rounded-md border-b px-4 py-2 flex items-center gap-3">
+        <div className="sticky top-0 z-10 bg-card rounded-md border-b p-2 flex items-center gap-3">
           <Checkbox
             className ='cursor-pointer'
             checked={allSelected}

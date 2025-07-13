@@ -92,6 +92,7 @@ const send = asyncHandler( async(req, res) => {
 
     const {emails, subject, body} = req.body
     const currentUser = req.user;
+    console.log(currentUser)
 
     if([subject, body].some((field)=> !field.trim())){
         throw new ApiError(400, 'All fields are required');
