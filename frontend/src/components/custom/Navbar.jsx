@@ -1,53 +1,119 @@
-import { useGoogleLogin, googleLogout } from '@react-oauth/google';
+import { googleLogout, useGoogleLogin } from '@react-oauth/google';
+import { LogIn, LogOut, Mail, ChevronDown } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { Button } from '../ui/button';
-import { LogIn, LogOut, Mail } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 
-function NavBar() {
+const NavBar = () => {
   const { user, signin, logout } = useAppStore();
 
-  const manualGoogleLogin = useGoogleLogin({
+  const handleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-          headers: {
-            Authorization: `Bearer ${tokenResponse.access_token}`,
-          },
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         });
         const userInfo = await res.json();
-        signin({ fullName: userInfo.name, email: userInfo.email });
+        signin({ fullName: userInfo.name, email: userInfo.email, picture: userInfo.picture });
+
+        // console.log("user info in manual login: ", userInfo)
       } catch (error) {
-        console.error("Manual Login failed:", error);
+        console.error("Login failed:", error);
       }
     },
-    onError: () => console.log("Manual Login failed"),
+    onError: () => console.log("Login failed"),
   });
 
-  const handleAuth = () => {
-    if (user) {
-      logout();
-      googleLogout();
-    } else {
-      manualGoogleLogin();
-    }
+  const handleLogout = () => {
+    googleLogout();
+    logout();
+  };
+  
+  const getInitials = (name = '') => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .slice(0, 1)
+      .join('')
+      .toUpperCase();
   };
 
   return (
-    <header className="flex items-center justify-between p-4 px-6 border-b bg-blue-50/50">
+    // Header styled with the explicit blue theme
+    <header className="flex items-center justify-between p-4 px-6 border-b bg-blue-50/50 border-blue-200">
+      
+      {/* --------- Logo ---------- */}
       <div className="flex items-center gap-3 text-xl font-semibold text-blue-900">
         <div className="p-2 bg-blue-500 rounded-lg">
            <Mail className="w-5 h-5 text-white" />
         </div>
         <span>MailSync</span>
       </div>
+
       <div className="flex items-center gap-4">
-        {user && <span className="text-sm text-gray-600 hidden sm:inline">Welcome, {user.fullName}</span>}
-        <Button onClick={handleAuth} variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-700">
-          {user ? <><LogOut className="mr-2 h-4 w-4" /> Logout</> : <><LogIn className="mr-2 h-4 w-4" /> Sign In</>}
-        </Button>
+
+        {user ? (
+          // --- avatar with dropdown ---
+          <DropdownMenu>
+
+            {/* -------- Avatar */}
+            <DropdownMenuTrigger asChild>
+
+              <Button variant="ghost" className="flex items-center gap-2 px-2 py-1 h-auto rounded-full hover:bg-blue-100/80">  
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user.picture} alt={user.fullName} />
+
+                  {/* -------- if image is not present */}
+                  <AvatarFallback className="bg-blue-200 text-blue-800 font-bold">
+                    {getInitials(user.fullName)}
+                  </AvatarFallback>
+                  
+                </Avatar>
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              </Button>
+
+            </DropdownMenuTrigger>
+            
+            {/* ---- Dropdown  , todo : add switch account button*/}
+            <DropdownMenuContent align="end" className="w-56 border-blue-200">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none text-blue-900">{user.fullName}</p>
+                  <p className="text-xs leading-none text-gray-500">{user.email}</p>
+                </div>
+              </DropdownMenuLabel>
+              
+              <DropdownMenuSeparator className="bg-blue-100" />
+              
+              <DropdownMenuItem 
+                onClick={handleLogout} 
+                className="cursor-pointer text-blue-800 focus:bg-blue-100 focus:text-blue-900"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Logout</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+        ) : (
+          // --- Manual signin button ---
+          <Button onClick={() => handleLogin()} variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-700">
+            <LogIn className="mr-2 h-4 w-4" /> 
+            Sign In
+          </Button>
+
+        )}
       </div>
     </header>
   );
-}
+};
 
 export default NavBar;

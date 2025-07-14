@@ -8,6 +8,8 @@ import SelectRecipients from "./custom/SelectRecipients";
 import ComposeAndSend from "./custom/ComposeAndSend";
 import AutoGoogleLogin from "./auth/AutoGoogleLogin";
 import {ScrollArea, ScrollBar} from './ui/scroll-area'
+import Notification from "./custom/Notification";
+import NotificationContainer from "./custom/NotificationContainer";
 
 export {
     NavBar,
@@ -20,5 +22,7 @@ export {
     UploadFile,
     SelectRecipients,
     ComposeAndSend,
-    AutoGoogleLogin
+    AutoGoogleLogin,
+    Notification,
+    NotificationContainer
 }

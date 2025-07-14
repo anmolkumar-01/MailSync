@@ -19,10 +19,7 @@ export const useAppStore = create((set, get) => ({
     sendEmailReply: '',
     error: null,
 
-    setSelectedEmails: (emails) => {
-        console.log(emails)
-        set({ selectedEmails: emails });
-    },
+    notifications: [],
 
     // 1. Sign In
     signin: async(formData) => {
@@ -37,8 +34,10 @@ export const useAppStore = create((set, get) => ({
             // saving in store
             localStorage.setItem("user", JSON.stringify(res.data.data));
 
+            get().triggerNotification("You have successfully signed in", "success")
+
         } catch (error) {
-            set({error: error.response?.data?.message})
+            get().triggerNotification("Error in signing in", "error");
             console.error("Error in Signin : " , error.response?.data?.message)
         }finally{
             set({isSigningIn: false})
@@ -51,8 +50,11 @@ export const useAppStore = create((set, get) => ({
             await axiosInstance.post('/auth/logout')
             set({user: null})
             localStorage.removeItem("user");
+
+            get().triggerNotification("You have successfully signed out", "success")
+
         } catch (error) {
-            set({error: error.response?.data?.message})
+            get().triggerNotification("Error in signing in", "error")
             console.error("Error in logout",error.response?.data?.message)
         }
     },
@@ -68,7 +70,7 @@ export const useAppStore = create((set, get) => ({
 
         } catch (error) {
             console.error("Error in uploading file: ", error.response?.data?.message);
-            set({error: error.response?.data?.message})
+            get().triggerNotification("Error in uploading file", "error")
         }finally{
             set({isExtractingEmails: false})
         }
@@ -106,5 +108,33 @@ export const useAppStore = create((set, get) => ({
         }
     },
 
+
+    // ----------- frontend related functions ----------------
+
+    // 1. Show the Notification
+    triggerNotification: (message, status = 'success') => {
+        const newNotification = {
+            id: Date.now(), 
+            message,
+            status,
+        };
+
+        set((state) => ({
+        notifications: [...state.notifications, newNotification],
+        }));
+    },
+
+    // 2. Close the notification : automatically called by notificaion jsx
+    closeNotification: (id) => {
+        set((state) => ({
+            notifications: state.notifications.filter((n) => n.id !== id),
+        }));
+    },
+
+    // 3. Set the emails user mark as selected 
+    setSelectedEmails: (emails) => {
+        console.log(emails)
+        set({ selectedEmails: emails });
+    },
 
 }))

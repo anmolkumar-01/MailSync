@@ -16,11 +16,11 @@ const AutoGoogleLogin = () => {
       callback: (res) => {
         
         const decoded = jwtDecode(res.credential);
-        console.log("Auto login success:", decoded);
+        // console.log("Auto login success:", decoded);
 
-        signin({fullName: decoded.name, email: decoded.email})
-        // return decoded;
-        // TODO: Save to localStorage or redirect if needed
+        // signin backend
+        signin({fullName: decoded.name, email: decoded.email, picture: decoded.picture})
+        
       },
       auto_select: true,
       cancel_on_tap_outside: false,
