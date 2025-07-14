@@ -183,3 +183,20 @@
   color: var(--muted-foreground);
   font-style: normal;
 }
+
+@layer utilities {
+  @keyframes sparkle {
+    0%, 100% {
+      opacity: 0.75;
+      transform: scale(0.95);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+
+  .animate-sparkle {
+    animation: sparkle 2s ease-in-out infinite;
+  }
+}

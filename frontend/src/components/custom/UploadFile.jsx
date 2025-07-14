@@ -84,7 +84,7 @@ function UploadFile() {
           onDrop={handleDrop}
         >
           <UploadCloud className="w-10 h-10 text-blue-400 mb-2" />
-          <p className="text-sm font-semibold text-blue-800">
+          <p className="text-sm font-semibold text-blue-700">
             {isDragging ? "Drop the file here" : "Click or drag file to upload"}
           </p>
           <p className="text-xs text-gray-500">Supported formats: .txt, .pdf, .docx, .xls, .xlsx, .csv</p>

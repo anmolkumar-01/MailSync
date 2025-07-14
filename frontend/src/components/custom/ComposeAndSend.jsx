@@ -1,13 +1,14 @@
 import { useState } from "react";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { X, Paperclip, Send, Sparkles, FileText } from "lucide-react";
+import { X, Paperclip, Send, Sparkles, FileText,LoaderCircle } from "lucide-react";
 import { useAppStore } from "../../store/useAppStore";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "../ui/dialog";
 import { Textarea } from "../ui/textarea";
+import EmailSkeleton from "../skeletons/EmailSkeleton";
 
 const ComposeAndSend = () => {
   const { selectedEmails } = useAppStore();
@@ -22,16 +23,12 @@ const ComposeAndSend = () => {
 
   const handleGenerateWithAI = async () => {
     
-    try {
-      await askAI(aiPrompt);
-      setSubject(aiResponse.subject)
-      setBody(aiResponse.body);
-      setIsAiModalOpen(false);
+    // if cause error then wrap it in try catch
+      const newEmail = await askAI(aiPrompt);
+      setSubject(newEmail.subject)
+      setBody(newEmail.body);
 
-    } catch (error) {
-      console.error("coming error is " , error)
-      triggerNotification(error.response?.data?.message, "error")
-    }
+      setIsAiModalOpen(false);
 
   };
 
@@ -82,7 +79,7 @@ const ComposeAndSend = () => {
 
   return (
     <>
-      <Card className="h-full flex flex-col shadow-md border-blue-100">
+      <Card className="h-full flex flex-col shadow-md border-blue-100 pb-3">
 
         {/* ----------- Top Text --------- */}
         <CardHeader>
@@ -96,47 +93,71 @@ const ComposeAndSend = () => {
 
         <CardContent className="flex-grow flex flex-col gap-4">
           
-          {/* ------------ Ask AI button */}
+          {/* ------------ Ask AI button --------------*/}
           <div className="space-y-1">
-          <Button
-          size="sm"
-          onClick={() => setIsAiModalOpen(true)}
-          className="bg-gradient-to-r from-blue-900 via-indigo-700 to-purple-900 text-white hover:from-blue-800 hover:via-indigo-600 hover:to-purple-800 border-0 hover:shadow-lg transition-all duration-300 rounded-full"
-        >
-          <Sparkles className="mr-2 h-4 w-4 text-white" />
-          Generate with AI
-        </Button>
-          </div>
-
-          {/* -------------- subject */}
-          <div className="space-y-1">
-            <label htmlFor="subject" className="text-sm font-medium text-blue-900">Subject</label>
-            <Input id="subject" placeholder="Your email subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="border-blue-200"/>
-          </div>
-
-          {/* ----------- Text Editor */}
-          <div className="space-y-1 flex-grow flex flex-col">
-            <label className="text-sm font-medium text-blue-900">Body</label>
-            
-            {/* Quill text editor The wrapper div is the key change for robust styling */}
-            <div className="quill-container-wrapper flex-grow h-[250px] rounded-md border border-blue-200 bg-white"
-            spellCheck="false">
-
-              <ReactQuill
-                theme="snow"
-                value={body}
-                onChange={(value) => setBody(value)}
-                modules={quillModules}
-                placeholder="Write your email content here..."
-                style={{ height: 'calc(100% - 42px)' }} // Adjust height to fit within the wrapper
-              />
+            <Button
+              size="sm"
+              onClick={() => setIsAiModalOpen(true)}
+              disabled={isAskingAi}
+              className="bg-gradient-to-r from-blue-900 via-indigo-700 to-purple-900 text-white hover:from-blue-800 hover:via-indigo-600 hover:to-purple-800 border-0 hover:shadow-lg transition-all duration-300 rounded-full w-[150px]"
+            >
               
-            </div>
+              {/* ask ai call -> show button generating.... */}
+              {isAskingAi ? (
+                
+                <div className="flex items-center justify-center">
+                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </div>
+              ) : (
+                
+                <div className="flex items-center justify-center">
+                  <Sparkles className="mr-2 h-4 w-4 animate-sparkle" />
+                  Generate with AI
+                </div>
+              )}
+            </Button>
+
+
           </div>
+
+            {/* ----------- email subject and body with text editor */}
+            {isAskingAi? (
+              <EmailSkeleton />
+            ):(
+              <>
+                {/* -------------- subject --------- */}
+                <div className="space-y-1">
+                  <label htmlFor="subject" className="text-sm font-medium text-blue-900">Subject</label>
+                  <Input id="subject" placeholder="Your email subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="border-blue-200"/>
+                </div>
+
+                {/* ----------- Text Editor ---------*/}
+                <div className="space-y-1 flex-grow flex flex-col">
+                  <label className="text-sm font-medium text-blue-900">Body</label>
+                  
+                  {/* Quill text editor The wrapper div is the key change for robust styling */}
+                  <div className="quill-container-wrapper flex-grow h-[250px] rounded-md border border-blue-200 bg-white"
+                  spellCheck="false">
+
+                    <ReactQuill
+                      theme="snow"
+                      value={body}
+                      onChange={(value) => setBody(value)}
+                      modules={quillModules}
+                      placeholder="Write your email content here..."
+                      style={{ height: 'calc(100% - 42px)' }} // Adjust height to fit within the wrapper
+                    />
+                    
+                  </div>
+                </div>
+              </>
+            )}
+
         </CardContent>
 
         {/*-------------- Footer  -------------- */}
-        <CardFooter className="flex justify-between items-center border-t border-blue-100 pt-4">
+        <CardFooter className="flex justify-between items-center border-t border-blue-100 [.border-t]:pt-3">
           
           {/*-------------- Paper clip icon */}          
           <div className="flex items-center gap-2">
@@ -180,11 +201,11 @@ const ComposeAndSend = () => {
         </CardFooter>
       </Card>
 
-      {/* ask AI to write Modal */}
+      {/* ---------Give ai prompt Modal ---------*/}
       <Dialog open={isAiModalOpen } onOpenChange={setIsAiModalOpen} >
         <DialogContent>
           
-          {/* Headings  */}
+          {/* -------- Headings  */}
           <DialogHeader>
             <DialogTitle className="bg-gradient-to-r from-blue-900 via-purple-900 to-purple-900 bg-clip-text text-transparent font-semibold">Generate Email with AI</DialogTitle>
             <DialogDescription>
@@ -192,7 +213,7 @@ const ComposeAndSend = () => {
             </DialogDescription>
           </DialogHeader>
 
-          {/* Text block */}
+          {/*-------- Text block */}
           <div className="py-4">
             <Textarea
               placeholder="e.g., A welcome email for new subscribers..."
@@ -202,16 +223,37 @@ const ComposeAndSend = () => {
               spellCheck="false"
             />
           </div>
-
+          
+          {/* -------- Buttons */}
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">Cancel</Button>
             </DialogClose>
 
-            <Button onClick={handleGenerateWithAI} className="bg-gradient-to-r from-blue-900 via-indigo-700 to-purple-900 text-white hover:from-blue-800 hover:via-indigo-600 hover:to-purple-800 border-0 hover:shadow-lg transition-all duration-300 rounded-full">
-               <Sparkles className="mr-2 h-4 w-4" />
-              Generate
+            {/* genrating button */}
+            <Button 
+              size="sm"
+              onClick={handleGenerateWithAI} 
+              disabled={isAskingAi}
+              className="bg-gradient-to-r from-blue-900 via-indigo-700 to-purple-900 text-white hover:from-blue-800 hover:via-indigo-600 hover:to-purple-800 border-0 hover:shadow-lg transition-all duration-300 rounded-full w-[150px]"
+            >
+              
+              {/* ask ai call -> show button generating.... */}
+              {isAskingAi ? (
+                
+                <div className="flex items-center justify-center">
+                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </div>
+              ) : (
+                
+                <div className="flex items-center justify-center">
+                  <Sparkles className="mr-2 h-4 w-4 animate-sparkle" />
+                  Generate
+                </div>
+              )}
             </Button>
+
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -10,6 +10,7 @@ import AutoGoogleLogin from "./auth/AutoGoogleLogin";
 import {ScrollArea, ScrollBar} from './ui/scroll-area'
 import Notification from "./custom/Notification";
 import NotificationContainer from "./custom/NotificationContainer";
+import EmailSkeleton from "./skeletons/EmailSkeleton";
 
 export {
     NavBar,
@@ -25,4 +26,5 @@ export {
     AutoGoogleLogin,
     Notification,
     NotificationContainer,
+    EmailSkeleton
 }

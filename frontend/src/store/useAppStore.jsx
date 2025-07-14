@@ -37,7 +37,7 @@ export const useAppStore = create((set, get) => ({
             get().triggerNotification("You have successfully signed in", "success")
 
         } catch (error) {
-            get().triggerNotification("Error in signing in", "error");
+            get().triggerNotification(error.response?.data?.message || "An unknown error occurred", "error");
             console.error("Error in Signin : " , error.response?.data?.message)
         }finally{
             set({isSigningIn: false})
@@ -54,7 +54,7 @@ export const useAppStore = create((set, get) => ({
             get().triggerNotification("You have successfully signed out", "success")
 
         } catch (error) {
-            get().triggerNotification("Error in signing in", "error")
+            get().triggerNotification(error.response?.data?.message || "An unknown error occurred", "error")
             console.error("Error in logout",error.response?.data?.message)
         }
     },
@@ -89,10 +89,18 @@ export const useAppStore = create((set, get) => ({
             console.log("query in ask ai ", query);
             const res = await axiosInstance.post('/user/askAI', {query})
             console.log("data coming in askAI route from axios is " , res.data?.data)
-            set({aiResponse: res.data?.data})
+
+            const newResponseData = {
+                subject: res.data.data.subject,
+                body: res.data.data.body,
+            };
+            
+            get().triggerNotification("Your draft email has been successfully generated", "success")
+            set({aiResponse: newResponseData})
+            return newResponseData;
 
         } catch (error) {
-            get().triggerNotification(error.response?.data?.message, "error")
+            get().triggerNotification(error.response?.data?.message || "An unknown error occurred", "error")
             console.error("Error in uploading file: ", error);
         }finally{
             set({isAskingAi: false})

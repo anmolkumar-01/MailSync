@@ -12,8 +12,9 @@ const SelectRecipients = () => {
 
   console.log("Selected emails are : ", selectedEmails);
   
+  // filtered =  searched emails if serached else all extracted ones
   const filteredEmails = extractedEmails.filter((email) =>
-    email.toLowerCase().includes(searchTerm.toLowerCase())
+    email.toLowerCase().includes(searchTerm.trim().toLowerCase())
   );
 
   const allFilteredSelected =
@@ -48,6 +49,7 @@ const SelectRecipients = () => {
       
       <CardContent>
         {extractedEmails.length > 0 && (
+
           <div className="relative mb-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
@@ -57,6 +59,7 @@ const SelectRecipients = () => {
               className="pl-9 w-full border-blue-200 focus:border-blue-500"
             />
           </div>
+
         )}
 
         <div className=" border rounded-lg bg-white border-blue-100">
@@ -85,6 +88,7 @@ const SelectRecipients = () => {
                 </div>
               </div>
 
+              {/* -------- show filtered( searched something ? searched emails : all extracted emails) emails--------- */}
               <ScrollArea className="h-46">
                 <div className="p-1">
                   {filteredEmails.length > 0 ? (
