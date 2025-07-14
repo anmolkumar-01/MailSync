@@ -64,13 +64,19 @@ export const useAppStore = create((set, get) => ({
         set({isExtractingEmails: true})
         try {
             const res = await axiosInstance.post('/user/uploadFile', formData)
-            console.log("data coming in upload route from axios is " , res.data?.data)
-            set({extractedEmails: res.data.data || []})
-            localStorage.setItem("extractedEmails", JSON.stringify(res.data.data));
+            // console.log("data coming in upload route from backend is " , res.data?.data)
+            const emails = res.data?.data || [];
+
+            set({extractedEmails: emails})
+
+            localStorage.setItem("extractedEmails",JSON.stringify(get().extractedEmails));
+            
+            const message = emails.length === 0 ? "No email addresses found" : `${emails.length} email ${emails.length === 1 ? "address" : "addresses"} found`;
+            get().triggerNotification(`${message}`, "notify")
 
         } catch (error) {
-            console.error("Error in uploading file: ", error.response?.data?.message);
-            get().triggerNotification("Error in uploading file", "error")
+            console.error("Error in uploading file: ", error);
+            get().triggerNotification("Unable to upload the file. Please try again", "error")
         }finally{
             set({isExtractingEmails: false})
         }
@@ -80,12 +86,13 @@ export const useAppStore = create((set, get) => ({
     askAI: async(query) => {
         set({isAskingAi: true})
         try {
-            const res = await axiosInstance.post('/user/askAI', query)
-            // console.log("data coming in askAI route from axios is " , res)
-            set({aiResponse: res.data})
+            console.log("query in ask ai ", query);
+            const res = await axiosInstance.post('/user/askAI', {query})
+            console.log("data coming in askAI route from axios is " , res.data?.data)
+            set({aiResponse: res.data?.data})
 
         } catch (error) {
-            set({error: error.response?.data?.message})
+            get().triggerNotification(error.response?.data?.message, "error")
             console.error("Error in uploading file: ", error);
         }finally{
             set({isAskingAi: false})
@@ -102,7 +109,7 @@ export const useAppStore = create((set, get) => ({
 
         } catch (error) {
             set({error: error.response?.data?.message})
-            console.error("Error in uploading file: ", error);
+            console.error(error.response?.data?.message, error);
         }finally{
             set({isSendingEmail: false})
         }

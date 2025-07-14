@@ -10,12 +10,12 @@ function HomePage() {
         <AutoGoogleLogin />
         <NavBar />
 
-        <main className="p-4 sm:p-6 lg:p-8">
+        <main className="p-4 sm:p-6 lg:p-4">
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-8 space-y-8 lg:space-y-0">
+            <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-4 space-y-8 lg:space-y-0">
               
               {/* Left Column */}
-              <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-4">
                 <UploadFile />
                 <SelectRecipients />
               </div>

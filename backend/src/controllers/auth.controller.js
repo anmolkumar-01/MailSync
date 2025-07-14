@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken'
 // 1. Signup or login => sign in
 const signin = asyncHandler( async(req,res) => {
 
-    const {email, fullName} = req.body;
+    const {email, fullName, picture} = req.body;
     // console.log("Data coming in signup call : " , req.body)
 
     if(!email.trim() || !fullName.trim()){
@@ -19,7 +19,7 @@ const signin = asyncHandler( async(req,res) => {
     // if user doesn't exist create one
     if(!user){
 
-        user = await User.create({email, fullName})
+        user = await User.create({email, fullName, picture})
     }
 
     if(!user){

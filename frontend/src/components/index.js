@@ -24,5 +24,5 @@ export {
     ComposeAndSend,
     AutoGoogleLogin,
     Notification,
-    NotificationContainer
+    NotificationContainer,
 }

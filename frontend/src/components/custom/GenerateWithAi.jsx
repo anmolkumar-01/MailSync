@@ -29,7 +29,7 @@ const ComposeAndSend = () => {
       setIsAiModalOpen(false);
 
     } catch (error) {
-      console.error("coming error is " , error)
+      console.log(error.response)
       triggerNotification(error.response?.data?.message, "error")
     }
 

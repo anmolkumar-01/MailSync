@@ -10,6 +10,8 @@ const SelectRecipients = () => {
   const { extractedEmails, selectedEmails, setSelectedEmails } = useAppStore();
   const [searchTerm, setSearchTerm] = useState("");
 
+  console.log("Selected emails are : ", selectedEmails);
+  
   const filteredEmails = extractedEmails.filter((email) =>
     email.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -35,17 +37,18 @@ const SelectRecipients = () => {
   };
 
   return (
-    <Card className="shadow-md border-blue-100">
+    <Card className="shadow-md border-blue-100 gap-3">
       <CardHeader>
         <CardTitle className="flex items-center gap-3 text-xl">
           <span className="flex items-center justify-center w-8 h-8 text-sm font-bold rounded-full bg-blue-500 text-white">2</span>
-          <span className="text-blue-900">Select Emails</span>
+          <span className="text-blue-900">Select Recipients</span>
         </CardTitle>
-        <CardDescription className="text-gray-600">Choose the recipients for your email campaign.</CardDescription>
+        <CardDescription className="text-gray-600">Select the users you wish to email</CardDescription>
       </CardHeader>
+      
       <CardContent>
         {extractedEmails.length > 0 && (
-          <div className="relative mb-4">
+          <div className="relative mb-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search recipients..."
@@ -55,44 +58,55 @@ const SelectRecipients = () => {
             />
           </div>
         )}
-        <div className="border rounded-lg bg-white border-blue-100">
+
+        <div className=" border rounded-lg bg-white border-blue-100">
           {extractedEmails.length > 0 ? (
             <>
+              {/* --------- Select all -----------*/}
               <div className="p-3 border-b border-blue-100 bg-blue-50/50 flex items-center justify-between gap-3">
+                
+                {/* checkbox */}
                 <div className="flex items-center gap-3">
                   <Checkbox
                     id="select-all"
                     checked={allFilteredSelected}
                     onCheckedChange={toggleSelectAllFiltered}
                     disabled={filteredEmails.length === 0}
+                    className="data-[state=checked]:bg-blue-500 data-[state=checked]:text-white data-[state=checked]:border-blue-500"
                   />
                   <label htmlFor="select-all" className="text-sm font-medium text-blue-800 leading-none cursor-pointer">
                     Select All {filteredEmails.length > 0 ? `(${filteredEmails.length})` : ''}
                   </label>
                 </div>
+
+                {/* number of selected */}
                 <div className="text-xs font-semibold text-blue-600">
                   {selectedEmails.length} / {extractedEmails.length} selected
                 </div>
               </div>
-              <ScrollArea className="h-64">
+
+              <ScrollArea className="h-46">
                 <div className="p-1">
                   {filteredEmails.length > 0 ? (
                     filteredEmails.map((email, index) => (
+                      
                       <div
                         key={index}
                         className="flex items-center gap-3 p-2.5 rounded-md hover:bg-blue-50/80 transition-colors"
                       >
-                        <Checkbox
-                          id={`email-${index}`}
-                          checked={selectedEmails.includes(email)}
-                          onCheckedChange={() => toggleEmail(email)}
-                        />
+                      <Checkbox
+                        id={`email-${index}`}
+                        checked={selectedEmails.includes(email)}
+                        onCheckedChange={() => toggleEmail(email)}
+                        className="data-[state=checked]:bg-blue-500 data-[state=checked]:text-white data-[state=checked]:border-blue-500"
+                      />
                         <UserCircle2 className="h-6 w-6 text-blue-300" />
                         <label htmlFor={`email-${index}`} className="text-sm font-mono text-gray-600 cursor-pointer flex-1">
                           {email}
                         </label>
                       </div>
-                    ))
+                    
+                  ))
                   ) : (
                     <div className="flex items-center justify-center h-40 text-sm text-gray-500">
                       <p>No emails match your search.</p>
@@ -100,14 +114,17 @@ const SelectRecipients = () => {
                   )}
                 </div>
               </ScrollArea>
+
             </>
           ) : (
-            <div className="flex items-center justify-center h-72 text-sm text-gray-500">
+            <div className="flex items-center justify-center h-67 text-sm text-gray-500">
               <p>Upload a file to see extracted emails here.</p>
             </div>
           )}
         </div>
+
       </CardContent>
+
     </Card>
   );
 };

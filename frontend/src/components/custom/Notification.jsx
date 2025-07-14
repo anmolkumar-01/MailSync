@@ -14,7 +14,8 @@ const Notification = ({ notification }) => {
 
     // setting icons and col on success/error
     const config = {
-        success: { icon: <CheckCircle2 className="h-6 w-6 text-blue-500" />, barColor: 'bg-blue-500' },
+        success: { icon: <CheckCircle2 className="h-6 w-6 text-green-500" />, barColor: 'bg-green-500' },
+        notify: { icon: <CheckCircle2 className="h-6 w-6 text-blue-500" />, barColor: 'bg-blue-500'},
         error: { icon: <XCircle className="h-6 w-6 text-red-500" />, barColor: 'bg-red-500' },
     };
     const { icon, barColor } = config[status];

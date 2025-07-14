@@ -8,6 +8,7 @@ import { convertToJson } from "../services/convertToJson.js";
 import { transporter } from "../services/mailTransporter.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { generateEmailFileCardHTML } from "../services/generateEmailFileCard.js";
+import { systemPrompt } from "../constants/systemPrompt.js";
 
 // 1. uploading the file and extract emails
 const uploadFile = asyncHandler( async(req, res) => {
@@ -48,27 +49,13 @@ const askAI = asyncHandler( async(req, res) => {
 
     const {query} = req.body
 
-    if(!query){
-        throw new ApiError(400 , "query is required")
+    if(!query?.trim()){
+        throw new ApiError(400 , "Please enter a prompt before generating")
     }
 
-    const prompt = `
-    You are an AI assistant who generate emails. Based on the following user query, generate a formal email with:
-    - a subject line
-    - a body message
-
-    Return the response in **pure JSON format** as:
-
-    {
-    "subject": "your generated subject",
-    "body": "your generated body text"
-    }
-
-    Only return the JSON object, nothing else. Avoid explanations or markdown formatting.
-
-    User Query:
-    "${query}"
-    `;
+    const prompt = `${systemPrompt}
+        USER'S PROMPT : ${query}
+    `
     
     const geminiResponse = await geminiAI(prompt);
 
@@ -80,7 +67,7 @@ const askAI = asyncHandler( async(req, res) => {
     if(!email){
         throw new ApiError(400 , "Please elaborate more..")
     }
-    // console.log(email.body);
+    // // console.log(email.body);
 
     return res.status(201).json(
         new ApiResponse(200, email , " successfully generated email")
