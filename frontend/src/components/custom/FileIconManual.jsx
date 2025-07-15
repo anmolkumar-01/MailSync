@@ -7,7 +7,7 @@ function FileIconManual({name, onRemove, className =''}) {
     
   return (
       
-        <div className={`absolute top-5 right-4 flex items-center gap-2 ${className}`}>
+        <div className={`flex items-center gap-2 ${className}`}>
                     
           <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 border border-slate-200 rounded-lg">
             <FileText className="h-4 w-4 text-blue-600 flex-shrink-0" />

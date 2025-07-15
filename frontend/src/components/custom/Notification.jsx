@@ -36,7 +36,7 @@ const Notification = ({ notification }) => {
 
     const startTimer = () => {
         clearTimer();
-        timerRef.current = setTimeout(handleClose, 3500);
+        timerRef.current = setTimeout(handleClose, 4000);
     };
   
     useEffect(() => {

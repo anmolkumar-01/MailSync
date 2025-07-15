@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { X, Paperclip, Send, Sparkles, FileText,LoaderCircle } from "lucide-react";
@@ -11,24 +11,21 @@ import { Textarea } from "../ui/textarea";
 import EmailSkeleton from "../skeletons/EmailSkeleton";
 
 const ComposeAndSend = () => {
+
+  const {askAI, isAskingAi, subject, body, setSubject, setBody} = useAppStore()
+
   const { selectedEmails } = useAppStore();
-  const [subject, setSubject] = useState("");
-  const [body, setBody] = useState(""); // Stores HTML content from the editor
   const [attachments, setAttachments] = useState([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [isSending, setIsSending] = useState(false);
 
-  const {askAI, isAskingAi, aiResponse, triggerNotification} = useAppStore()
-
   const handleGenerateWithAI = async () => {
-    
-    // if cause error then wrap it in try catch
-      const newEmail = await askAI(aiPrompt);
-      setSubject(newEmail.subject)
-      setBody(newEmail.body);
 
-      setIsAiModalOpen(false);
+    setIsAiModalOpen(false); // closing modal just after submitting prompt
+
+    await askAI(aiPrompt);
+    setAiPrompt("")
 
   };
 
@@ -72,7 +69,7 @@ const ComposeAndSend = () => {
       [{ 'header': [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{'list': 'ordered'}, {'list': 'bullet'}],
-      ['link', 'image'],
+      ['link'],
       ['clean']
     ],
   };
@@ -90,7 +87,6 @@ const ComposeAndSend = () => {
           <CardDescription className="text-gray-600">Write your email, use AI for assistance, and send it.</CardDescription>
         </CardHeader>
 
-
         <CardContent className="flex-grow flex flex-col gap-4">
           
           {/* ------------ Ask AI button --------------*/}
@@ -99,7 +95,7 @@ const ComposeAndSend = () => {
               size="sm"
               onClick={() => setIsAiModalOpen(true)}
               disabled={isAskingAi}
-              className="bg-gradient-to-r from-blue-900 via-indigo-700 to-purple-900 text-white hover:from-blue-800 hover:via-indigo-600 hover:to-purple-800 border-0 hover:shadow-lg transition-all duration-300 rounded-full w-[150px]"
+              className="bg-gradient-to-r from-blue-900 via-indigo-700 to-purple-900 text-white hover:from-blue-800 hover:via-indigo-600 hover:to-purple-800 border-0 hover:shadow-lg transition-all duration-300 rounded-full w-[165px]"
             >
               
               {/* ask ai call -> show button generating.... */}
@@ -132,7 +128,7 @@ const ComposeAndSend = () => {
                   <Input id="subject" placeholder="Your email subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="border-blue-200"/>
                 </div>
 
-                {/* ----------- Text Editor ---------*/}
+                {/* ----------- Body: Text Editor ---------*/}
                 <div className="space-y-1 flex-grow flex flex-col">
                   <label className="text-sm font-medium text-blue-900">Body</label>
                   
@@ -143,11 +139,12 @@ const ComposeAndSend = () => {
                     <ReactQuill
                       theme="snow"
                       value={body}
-                      onChange={(value) => setBody(value)}
+                      onChange={setBody}
                       modules={quillModules}
                       placeholder="Write your email content here..."
                       style={{ height: 'calc(100% - 42px)' }} // Adjust height to fit within the wrapper
-                    />
+                    >
+                    </ReactQuill>
                     
                   </div>
                 </div>
@@ -235,7 +232,7 @@ const ComposeAndSend = () => {
               size="sm"
               onClick={handleGenerateWithAI} 
               disabled={isAskingAi}
-              className="bg-gradient-to-r from-blue-900 via-indigo-700 to-purple-900 text-white hover:from-blue-800 hover:via-indigo-600 hover:to-purple-800 border-0 hover:shadow-lg transition-all duration-300 rounded-full w-[150px]"
+              className=" bg-gradient-to-r from-blue-900 via-indigo-700 to-purple-900 text-white hover:from-blue-800 hover:via-indigo-600 hover:to-purple-800 border-0 hover:shadow-lg transition-all duration-300 rounded-full w-[150px]"
             >
               
               {/* ask ai call -> show button generating.... */}

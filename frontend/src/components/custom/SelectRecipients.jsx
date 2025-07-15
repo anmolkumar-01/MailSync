@@ -146,6 +146,7 @@ const SelectRecipients = () => {
         <FileIconManual 
           name={uploadedFileName}
           onRemove={handleRemoveFile}
+          className="absolute top-6 right-6"
         />
       }
     </Card>

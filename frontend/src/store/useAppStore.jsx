@@ -18,7 +18,8 @@ persist(
     extractedEmails:[],
     selectedEmails: [],
 
-    aiResponse: null,
+    subject: '',
+    body: '',
 
     error: null,
     uploadedFileName: null,
@@ -41,7 +42,7 @@ persist(
             get().triggerNotification("You have successfully signed in", "success")
 
         } catch (error) {
-            get().triggerNotification("An unknown error occurred. Please try again", "error");
+            get().triggerNotification("SignIn failed. Please try again", "error");
             console.error("Error in Signin : " , error.response?.data?.message)
         }finally{
             set({isSigningIn: false})
@@ -52,11 +53,17 @@ persist(
     logout: async()=>{
         try {
             await axiosInstance.post('/auth/logout')
-            set({user: null})
-            
-            
 
-            get().triggerNotification("You have successfully signed out", "success")
+        set({
+            user: null,
+            extractedEmails: [],
+            selectedEmails: [],
+            uploadedFileName: null,
+            subject: '',
+            body: '' ,
+        });
+
+         get().triggerNotification("You have successfully signed out", "success")
 
         } catch (error) {
             get().triggerNotification("An Unknown error occurred. Please try again", "error")
@@ -100,11 +107,10 @@ persist(
             };
             
             get().triggerNotification("Your draft email has been successfully generated", "success")
-            set({aiResponse: newResponseData})
-            return newResponseData;
+            set({subject: newResponseData.subject, body: newResponseData.body})
 
         } catch (error) {
-            get().triggerNotification("An unknown error occurred. Please try again", "error")
+            get().triggerNotification(error.response?.data?.message || "An unknown error occurred", "error")
             console.error("Error in uploading file: ", error);
         }finally{
             set({isAskingAi: false})
@@ -161,11 +167,21 @@ persist(
         set({ extractedEmails: [], selectedEmails: [], uploadedFileName: null });
     },
 
-    // 5. set the name of the uploaded file
+    // 5. set the uploaded file Name
     setUploadedFileName: (name) => {
         set({uploadedFileName: name})
+    },
+
+    // set email subject
+    setSubject: (subject) => {
+        set({ subject })
+    },
+
+    setBody: (body) => {
+        set({body})
     }
-})),
+
+}),
     {
         name: 'mailsync-storage',
 
@@ -173,9 +189,10 @@ persist(
             user: state.user,
             extractedEmails: state.extractedEmails,
             selectedEmails: state.selectedEmails,
-            uploadedFileName: state.uploadedFileName
+            uploadedFileName: state.uploadedFileName,
+            subject: state.subject,
+            body: state.body,
         }),
 
     }
-
-)
+))
