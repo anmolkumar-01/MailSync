@@ -1,23 +1,27 @@
 import {create} from 'zustand'
 import {axiosInstance} from '../lib/axios'
+import { persist } from 'zustand/middleware'
 
 
-export const useAppStore = create((set, get) => ({
+export const useAppStore = create(
 
-    user: JSON.parse(localStorage.getItem("user")) || null,
+persist(
+    (set, get) => ({
+
+    user: null,
 
     isSigningIn: false,
     isExtractingEmails: false,
     isAskingAi: false,
     isSendingEmail: false,
 
-    extractedEmails: JSON.parse(localStorage.getItem("extractedEmails")) || [],
+    extractedEmails:[],
     selectedEmails: [],
 
-    uploadedFiles:[],
     aiResponse: null,
-    sendEmailReply: '',
+
     error: null,
+    uploadedFileName: null,
 
     notifications: [],
 
@@ -32,12 +36,12 @@ export const useAppStore = create((set, get) => ({
             set({user: res.data.data})
 
             // saving in store
-            localStorage.setItem("user", JSON.stringify(res.data.data));
+            
 
             get().triggerNotification("You have successfully signed in", "success")
 
         } catch (error) {
-            get().triggerNotification(error.response?.data?.message || "An unknown error occurred", "error");
+            get().triggerNotification("An unknown error occurred. Please try again", "error");
             console.error("Error in Signin : " , error.response?.data?.message)
         }finally{
             set({isSigningIn: false})
@@ -49,12 +53,13 @@ export const useAppStore = create((set, get) => ({
         try {
             await axiosInstance.post('/auth/logout')
             set({user: null})
-            localStorage.removeItem("user");
+            
+            
 
             get().triggerNotification("You have successfully signed out", "success")
 
         } catch (error) {
-            get().triggerNotification(error.response?.data?.message || "An unknown error occurred", "error")
+            get().triggerNotification("An Unknown error occurred. Please try again", "error")
             console.error("Error in logout",error.response?.data?.message)
         }
     },
@@ -66,10 +71,9 @@ export const useAppStore = create((set, get) => ({
             const res = await axiosInstance.post('/user/uploadFile', formData)
             // console.log("data coming in upload route from backend is " , res.data?.data)
             const emails = res.data?.data || [];
+            const fileName = formData.get("emailData").name
 
-            set({extractedEmails: emails})
-
-            localStorage.setItem("extractedEmails",JSON.stringify(get().extractedEmails));
+            set({extractedEmails: emails, uploadedFileName: fileName})
             
             const message = emails.length === 0 ? "No email addresses found" : `${emails.length} email ${emails.length === 1 ? "address" : "addresses"} found`;
             get().triggerNotification(`${message}`, "notify")
@@ -100,7 +104,7 @@ export const useAppStore = create((set, get) => ({
             return newResponseData;
 
         } catch (error) {
-            get().triggerNotification(error.response?.data?.message || "An unknown error occurred", "error")
+            get().triggerNotification("An unknown error occurred. Please try again", "error")
             console.error("Error in uploading file: ", error);
         }finally{
             set({isAskingAi: false})
@@ -152,4 +156,26 @@ export const useAppStore = create((set, get) => ({
         set({ selectedEmails: emails });
     },
 
-}))
+    // 4. clear the recipients from the extracted emails
+    clearRecipients: () => {
+        set({ extractedEmails: [], selectedEmails: [], uploadedFileName: null });
+    },
+
+    // 5. set the name of the uploaded file
+    setUploadedFileName: (name) => {
+        set({uploadedFileName: name})
+    }
+})),
+    {
+        name: 'mailsync-storage',
+
+        partialize: (state) => ({
+            user: state.user,
+            extractedEmails: state.extractedEmails,
+            selectedEmails: state.selectedEmails,
+            uploadedFileName: state.uploadedFileName
+        }),
+
+    }
+
+)

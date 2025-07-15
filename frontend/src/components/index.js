@@ -11,6 +11,7 @@ import {ScrollArea, ScrollBar} from './ui/scroll-area'
 import Notification from "./custom/Notification";
 import NotificationContainer from "./custom/NotificationContainer";
 import EmailSkeleton from "./skeletons/EmailSkeleton";
+import FileIconManual from "./custom/FileIconManual";
 
 export {
     NavBar,
@@ -26,5 +27,6 @@ export {
     AutoGoogleLogin,
     Notification,
     NotificationContainer,
-    EmailSkeleton
+    EmailSkeleton,
+    FileIconManual
 }

@@ -5,9 +5,10 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
 import { Input } from "../ui/input";
 import { Search, UserCircle2 } from "lucide-react";
+import {FileIconManual} from '..'
 
 const SelectRecipients = () => {
-  const { extractedEmails, selectedEmails, setSelectedEmails } = useAppStore();
+  const { uploadedFileName, setUploadedFileName, clearRecipients, extractedEmails, selectedEmails, setSelectedEmails } = useAppStore();
   const [searchTerm, setSearchTerm] = useState("");
 
   console.log("Selected emails are : ", selectedEmails);
@@ -37,8 +38,19 @@ const SelectRecipients = () => {
     }
   };
 
+
+  // for the file icon component
+  const handleRemoveFile = () => {
+    setUploadedFileName(null);
+    clearRecipients(); 
+
+    if(fileInputRef.current){
+      fileInputRef.current.value = null;
+    }
+  };
+
   return (
-    <Card className="shadow-md border-blue-100 gap-3">
+    <Card className="shadow-md border-blue-100 gap-3 relative">
       <CardHeader>
         <CardTitle className="flex items-center gap-3 text-xl">
           <span className="flex items-center justify-center w-8 h-8 text-sm font-bold rounded-full bg-blue-500 text-white">2</span>
@@ -96,7 +108,7 @@ const SelectRecipients = () => {
                       
                       <div
                         key={index}
-                        className="flex items-center gap-3 p-2.5 rounded-md hover:bg-blue-50/80 transition-colors"
+                        className="flex items-center gap-4 p-2.5 rounded-md hover:bg-blue-50/80 transition-colors"
                       >
                       <Checkbox
                         id={`email-${index}`}
@@ -104,7 +116,6 @@ const SelectRecipients = () => {
                         onCheckedChange={() => toggleEmail(email)}
                         className="data-[state=checked]:bg-blue-500 data-[state=checked]:text-white data-[state=checked]:border-blue-500"
                       />
-                        <UserCircle2 className="h-6 w-6 text-blue-300" />
                         <label htmlFor={`email-${index}`} className="text-sm font-mono text-gray-600 cursor-pointer flex-1">
                           {email}
                         </label>
@@ -122,13 +133,21 @@ const SelectRecipients = () => {
             </>
           ) : (
             <div className="flex items-center justify-center h-67 text-sm text-gray-500">
-              <p>Upload a file to see extracted emails here.</p>
+              <p>{uploadedFileName? "No email addresses found.": "Upload a file to see extracted emails here."}</p>
             </div>
           )}
         </div>
 
       </CardContent>
-
+      
+      {/* showing the currently uploaded file */}
+      {uploadedFileName && 
+        
+        <FileIconManual 
+          name={uploadedFileName}
+          onRemove={handleRemoveFile}
+        />
+      }
     </Card>
   );
 };

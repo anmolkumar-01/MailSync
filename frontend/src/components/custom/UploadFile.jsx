@@ -4,12 +4,17 @@ import { useAppStore } from "../../store/useAppStore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
 
 function UploadFile() {
-  const { uploadFile, triggerNotification } = useAppStore();
+  const { uploadFile, uploadedFileName, setUploadedFileName, triggerNotification, clearRecipients } = useAppStore();
   const [isDragging, setIsDragging] = useState(false);
+
   const fileInputRef = useRef(null);
 
   const handleFileChange = async (e) => {
     const file = e.target?.files?.[0];
+
+    if(uploadedFileName){
+      clearRecipients();
+    }
 
     if (!file){
       triggerNotification("No file selected. Please upload a file", "notify");
@@ -26,6 +31,8 @@ function UploadFile() {
       return;
     }
 
+    setUploadedFileName(file.name);
+    
     const formData = new FormData();
     formData.append("emailData", file);
 
@@ -52,6 +59,7 @@ function UploadFile() {
     }
   };
 
+
   return (
     <Card className="shadow-md border-blue-100">
 
@@ -64,8 +72,8 @@ function UploadFile() {
         <CardDescription className="text-gray-600">Upload a file to automatically extract emails</CardDescription>
       </CardHeader>
 
-      {/* input section */}
       <CardContent>
+        {/* input section */}
         <input
           type="file"
           id="file-upload"
@@ -89,9 +97,9 @@ function UploadFile() {
           </p>
           <p className="text-xs text-gray-500">Supported formats: .txt, .pdf, .docx, .xls, .xlsx, .csv</p>
         </label>
-      
       </CardContent>
-
+            
+        
     </Card>
   );
 }

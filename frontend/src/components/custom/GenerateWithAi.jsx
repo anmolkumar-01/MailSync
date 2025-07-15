@@ -22,6 +22,10 @@ const ComposeAndSend = () => {
 
   const handleGenerateWithAI = async () => {
     
+    if(!(aiPrompt?.trim())){
+      triggerNotification("Please enter a prompt before generating", "error")
+    }
+
     try {
       await askAI(aiPrompt);
       setSubject(aiResponse.subject)
@@ -30,7 +34,7 @@ const ComposeAndSend = () => {
 
     } catch (error) {
       console.log(error.response)
-      triggerNotification(error.response?.data?.message, "error")
+      triggerNotification("An unknown error occurred. Please try again", "error")
     }
 
   };
