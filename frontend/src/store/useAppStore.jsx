@@ -198,7 +198,7 @@ persist(
         const { extractedEmails, triggerNotification } = get();
 
         if (extractedEmails?.includes(newEmail)) {
-            triggerNotification("Email already exists in the list ", "notify")
+            triggerNotification("Email already exists in the list ", "appError")
             return;
         }
         set({ extractedEmails: [...extractedEmails, newEmail] });
