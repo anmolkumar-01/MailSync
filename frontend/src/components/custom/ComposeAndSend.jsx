@@ -159,7 +159,7 @@ const ComposeAndSend = () => {
           </div>
 
             {/* ----------- email subject and body with text editor */}
-            <div className="lg:min-h-[437px]">
+            <div className="h-full flex flex-col gap-2 lg:min-h-[437px]">
 
               {isAskingAi || isSendingEmail ? (
               <EmailSkeleton />
