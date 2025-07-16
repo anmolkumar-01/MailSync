@@ -134,12 +134,6 @@
   flex-direction: column;  
 }
 
-@media (max-width: 725px) { 
-  .quill-container-wrapper {
-    height: 350px;
-  }
-}
-
 .quill-container-wrapper:focus-within {
   box-shadow: 0 0 4px 1px var(--ring);
 }

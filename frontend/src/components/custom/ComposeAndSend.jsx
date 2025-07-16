@@ -115,7 +115,7 @@ const ComposeAndSend = () => {
 
   return (
     <>
-      <Card className="h-full flex flex-col shadow-md border-blue-100 pb-3">
+      <Card className="flex flex-col shadow-md border-blue-100 pb-3">
 
         {/* ----------- Top Text --------- */}
         <CardHeader>
@@ -170,11 +170,11 @@ const ComposeAndSend = () => {
                 </div>
 
                 {/* ----------- Body: Text Editor ---------*/}
-                <div className="space-y-1 flex-grow flex flex-col">
+                <div className="space-y-1 flex flex-col">
                   <label className="text-sm font-medium text-blue-900">Body</label>
                   
                   {/* Quill text editor The wrapper div is the key change for robust styling */}
-                  <div className="quill-container-wrapper flex-grow sm:h-[350] h-[300px] rounded-md border border-blue-200 bg-white"
+                  <div className="quill-container-wrapper h-84 rounded-md border border-blue-200 bg-white"
                   spellCheck="false">
 
                     <ReactQuill
