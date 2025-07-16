@@ -12,7 +12,7 @@ function FileIconManual({name, onRemove, className =''}) {
           <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 border border-slate-200 rounded-lg">
             <FileText className="h-4 w-4 text-blue-600 flex-shrink-0" />
             
-            <span className="text-xs font-medium text-slate-700 truncate max-w-[120px]">
+            <span className="text-xs font-medium text-slate-700 truncate max-w-[40px]">
               {name.trim()}
             </span>
 
