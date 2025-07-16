@@ -48,7 +48,7 @@ const NavBar = () => {
 
   return (
     // Header styled with the explicit blue theme
-    <header className="flex items-center justify-between p-4 px-6 border-b bg-blue-50/50 border-blue-200">
+    <header className="flex items-center justify-between p-3 px-6 border-b bg-blue-50/50 border-blue-200">
       
       {/* --------- Logo ---------- */}
       <div className="flex items-center gap-3 text-xl font-semibold text-blue-900">
@@ -105,7 +105,10 @@ const NavBar = () => {
 
         ) : (
           // --- Manual signin button ---
-          <Button onClick={() => handleLogin()} variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-700">
+          <Button 
+            size="sm"
+            onClick={() => handleLogin()} 
+            className="text-blue-600 border-blue-200 bg-blue-100 hover:bg-blue-500 hover:text-white">
             <LogIn className="mr-2 h-4 w-4" /> 
             Sign In
           </Button>

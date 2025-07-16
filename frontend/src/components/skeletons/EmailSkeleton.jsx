@@ -1,6 +1,10 @@
-import { Skeleton } from "../ui/skeleton"; // Adjust the import path as needed
+import { Skeleton } from "../ui/skeleton";
+import { useAppStore } from "../../store/useAppStore";
 
 const EmailSkeleton = () => {
+
+  const {attachmentsAvailable} = useAppStore()
+
   return (
 
     <div className="flex flex-col gap-4 mt-0.5">
@@ -24,7 +28,7 @@ const EmailSkeleton = () => {
           <Skeleton className="h-[42px] w-full rounded-t-md " />
           
           {/* Skeleton for the text area */}
-          <Skeleton className="h-[calc(100%-42px)] lg:h-72 w-full rounded-b-md" />
+          <Skeleton className={`h-[calc(100%-42px)] w-full rounded-b-md  ${attachmentsAvailable ? 'lg:h-67' : 'lg:h-72'}`} />
         </div>
       </div>
 

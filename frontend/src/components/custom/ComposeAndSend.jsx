@@ -1,24 +1,26 @@
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { X, Paperclip, Send, Sparkles, FileText,LoaderCircle } from "lucide-react";
+import { X, Paperclip, Send, Sparkles, FileText,LoaderCircle, FileInput } from "lucide-react";
 import { useAppStore } from "../../store/useAppStore";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "../ui/dialog";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Textarea } from "../ui/textarea";
 import EmailSkeleton from "../skeletons/EmailSkeleton";
+import { useEffect } from "react";
 
 const ComposeAndSend = () => {
 
-  const {askAI, isAskingAi, subject, body, setSubject, setBody} = useAppStore()
+  const {user, askAI, isAskingAi, subject, body, setSubject, setBody, triggerNotification, isSendingEmail, send, setAttachmentsAvailable} = useAppStore()
 
   const { selectedEmails } = useAppStore();
   const [attachments, setAttachments] = useState([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
-  const [isSending, setIsSending] = useState(false);
+  const fileInputRef = useRef(null)
 
   const handleGenerateWithAI = async () => {
 
@@ -29,47 +31,84 @@ const ComposeAndSend = () => {
 
   };
 
+  useEffect(() => {
+    setAttachmentsAvailable(attachments.length > 0)
+  },[attachments])
+
+  const handleFileAttach = (e) => {
+
+    const existingFileNames = attachments.map(file => file.name);
+
+    // avoid files which are already present
+    const newUniqueFiles = Array.from(e.target.files).filter(
+      file => !existingFileNames.includes(file.name)
+    );
+
+    if (newUniqueFiles.length > 0) {
+      setAttachments((prev) => [...prev, ...newUniqueFiles]);
+    } else {
+      
+      triggerNotification("All selected files were already attached.", "notify");
+    }
+
+    if(fileInputRef.current){
+      fileInputRef.current.value = null;
+      // console.log("after" ,fileInputRef.current.value);
+    }
+  }
+
   const handleSendEmail = async () => {
-    const plainTextBody = new DOMParser().parseFromString(body, 'text/html').body.textContent || "";
-    if (selectedEmails.length === 0 || !subject || !plainTextBody.trim()) {
-      alert("Please select recipients, and provide a subject and body.");
+    
+    if(!user){
+      triggerNotification("Please sign in first to send email", "notify");
       return;
     }
-    setIsSending(true);
+
+    const plainTextBody = new DOMParser().parseFromString(body, 'text/html').body.textContent || "";
+    // console.log("plain text ", plainTextBody.trim())
+
+    if (selectedEmails.length === 0) {
+      triggerNotification("Please select recipients", "error")
+      return;
+    }
+    if (!subject || !subject.trim) {
+      triggerNotification("Please add the subject line for your email", "error")
+      return;
+    }
+    if (!plainTextBody.trim()) {
+      triggerNotification("Please add the content of your email", "error")
+      return;
+    }
+    // console.log("body is here" ,body)
 
     const formData = new FormData();
     formData.append('subject', subject);
-    formData.append('body', body); // Send the full HTML content
+    formData.append('body', body);
     formData.append('recipients', JSON.stringify(selectedEmails));
-    if (attachment) {
-      formData.append('attachment', attachment);
-    }
 
-    console.log("--- Sending Email Data (HTML Body) ---");
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
-    }
+    
+    attachments.forEach(file =>{
+      formData.append('fileData', file)
+    })
 
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
-      alert(`Email successfully dispatched to ${selectedEmails.length} recipients! (Mock API)`);
-      setSubject("");
-      setBody("");
-      setAttachment(null);
-    } catch (error) {
-      console.error("Failed to send email:", error);
-      alert("An error occurred while sending the email.");
-    } finally {
-      setIsSending(false);
-    }
+
+    // console.log("Email Data (HTML Body) is here :" ,Object.fromEntries(formData.entries()))
+    // console.log("All attachments files in frontend :", formData.getAll('fileData'))
+
+    send(formData);
+    setAttachments([]);
+
   };
 
   const quillModules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{'list': 'ordered'}, {'list': 'bullet'}],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'script': 'sub' }, { 'script': 'super' }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
       ['link'],
+      ['blockquote', 'code-block'],
       ['clean']
     ],
   };
@@ -87,7 +126,7 @@ const ComposeAndSend = () => {
           <CardDescription className="text-gray-600">Write your email, use AI for assistance, and send it.</CardDescription>
         </CardHeader>
 
-        <CardContent className="flex-grow flex flex-col gap-4">
+        <CardContent className="flex-grow flex flex-col gap-4 ">
           
           {/* ------------ Ask AI button --------------*/}
           <div className="space-y-1">
@@ -106,6 +145,8 @@ const ComposeAndSend = () => {
                   Generating...
                 </div>
               ) : (
+
+
                 
                 <div className="flex items-center justify-center">
                   <Sparkles className="mr-2 h-4 w-4 animate-sparkle" />
@@ -118,7 +159,7 @@ const ComposeAndSend = () => {
           </div>
 
             {/* ----------- email subject and body with text editor */}
-            {isAskingAi? (
+            {isAskingAi || isSendingEmail ? (
               <EmailSkeleton />
             ):(
               <>
@@ -133,7 +174,7 @@ const ComposeAndSend = () => {
                   <label className="text-sm font-medium text-blue-900">Body</label>
                   
                   {/* Quill text editor The wrapper div is the key change for robust styling */}
-                  <div className="quill-container-wrapper flex-grow h-[250px] rounded-md border border-blue-200 bg-white"
+                  <div className="quill-container-wrapper flex-grow sm:h-[350] h-[300px] rounded-md border border-blue-200 bg-white"
                   spellCheck="false">
 
                     <ReactQuill
@@ -142,7 +183,7 @@ const ComposeAndSend = () => {
                       onChange={setBody}
                       modules={quillModules}
                       placeholder="Write your email content here..."
-                      style={{ height: 'calc(100% - 42px)' }} // Adjust height to fit within the wrapper
+                      style={{ height: 'calc(93% - 42px)' }} // Adjust height to fit within the wrapper
                     >
                     </ReactQuill>
                     
@@ -152,9 +193,34 @@ const ComposeAndSend = () => {
             )}
 
         </CardContent>
+        
+        {/* ---------- attached files to be sent with email ------------- */}
+        {attachments.length > 0 && (
+          <div className="px-4 pt-1 -my-4"> {/* Added a bit more bottom padding for the scrollbar */}
+            <ScrollArea className="w-full whitespace-nowrap rounded-md">
+              <div className="flex w-max space-x-2 px-2">
+
+                {attachments.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex-shrink-0 flex items-center gap-1.5 px-2 py-1 text-xs bg-white border border-gray-200 rounded-md hover:bg-gray-100 transition-all shadow-sm"
+                  >
+                    <FileText className="h-4 w-4 text-blue-500" />
+                    <span className="max-w-[100px] truncate font-medium text-gray-700">{file.name}</span>
+                    <button onClick={() => setAttachments((prev) => prev.filter((_, i) => i !== index))}>
+                      <X className="h-4 w-4 text-gray-500 hover:text-red-500 transition-all" />
+                    </button>
+                  </div>
+                ))}
+                
+              </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+          </div>
+        )}
 
         {/*-------------- Footer  -------------- */}
-        <CardFooter className="flex justify-between items-center border-t border-blue-100 [.border-t]:pt-3">
+        <CardFooter className="flex justify-between items-center border-t border-blue-100 [.border-t]:pt-2">
           
           {/*-------------- Paper clip icon */}          
           <div className="flex items-center gap-2">
@@ -169,31 +235,17 @@ const ComposeAndSend = () => {
               type="file"
               multiple
               className="hidden"
-              onChange={(e) => setAttachments((prev) => [...prev, ...Array.from(e.target.files)])}
+              onChange={handleFileAttach}
+              ref={fileInputRef}
             />
 
-            {attachments.length > 0 && (
-              <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-                {attachments.map((file, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md hover:bg-gray-200 transition-all"
-                  >
-                    <FileText className="h-4 w-4 text-blue-500" />
-                    <span className="truncate max-w-[100px]">{file.name}</span>
-                    <button onClick={() => setAttachments((prev) => prev.filter((_, i) => i !== index))}>
-                      <X className="h-4 w-4 text-gray-500 hover:text-red-500 transition-all" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+
           </div>
           
             {/*-------------- Send Emails button */}        
-          <Button onClick={handleSendEmail} disabled={isSending || selectedEmails.length === 0} className="bg-blue-500 hover:bg-blue-600 text-white">
-            <Send className="mr-2 h-4 w-4" />
-            {isSending ? "Sending..." : `Send to ${selectedEmails.length} recipients`}
+          <Button size="sm" onClick={handleSendEmail} disabled={isSendingEmail || selectedEmails.length === 0} className="bg-blue-500 hover:bg-blue-600 text-white">
+            {isSendingEmail? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+            {isSendingEmail ? "Sending..." : `Send to ${selectedEmails.length} recipients`}
           </Button>
         </CardFooter>
       </Card>

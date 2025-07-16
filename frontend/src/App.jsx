@@ -6,10 +6,10 @@ import {HomePage} from './pages/HomePage'
 function App() {
 
   const { user } = useAppStore();
-  console.log("here is user" , user);
+  // console.log("here is user" , user);
 
   return (
-    <div className='h-screen lg:overflow-hidden'>
+    <div className='h-screen '>
       <Routes>
         <Route path='/' element={<HomePage/>}></Route>
       </Routes>

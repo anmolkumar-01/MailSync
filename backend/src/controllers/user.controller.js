@@ -77,20 +77,26 @@ const askAI = asyncHandler( async(req, res) => {
 // 3. sending email
 const send = asyncHandler( async(req, res) => {
 
-    const {emails, subject, body} = req.body
+    // console.log("Data in send backend: ", req.body)
+
+    const {subject, body} = req.body
+    const recipients = JSON.parse(req.body?.recipients || [])
+
     const currentUser = req.user;
-    console.log(currentUser)
+    // console.log(currentUser)
 
-    if([subject, body].some((field)=> !field.trim())){
-        throw new ApiError(400, 'All fields are required');
+    if(!subject){
+        throw new ApiError(400, 'Subject field is required');
     }
 
-    if (!Array.isArray(emails) || emails.length === 0) {
-        throw new ApiError(400, 'Emails should be a non-empty array');
+    if (!Array.isArray(recipients) || recipients.length === 0) {
+        throw new ApiError(404, '404: Recipients emails not found');
     }
+    // console.log(recipients)
 
     // handling the uploaded files
     const fileData = req.files || []
+    // console.log("filedata : ", req.files);
 
     let localFilePathArray = []
     let requiredData = []
@@ -102,32 +108,37 @@ const send = asyncHandler( async(req, res) => {
         const cloudinaryResponses = await uploadOnCloudinary(localFilePathArray)
         // console.log(cloudinaryResponses)
         requiredData = cloudinaryResponses.map(file => ({
-                    name: file.original_filename,
-                    url: file.secure_url
-                }));
+            name: file.original_filename,
+            url: file.secure_url,
+            size: file.bytes
+        }));
 
     }
 
-    const files = generateEmailFileCardHTML(requiredData)
-    const formattedBody = body.replace(/\n/g, '<br />');
+    const filesHTML = generateEmailFileCardHTML(requiredData)
 
-    const html = `
-        <div">
-            ${formattedBody}
-            <br />
-            ${files}
+    const html = ` 
+        <div>
+            ${body}
         </div>
-        <hr/>
-        <p style="font-size: 0.9em; color: #555;">
-            This message was sent by <strong>${currentUser.fullName}</strong> (${currentUser.email}) through the <strong>MailSync</strong> app.
-        </p>
+        <br><br>
+        ${filesHTML}
+        
+        <div style="padding-top:20px;">
+            <hr style="border:none; border-top:1px solid #e5e7eb;"/>
+            <p style="font-size: 0.9em; color: #555; font-family: sans-serif;">
+                This message was sent by <strong>${currentUser.fullName}</strong> (${currentUser.email}) through the <strong>MailSync</strong> app.
+            </p>
+        </div>
     `;
+
+    console.log(html)
 
         
     let users = 0;
     // sending parallelly
     await Promise.all(
-    emails.map(async (email) => {
+    recipients.map(async (email) => {
         try {
             await transporter.sendMail({
                 from: `${currentUser.fullName} <${process.env.EMAIL_USER}>`,
@@ -136,19 +147,18 @@ const send = asyncHandler( async(req, res) => {
                 html,
                 replyTo: currentUser.email
             });
-            users = users+1;
+            users++;
 
         } catch (err) {
-        console.error(`Failed to send email to ${email}:`, err.message);
+        console.log(`Failed to send email to ${email}:`, err.message);
         }
     })
     );
 
-    
-    // localFilePathArray.forEach(filePath => fs.unlinkSync(filePath))
+    console.log("emails sent to : " , users)    
     
     return res.status(201).json(
-        new ApiResponse(200, requiredData , `Emails sent to ${users} users`)
+        new ApiResponse(200, requiredData , `Email has been successfully sent to ${users} users`)
     )
 
 })

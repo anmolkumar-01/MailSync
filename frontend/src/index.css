@@ -131,7 +131,13 @@
 */
 .quill-container-wrapper {
   display: flex;            /* ADD THIS */
-  flex-direction: column;   /* ADD THIS */
+  flex-direction: column;  
+}
+
+@media (max-width: 725px) { 
+  .quill-container-wrapper {
+    height: 350px;
+  }
 }
 
 .quill-container-wrapper:focus-within {
@@ -200,3 +206,4 @@
     animation: sparkle 2s ease-in-out infinite;
   }
 }
+

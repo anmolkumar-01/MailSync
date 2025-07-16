@@ -12,6 +12,7 @@ import Notification from "./custom/Notification";
 import NotificationContainer from "./custom/NotificationContainer";
 import EmailSkeleton from "./skeletons/EmailSkeleton";
 import FileIconManual from "./custom/FileIconManual";
+import { AddEmailModal } from "./custom/AddEmailModal";
 
 export {
     NavBar,
@@ -28,5 +29,6 @@ export {
     Notification,
     NotificationContainer,
     EmailSkeleton,
-    FileIconManual
+    FileIconManual,
+    AddEmailModal
 }

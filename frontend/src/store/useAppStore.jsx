@@ -23,6 +23,7 @@ persist(
 
     error: null,
     uploadedFileName: null,
+    attachmentsAvailable: false,
 
     notifications: [],
 
@@ -61,6 +62,7 @@ persist(
             uploadedFileName: null,
             subject: '',
             body: '' ,
+            attachmentsAvailable: false,
         });
 
          get().triggerNotification("You have successfully signed out", "success")
@@ -110,8 +112,8 @@ persist(
             set({subject: newResponseData.subject, body: newResponseData.body})
 
         } catch (error) {
-            get().triggerNotification(error.response?.data?.message || "An unknown error occurred", "error")
-            console.error("Error in uploading file: ", error);
+            get().triggerNotification("AI is overloaded by requests, please try again" || "An unknown error occurred", "error")
+            console.error("Error in uploading file: ", error.response?.data?.message);
         }finally{
             set({isAskingAi: false})
         }
@@ -123,11 +125,15 @@ persist(
         try {
             const res = await axiosInstance.post('/user/send', formData)
             // console.log("data coming in send email route from axios is " , res)
+            get().triggerNotification(res.data.message, "success")
             set({sendEmailReply: res.data.message})
 
+            get().setSubject('');
+            get().setBody('');
+
         } catch (error) {
-            set({error: error.response?.data?.message})
-            console.error(error.response?.data?.message, error);
+            console.error(error.response?.data?.message);
+            get().triggerNotification("Internal server error. Please try again", "error")
         }finally{
             set({isSendingEmail: false})
         }
@@ -158,7 +164,7 @@ persist(
 
     // 3. Set the emails user mark as selected 
     setSelectedEmails: (emails) => {
-        console.log(emails)
+        // console.log(emails)
         set({ selectedEmails: emails });
     },
 
@@ -179,6 +185,20 @@ persist(
 
     setBody: (body) => {
         set({body})
+    },
+
+    setAttachmentsAvailable: (state) => {
+        set({attachmentsAvailable: state})
+    },
+
+    setExtractedEmails: (newEmail) => {
+        const { extractedEmails, triggerNotification } = get();
+
+        if (extractedEmails?.includes(newEmail)) {
+            triggerNotification("Email already exists in the list ", "notify")
+            return;
+        }
+        set({ extractedEmails: [...extractedEmails, newEmail] });
     }
 
 }),
@@ -192,6 +212,7 @@ persist(
             uploadedFileName: state.uploadedFileName,
             subject: state.subject,
             body: state.body,
+            attachmentsAvailable: state.attachmentsAvailable,
         }),
 
     }

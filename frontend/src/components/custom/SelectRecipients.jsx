@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useState} from "react";
 import { useAppStore } from "../../store/useAppStore";
 import { Checkbox } from "../ui/checkbox";
 import { ScrollArea } from "../ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
 import { Input } from "../ui/input";
-import { Search, UserCircle2 } from "lucide-react";
-import {FileIconManual} from '..'
+import { Search, Pencil } from "lucide-react";
+import {Button, FileIconManual, AddEmailModal} from '..'
 
 const SelectRecipients = () => {
   const { uploadedFileName, setUploadedFileName, clearRecipients, extractedEmails, selectedEmails, setSelectedEmails } = useAppStore();
   const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  console.log("Selected emails are : ", selectedEmails);
+  // console.log("Selected emails are : ", selectedEmails);
   
   // filtered =  searched emails if serached else all extracted ones
   const filteredEmails = extractedEmails.filter((email) =>
@@ -44,12 +45,10 @@ const SelectRecipients = () => {
     setUploadedFileName(null);
     clearRecipients(); 
 
-    if(fileInputRef.current){
-      fileInputRef.current.value = null;
-    }
   };
 
   return (
+
     <Card className="shadow-md border-blue-100 gap-3 relative">
       <CardHeader>
         <CardTitle className="flex items-center gap-3 text-xl">
@@ -62,17 +61,37 @@ const SelectRecipients = () => {
       <CardContent>
         {extractedEmails.length > 0 && (
 
-          <div className="relative mb-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search recipients..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 w-full border-blue-200 focus:border-blue-500"
-            />
+          <div className="flex items-center gap-2 mb-2">
+
+            {/* Search Input Container */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search recipients..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 w-full border-blue-200 focus:border-blue-500"
+              />
+            </div>
+
+            {/* Add New Email Button */}
+            <Button
+              size="sm"
+              onClick={() => setIsModalOpen(true)}
+              className="bg-blue-500 text-white hover:bg-white hover:text-blue-500 hover:border hover:border-blue-300"
+            >
+              <Pencil className="mr-1.5 h-3.5 w-3.5" />
+              Add New
+            </Button>
           </div>
 
         )}
+
+        {/* Add new email modal */}
+        <AddEmailModal 
+          isOpen={isModalOpen} 
+          onOpenChange={setIsModalOpen} 
+        />
 
         <div className=" border rounded-lg bg-white border-blue-100">
           {extractedEmails.length > 0 ? (
@@ -147,6 +166,7 @@ const SelectRecipients = () => {
           name={uploadedFileName}
           onRemove={handleRemoveFile}
           className="absolute top-6 right-6"
+          
         />
       }
     </Card>
