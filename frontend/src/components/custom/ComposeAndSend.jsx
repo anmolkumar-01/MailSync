@@ -48,7 +48,7 @@ const ComposeAndSend = () => {
       setAttachments((prev) => [...prev, ...newUniqueFiles]);
     } else {
       
-      triggerNotification("All selected files were already attached.", "notify");
+      triggerNotification("All selected files were already attached.", "appError");
     }
 
     if(fileInputRef.current){
@@ -60,7 +60,7 @@ const ComposeAndSend = () => {
   const handleSendEmail = async () => {
     
     if(!user){
-      triggerNotification("Please sign in first to send email", "notify");
+      triggerNotification("Please sign in first to send email", "appError");
       return;
     }
 
@@ -68,15 +68,15 @@ const ComposeAndSend = () => {
     // console.log("plain text ", plainTextBody.trim())
 
     if (selectedEmails.length === 0) {
-      triggerNotification("Please select recipients", "error")
+      triggerNotification("Please select recipients", "appError")
       return;
     }
     if (!subject || !subject.trim) {
-      triggerNotification("Please add the subject line for your email", "error")
+      triggerNotification("Please add the subject line for your email", "appError")
       return;
     }
     if (!plainTextBody.trim()) {
-      triggerNotification("Please add the content of your email", "error")
+      triggerNotification("Please add the content of your email", "appError")
       return;
     }
     // console.log("body is here" ,body)

@@ -22,15 +22,19 @@ export const geminiAI = async(prompt)=>{
     },
   ];
 
-  const response = await ai.models.generateContent({
-    model,
-    config,
-    contents,
-  });
-
-  const result = response.text
-
-  return result
+  try {
+      const response = await ai.models.generateContent({
+        model,
+        config,
+        contents,
+      });
+    
+      const result = response.text
+    
+      return result
+  } catch (error) {
+    console.error(error)
+  }
 
 }
 

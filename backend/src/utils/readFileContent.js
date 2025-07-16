@@ -42,7 +42,7 @@ export const readFileContent = async (filePath, originalName) => {
     } 
     catch (error) {
         console.error('Error reading file:', error.message);
-        throw new Error(error.message);
+        throw new Error("Unsupported file format");
     }finally{
         fs.unlinkSync(filePath);
     }

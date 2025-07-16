@@ -17,7 +17,7 @@ function UploadFile() {
     }
 
     if (!file){
-      triggerNotification("No file selected. Please upload a file", "notify");
+      triggerNotification("No file selected. Please upload a file", "appError");
       return;
     }
 
@@ -27,7 +27,7 @@ function UploadFile() {
     const fileExtension = `.${file.name.split('.').pop().toLowerCase()}`;
 
     if (!acceptedExtensions.includes(fileExtension)) {
-      triggerNotification("Unsupported file format. Accepted formats include: .txt, .pdf, .docx, .xls, .xlsx, .csv", "error");
+      triggerNotification("Unsupported file format. Please upload another file", "appError");
       return;
     }
 

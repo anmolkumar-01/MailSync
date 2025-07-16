@@ -12,18 +12,17 @@ const signin = asyncHandler( async(req,res) => {
     // console.log("Data coming in signup call : " , req.body)
 
     if(!email.trim() || !fullName.trim()){
-        throw new ApiError(400 , "All fields are required")
+        throw new ApiError(400 , "Please share your full name and email address")
     }
 
     let user = await User.findOne({email:email})
     // if user doesn't exist create one
     if(!user){
-
         user = await User.create({email, fullName, picture})
     }
 
     if(!user){
-        throw new ApiError(500 , "Internal server Error. Please try again in few minutes.")
+        throw new ApiError(500 , "Something went wrong during sign-in. Please try again")
     }
 
     // generate access token 
@@ -40,7 +39,7 @@ const signin = asyncHandler( async(req,res) => {
     })
 
     return res.status(201).json(
-        new ApiResponse(200 , user , "User registered successfully")
+        new ApiResponse(200 , user , "You have successfully signed in")
     ) 
 })
 

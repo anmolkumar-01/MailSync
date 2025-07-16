@@ -21,7 +21,7 @@ export const AddEmailModal = ({ isOpen, onOpenChange }) => {
 
     // Basic email validation
     if (!email || !/[\w.-]+@[\w.-]+\.\w{2,}/.test(email)) {
-      triggerNotification("Please enter a valid email address ", "notify")
+      triggerNotification("Please enter a valid email address ", "appError")
       onOpenChange(false);
       return;
     }

@@ -1,5 +1,6 @@
 import {v2 as cloudinary} from "cloudinary"
-import fs from "fs" // file system - file read , write , remover, etc..
+import fs from "fs" 
+import { ApiError } from "./ApiError.js";
 
 // cloudinary Configuration
 cloudinary.config({ 
@@ -31,10 +32,10 @@ const uploadOnCloudinary = async (localFilePathArray) => {
         const responses = await Promise.all(uploadPromises);
         return responses;   
 
-
     }
     catch (error){
         console.error("Error in uploading file to cloudinary", error)
+        throw new ApiError(400, "Unsupported file format. Please send another file")
     }finally{
         for(const filePath of localFilePathArray) fs.unlinkSync(filePath)
     }

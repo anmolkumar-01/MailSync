@@ -43,7 +43,7 @@ persist(
             get().triggerNotification("You have successfully signed in", "success")
 
         } catch (error) {
-            get().triggerNotification("SignIn failed. Please try again", "error");
+            get().triggerNotification("Something went wrong during sign-in. Please try again", "error");
             console.error("Error in Signin : " , error.response?.data?.message)
         }finally{
             set({isSigningIn: false})
@@ -68,7 +68,7 @@ persist(
          get().triggerNotification("You have successfully signed out", "success")
 
         } catch (error) {
-            get().triggerNotification("An Unknown error occurred. Please try again", "error")
+            get().triggerNotification("Something went wrong during sign-out. Please try again", "error")
             console.error("Error in logout",error.response?.data?.message)
         }
     },
@@ -89,7 +89,7 @@ persist(
 
         } catch (error) {
             console.error("Error in uploading file: ", error);
-            get().triggerNotification("Unable to upload the file. Please try again", "error")
+            get().triggerNotification("Unable to upload the file. Please try again", "appError")
         }finally{
             set({isExtractingEmails: false})
         }
@@ -107,12 +107,15 @@ persist(
                 subject: res.data.data.subject,
                 body: res.data.data.body,
             };
-            
-            get().triggerNotification("Your draft email has been successfully generated", "success")
+            const {subject, body} = get()
+            console.log(subject, body)
             set({subject: newResponseData.subject, body: newResponseData.body})
+            
+            get().triggerNotification("Your draft email has been successfully generated", "notify")
+            
 
         } catch (error) {
-            get().triggerNotification("AI is overloaded by requests, please try again" || "An unknown error occurred", "error")
+            get().triggerNotification(error.response?.data?.message || "Internal server error. Please try again", "appError")
             console.error("Error in uploading file: ", error.response?.data?.message);
         }finally{
             set({isAskingAi: false})
@@ -124,16 +127,16 @@ persist(
         set({isSendingEmail: true})
         try {
             const res = await axiosInstance.post('/user/send', formData)
+            
             // console.log("data coming in send email route from axios is " , res)
             get().triggerNotification(res.data.message, "success")
-            set({sendEmailReply: res.data.message})
 
             get().setSubject('');
             get().setBody('');
 
         } catch (error) {
             console.error(error.response?.data?.message);
-            get().triggerNotification("Internal server error. Please try again", "error")
+            get().triggerNotification(error.response?.data?.message || "Internal server error. Please try again", "appError")
         }finally{
             set({isSendingEmail: false})
         }
@@ -213,6 +216,7 @@ persist(
             subject: state.subject,
             body: state.body,
             attachmentsAvailable: state.attachmentsAvailable,
+            isSendingEmail: state.isSendingEmail,
         }),
 
     }

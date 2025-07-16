@@ -16,7 +16,7 @@ export const convertToJson = async(data) => {
         return result;
 
     } catch (error) {
-        console.log("Error in converting response into Json")
-        throw new Error(error.message)
+        console.log(error)
+        throw new Error("Please provide more context about your email")
     }
 }

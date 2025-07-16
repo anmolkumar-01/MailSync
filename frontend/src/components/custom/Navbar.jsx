@@ -52,8 +52,12 @@ const NavBar = () => {
       
       {/* --------- Logo ---------- */}
       <div className="flex items-center gap-3 text-xl font-semibold text-blue-900">
-        <div className="p-2 bg-blue-500 rounded-lg">
-           <Mail className="w-5 h-5 text-white" />
+        <div className="p-2 rounded-lg">
+            <img 
+              src="https://cdn-icons-png.flaticon.com/512/893/893257.png" 
+              alt="MailSync" 
+              className="w-7 h-7 object-contain" 
+            />
         </div>
         <span>MailSync</span>
       </div>
