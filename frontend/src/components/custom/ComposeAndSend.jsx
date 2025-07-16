@@ -278,7 +278,7 @@ const ComposeAndSend = () => {
           </div>
           
           {/* -------- Buttons */}
-          <DialogFooter>
+          <DialogFooter className="flex-row justify-end gap-x-2">
             <DialogClose asChild>
               <Button type="button" variant="ghost">Cancel</Button>
             </DialogClose>
