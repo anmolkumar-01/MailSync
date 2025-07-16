@@ -159,38 +159,42 @@ const ComposeAndSend = () => {
           </div>
 
             {/* ----------- email subject and body with text editor */}
-            {isAskingAi || isSendingEmail ? (
+            <div className="lg:min-h-[437px]">
+
+              {isAskingAi || isSendingEmail ? (
               <EmailSkeleton />
-            ):(
-              <>
-                {/* -------------- subject --------- */}
-                <div className="space-y-1">
-                  <label htmlFor="subject" className="text-sm font-medium text-blue-900">Subject</label>
-                  <Input id="subject" placeholder="Your email subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="border-blue-200"/>
-                </div>
-
-                {/* ----------- Body: Text Editor ---------*/}
-                <div className="space-y-1 flex flex-col">
-                  <label className="text-sm font-medium text-blue-900">Body</label>
-                  
-                  {/* Quill text editor The wrapper div is the key change for robust styling */}
-                  <div className="quill-container-wrapper h-84 rounded-md border border-blue-200 bg-white"
-                  spellCheck="false">
-
-                    <ReactQuill
-                      theme="snow"
-                      value={body}
-                      onChange={setBody}
-                      modules={quillModules}
-                      placeholder="Write your email content here..."
-                      style={{ height: 'calc(93% - 42px)' }} // Adjust height to fit within the wrapper
-                    >
-                    </ReactQuill>
-                    
+              ):(
+                <>
+                  {/* -------------- subject --------- */}
+                  <div className="space-y-1">
+                    <label htmlFor="subject" className="text-sm font-medium text-blue-900">Subject</label>
+                    <Input id="subject" placeholder="Your email subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="border-blue-200"/>
                   </div>
-                </div>
-              </>
-            )}
+
+                  {/* ----------- Body: Text Editor ---------*/}
+                  <div className="space-y-1 flex flex-col">
+                    <label className="text-sm font-medium text-blue-900">Body</label>
+                    
+                    {/* Quill text editor The wrapper div is the key change for robust styling */}
+                    <div className="quill-container-wrapper h-84 rounded-md border border-blue-200 bg-white"
+                    spellCheck="false">
+
+                      <ReactQuill
+                        theme="snow"
+                        value={body}
+                        onChange={setBody}
+                        modules={quillModules}
+                        placeholder="Write your email content here..."
+                        style={{ height: 'calc(93% - 42px)' }} // Adjust height to fit within the wrapper
+                      >
+                      </ReactQuill>
+                      
+                    </div>
+                  </div>
+                </>
+              )}
+
+            </div>
 
         </CardContent>
         
