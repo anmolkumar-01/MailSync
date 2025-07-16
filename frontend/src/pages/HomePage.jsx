@@ -12,7 +12,7 @@ function HomePage() {
 
         <main className="p-4 sm:p-6 lg:p-4">
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-4 space-y-8 lg:space-y-0 lg:items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-4 space-y-8 lg:space-y-0">
               
               {/* Left Column */}
               <div className="flex flex-col gap-4">

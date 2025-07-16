@@ -14,9 +14,8 @@ import { useEffect } from "react";
 
 const ComposeAndSend = () => {
 
-  const {user, askAI, isAskingAi, subject, body, setSubject, setBody, triggerNotification, isSendingEmail, send, setAttachmentsAvailable} = useAppStore()
+  const {selectedEmails, user, askAI, isAskingAi, subject, body, setSubject, setBody, triggerNotification, isSendingEmail, send, setAttachmentsAvailable, attachmentsAvailable} = useAppStore()
 
-  const { selectedEmails } = useAppStore();
   const [attachments, setAttachments] = useState([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
@@ -115,7 +114,7 @@ const ComposeAndSend = () => {
 
   return (
     <>
-      <Card className="flex flex-col shadow-md border-blue-100 pb-3">
+      <Card className="h-full flex flex-col shadow-md border-blue-100 pb-3">
 
         {/* ----------- Top Text --------- */}
         <CardHeader>
@@ -126,7 +125,8 @@ const ComposeAndSend = () => {
           <CardDescription className="text-gray-600">Write your email, use AI for assistance, and send it.</CardDescription>
         </CardHeader>
 
-        <CardContent className="flex-grow flex flex-col gap-4 ">
+{/* ------------------------------------------------------- here */}
+        <CardContent className=" flex flex-grow flex-col gap-4 ">
           
           {/* ------------ Ask AI button --------------*/}
           <div className="space-y-1">
@@ -159,8 +159,7 @@ const ComposeAndSend = () => {
           </div>
 
             {/* ----------- email subject and body with text editor */}
-            <div className="h-full flex flex-col gap-2 lg:min-h-[437px]">
-
+            
               {isAskingAi || isSendingEmail ? (
               <EmailSkeleton />
               ):(
@@ -176,7 +175,7 @@ const ComposeAndSend = () => {
                     <label className="text-sm font-medium text-blue-900">Body</label>
                     
                     {/* Quill text editor The wrapper div is the key change for robust styling */}
-                    <div className="quill-container-wrapper h-84 rounded-md border border-blue-200 bg-white"
+                    <div className="quill-container-wrapper rounded-md border border-blue-200 bg-white"
                     spellCheck="false">
 
                       <ReactQuill
@@ -184,8 +183,9 @@ const ComposeAndSend = () => {
                         value={body}
                         onChange={setBody}
                         modules={quillModules}
+                        className={`flex flex-col ${attachmentsAvailable? 'h-[272px]' : 'h-[292px]' } `}
                         placeholder="Write your email content here..."
-                        style={{ height: 'calc(93% - 42px)' }} // Adjust height to fit within the wrapper
+                        style={{height: '314px'}}
                       >
                       </ReactQuill>
                       
@@ -194,7 +194,7 @@ const ComposeAndSend = () => {
                 </>
               )}
 
-            </div>
+          
 
         </CardContent>
         

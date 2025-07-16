@@ -125,12 +125,9 @@
   }
 }
 
-/*
-  This new rule is needed to manage the vertical layout 
-  of the toolbar and editor.
-*/
+
 .quill-container-wrapper {
-  display: flex;            /* ADD THIS */
+  display: flex;   
   flex-direction: column;  
 }
 
@@ -138,18 +135,13 @@
   box-shadow: 0 0 4px 1px var(--ring);
 }
 
-/* 
-  Remove the default borders from the Quill toolbar and container so they
-  fit seamlessly inside our custom wrapper.
-*/
+
 .quill-container-wrapper .ql-toolbar.ql-snow,
 .quill-container-wrapper .ql-container.ql-snow {
   border: none !important;
 }
 
-/* 
-  Style the toolbar.
-*/
+
 .quill-container-wrapper .ql-toolbar.ql-snow {
   /* Use a theme variable for the background */
   background-color: var(--secondary);
@@ -158,27 +150,19 @@
   border-top-right-radius: var(--radius-md);
 }
 
-/* 
-  Make the editor area fill the remaining height.
-*/
 .quill-container-wrapper .ql-container.ql-snow {
   flex-grow: 1;
   border-bottom-left-radius: var(--radius-md);
   border-bottom-right-radius: var(--radius-md);
-  overflow: hidden; /* ADD THIS to ensure the child element scrolls, not the container */
+  overflow: hidden; 
 }
 
-/* 
-  This is the key rule to add. It makes the actual text area scrollable.
-*/
+
 .quill-container-wrapper .ql-editor {
-  height: 100%;             /* ADD THIS RULE */
   overflow-y: auto;
 }
 
-/* 
-  Match the placeholder text style using your theme's variable.
-*/
+
 .quill-container-wrapper .ql-editor.ql-blank::before {
   color: var(--muted-foreground);
   font-style: normal;
@@ -201,3 +185,7 @@
   }
 }
 
+.ql-editor{
+  min-height: 100px !important;
+
+}

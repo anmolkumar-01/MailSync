@@ -28,7 +28,8 @@ const EmailSkeleton = () => {
           <Skeleton className="h-[42px] w-full rounded-t-md " />
           
           {/* Skeleton for the text area */}
-          <Skeleton className={`h-[calc(100%-42px)] w-full rounded-b-md  ${attachmentsAvailable ? 'lg:h-67' : 'lg:h-72'}`} />
+          {/* <Skeleton className={`h-[calc(100%-42px)] w-full rounded-b-md  ${attachmentsAvailable ? 'lg:h-67' : 'lg:h-72'}`} /> */}
+          <Skeleton className={`h-[calc(100%-42px)] w-full rounded-b-md lg:h-67`} />
         </div>
       </div>
 
