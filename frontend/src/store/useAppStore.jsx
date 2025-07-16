@@ -116,7 +116,7 @@ persist(
 
         } catch (error) {
             get().triggerNotification(error.response?.data?.message || "Internal server error. Please try again", "appError")
-            console.error("Error in uploading file: ", error.response?.data?.message);
+            console.error("Error in asking Ai file: ", error.response?.data?.message);
         }finally{
             set({isAskingAi: false})
         }

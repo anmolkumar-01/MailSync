@@ -60,7 +60,7 @@ const askAI = asyncHandler( async(req, res) => {
     
     const geminiResponse = await geminiAI(prompt);
 
-    if(!geminiResponse.trim() ){
+    if(!geminiResponse?.trim() ){
         throw new ApiError(400 , "Please provide more context about your email")
     }
 

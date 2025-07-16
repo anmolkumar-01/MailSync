@@ -71,11 +71,11 @@ const ComposeAndSend = () => {
       triggerNotification("Please select recipients", "appError")
       return;
     }
-    if (!subject || !subject.trim) {
+    if (!subject || !subject?.trim) {
       triggerNotification("Please add the subject line for your email", "appError")
       return;
     }
-    if (!plainTextBody.trim()) {
+    if (!plainTextBody?.trim()) {
       triggerNotification("Please add the content of your email", "appError")
       return;
     }
