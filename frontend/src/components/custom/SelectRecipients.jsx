@@ -49,12 +49,22 @@ const SelectRecipients = () => {
 
   return (
 
-    <Card className="shadow-md border-blue-100 gap-3 relative">
+    <Card className="shadow-md border-blue-100 gap-3">
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-xl">
-          <span className="flex items-center justify-center w-8 h-8 text-sm font-bold rounded-full bg-blue-500 text-white">2</span>
-          <span className="text-blue-900">Select Recipients</span>
-        </CardTitle>
+        <div className="flex justify-between">
+          <CardTitle className="flex items-center gap-3 text-xl">
+            <span className="flex items-center justify-center w-8 h-8 text-sm font-bold rounded-full bg-blue-500 text-white">2</span>
+            <span className="text-blue-900">Select Recipients</span>
+          </CardTitle>
+          
+          {/* showing the currently uploaded file */}
+          {uploadedFileName && 
+            <FileIconManual 
+              name={uploadedFileName}
+              onRemove={handleRemoveFile}
+            />
+          }
+        </div>
         <CardDescription className="text-gray-600">Select the users you wish to email</CardDescription>
       </CardHeader>
       
@@ -159,16 +169,7 @@ const SelectRecipients = () => {
 
       </CardContent>
       
-      {/* showing the currently uploaded file */}
-      {uploadedFileName && 
-        
-        <FileIconManual 
-          name={uploadedFileName}
-          onRemove={handleRemoveFile}
-          className="absolute top-6 right-6"
-          
-        />
-      }
+
     </Card>
   );
 };
