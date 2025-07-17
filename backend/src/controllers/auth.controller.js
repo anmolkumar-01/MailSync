@@ -47,10 +47,15 @@ const signin = asyncHandler( async(req,res) => {
 const logout = asyncHandler ( async(req,res) => {
 
     // clear cookies
+    const cookieOptions = {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: process.env.NODE_ENV !== 'development'
+    }
 
     return res
     .status(200)
-    .clearCookie('jwt')
+    .clearCookie('jwt', cookieOptions)
     .json(new ApiResponse(200 , {}, `user logged out successfully`))
 })
 
