@@ -33,7 +33,7 @@ persist(
         set({isSigningIn : true})
         try {
             const res = await axiosInstance.post('/auth/signin', formData)
-            console.log("data coming in signin route from axios is " , res.data.data)
+            // console.log("data coming in signin route from axios is " , res.data.data)
             set({user: res.data.data})
 
             // saving in store
