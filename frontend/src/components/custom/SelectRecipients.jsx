@@ -69,11 +69,12 @@ const SelectRecipients = () => {
       </CardHeader>
       
       <CardContent>
-        {extractedEmails.length > 0 && (
 
-          <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 mb-2">
 
-            {/* Search Input Container */}
+          {extractedEmails.length > 0 ? (
+
+            // Search Input Container 
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
@@ -83,19 +84,22 @@ const SelectRecipients = () => {
                 className="pl-9 w-full border-blue-200 focus:border-blue-500"
               />
             </div>
-
-            {/* Add New Email Button */}
-            <Button
-              size="sm"
-              onClick={() => setIsModalOpen(true)}
-              className="bg-blue-500 text-white hover:bg-white hover:text-blue-500 hover:border hover:border-blue-300"
-            >
-              <Pencil className="mr-1.5 h-3.5 w-3.5" />
-              Add New
-            </Button>
-          </div>
-
-        )}
+           
+          ) : (
+            <div className="flex-1" />
+          )}
+        
+          {/* Add New Email Button */}
+          <Button
+            size="sm"
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-500 text-white hover:bg-white hover:text-blue-500 hover:border hover:border-blue-300"
+          >
+            <Pencil className="mr-1.5 h-3.5 w-3.5" />
+            Add New
+          </Button>
+          
+        </div>
 
         {/* Add new email modal */}
         <AddEmailModal 
@@ -161,7 +165,7 @@ const SelectRecipients = () => {
 
             </>
           ) : (
-            <div className="flex items-center justify-center h-67 text-sm text-gray-500">
+            <div className="flex items-center justify-center h-56 text-sm text-gray-500">
               <p>{uploadedFileName? "No email addresses found.": "Upload a file to see extracted emails here."}</p>
             </div>
           )}

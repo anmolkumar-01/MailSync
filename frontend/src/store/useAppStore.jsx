@@ -202,6 +202,7 @@ persist(
             return;
         }
         set({ extractedEmails: [...extractedEmails, newEmail] });
+        triggerNotification(`${newEmail} has been added`, "notify")
     }
 
 }),
