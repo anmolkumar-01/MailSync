@@ -7,11 +7,7 @@ import { useEffect } from 'react';
 
 function App() {
 
-  const { user, isSigningIn, me } = useAppStore();
-  
-  useEffect(()=>{
-    me();
-  },[me])
+  const { user, isSigningIn} = useAppStore();
 
   // console.log("user : ", user);
 

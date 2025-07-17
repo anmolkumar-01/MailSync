@@ -51,8 +51,6 @@ persist(
 
     // 2. Logout
     logout: async()=>{
-        try {
-            await axiosInstance.post('/auth/logout')
 
         set({
             user: null,
@@ -64,12 +62,8 @@ persist(
             attachmentsAvailable: false,
         });
 
-         get().triggerNotification("You have successfully signed out", "success")
+        get().triggerNotification("You have successfully signed out", "success")
 
-        } catch (error) {
-            get().triggerNotification("Something went wrong during sign-out. Please try again", "error")
-            console.error("Error in logout",error.response?.data?.message)
-        }
     },
 
     // 3. Upload files
@@ -141,16 +135,6 @@ persist(
         }
     },
 
-    me: async() => {
-        try {
-            const res = await axiosInstance.post('/user/me')
-            set({user : res.data?.data || null})
-        } catch (error) {
-            console.log(error?.response?.data?.message)
-        }
-        set({})
-    },
-
     // ----------- frontend related functions ----------------
 
     // 1. Show the Notification
@@ -218,6 +202,7 @@ persist(
         name: 'mailsync-storage',
 
         partialize: (state) => ({
+            user: state.user,
             extractedEmails: state.extractedEmails,
             selectedEmails: state.selectedEmails,
             uploadedFileName: state.uploadedFileName,

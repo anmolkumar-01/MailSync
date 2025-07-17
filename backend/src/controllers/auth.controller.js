@@ -43,34 +43,6 @@ const signin = asyncHandler( async(req,res) => {
     ) 
 })
 
-// 2 . Logout the user
-const logout = asyncHandler ( async(req,res) => {
-
-    // clear cookies
-    const cookieOptions = {
-        httpOnly: true,
-        sameSite: 'none',
-        secure: process.env.NODE_ENV !== 'development'
-    }
-
-    return res
-    .status(200)
-    .clearCookie('jwt', cookieOptions)
-    .json(new ApiResponse(200 , {}, `user logged out successfully`))
-})
-
-// 3. Get current user
-const me = asyncHandler( async (req,res) => {
-
-    return res.status(201).json(
-        new ApiResponse(200, req.user )
-    )
-
-})
-
-
 export {
-    signin,
-    logout,
-    me
+    signin
 }

@@ -157,7 +157,7 @@ const send = asyncHandler( async(req, res) => {
         } catch (err) {
             console.log(`Failed to send email to ${email}:`, err.message);
             // throw new ApiError(400, `${email} is not a valid email`)
-            throw new ApiError(400, "Failed to send email. Pleasy try agin later")
+            throw new ApiError(400, "Email sending limit exceeded. You can send more emails after 24 hours")
         }
     })
     );
