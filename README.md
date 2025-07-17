@@ -1,4 +1,4 @@
-# MailSync 
+# [MailSync](https://mailsync-one.vercel.app/)
 ### Send Emails to multiple recipients on one click
 
 > A full-stack app to easily create and send AI-powered bulk emails with file uploads and cloud attachments
