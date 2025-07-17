@@ -32,7 +32,6 @@ persist(
 
         set({isSigningIn : true})
         try {
-            console.log("herer is the data: ", formData)
             const res = await axiosInstance.post('/auth/signin', formData)
             console.log("data coming in signin route from axios is " , res.data.data)
             set({user: res.data.data})
@@ -99,16 +98,16 @@ persist(
     askAI: async(query) => {
         set({isAskingAi: true})
         try {
-            console.log("query in ask ai ", query);
+            // console.log("query in ask ai ", query);
             const res = await axiosInstance.post('/user/askAI', {query})
-            console.log("data coming in askAI route from axios is " , res.data?.data)
+            // console.log("data coming in askAI route from axios is " , res.data?.data)
 
             const newResponseData = {
                 subject: res.data.data.subject,
                 body: res.data.data.body,
             };
             const {subject, body} = get()
-            console.log(subject, body)
+            // console.log(subject, body)
             set({subject: newResponseData.subject, body: newResponseData.body})
             
             get().triggerNotification("Your draft email has been successfully generated", "notify")
@@ -142,6 +141,15 @@ persist(
         }
     },
 
+    me: async() => {
+        try {
+            const res = await axiosInstance.post('/user/me')
+            set({user : res.data?.data || null})
+        } catch (error) {
+            console.log(error?.response?.data?.message)
+        }
+        set({})
+    },
 
     // ----------- frontend related functions ----------------
 
@@ -210,7 +218,6 @@ persist(
         name: 'mailsync-storage',
 
         partialize: (state) => ({
-            user: state.user,
             extractedEmails: state.extractedEmails,
             selectedEmails: state.selectedEmails,
             uploadedFileName: state.uploadedFileName,

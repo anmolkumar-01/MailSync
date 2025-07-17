@@ -3,11 +3,17 @@ import { useAppStore } from './store/useAppStore'
 
 import {HomePage} from './pages/HomePage'
 import MailSyncSkeleton from './components/skeletons/MailSyncSkeleton';
+import { useEffect } from 'react';
 
 function App() {
 
-  const { user, isSigningIn } = useAppStore();
-  // console.log("here is user" , user);
+  const { user, isSigningIn, me } = useAppStore();
+  
+  useEffect(()=>{
+    me();
+  },[me])
+
+  // console.log("user : ", user);
 
   return (
     <div className='h-screen lg:overflow-hidden'>
