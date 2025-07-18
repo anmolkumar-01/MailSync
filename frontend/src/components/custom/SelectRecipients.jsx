@@ -165,7 +165,7 @@ const SelectRecipients = () => {
 
             </>
           ) : (
-            <div className="flex items-center justify-center h-56 text-sm text-gray-500">
+            <div className="flex items-center justify-center h-46 text-sm text-gray-500">
               <p>{uploadedFileName? "No email addresses found.": "Upload a file to see extracted emails here."}</p>
             </div>
           )}
