@@ -134,7 +134,7 @@ const SelectRecipients = () => {
               </div>
 
               {/* -------- show filtered( searched something ? searched emails : all extracted emails) emails--------- */}
-              <ScrollArea className="h-46">
+              <ScrollArea className="h-36">
                 <div className="p-1">
                   {filteredEmails.length > 0 ? (
                     filteredEmails.map((email, index) => (

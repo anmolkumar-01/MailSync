@@ -123,18 +123,52 @@ const send = asyncHandler( async(req, res) => {
     const filesHTML = generateEmailFileCardHTML(requiredData)
 
     const html = ` 
-        <div>
-            ${body}
-        </div>
-        <br><br>
-        ${filesHTML}
-        
-        <div style="padding-top:20px;">
-            <hr style="border:none; border-top:1px solid #e5e7eb;"/>
-            <p style="font-size: 0.9em; color: #555; font-family: sans-serif;">
-                This message was sent by <strong>${currentUser.fullName}</strong> (${currentUser.email}) through the <strong>MailSync</strong> app.
-            </p>
-        </div>
+    <div style="margin: 0; padding: 0; font-family: sans-serif;">
+
+        <!-- Main container table -->
+        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 700px; margin: 20px auto; border: 1px solid black; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+            
+            <!-- Header Row -->
+            <tr>
+                <td align="center" style="background-color: #3b82f6; padding: 20px; border-radius: 12px 12px 0 0;">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                        <tr>
+                            <td align="center" style="color: #ffffff; font-size: 24px; font-weight: bold; font-family: sans-serif;">
+                                <!-- Placeholder for a white logo -->
+                                <img src="https://cdn-icons-png.flaticon.com/512/893/893257.png" alt="Logo" width="40" style="border:0; display:inline-block; vertical-align:middle; margin-right: 10px;">
+                                MailSync
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- Content Row -->
+            <tr>
+                <td style="background-color: #ffffff; padding: 20px 30px; border-radius: 0 0 12px 12px;">
+                    
+                    <!-- YOUR EXISTING CONTENT GOES HERE -->
+                    <div>
+                        ${body}
+                    </div>
+                    
+                    ${filesHTML}
+                    
+                </td>
+            </tr>
+
+            <tr>
+                <td style="font-size: 0.9em; padding: 20px">
+                    This message was sent by <strong>${currentUser.fullName}</strong> (${currentUser.email}) through the <strong>MailSync</strong> app.
+                </td>
+            </tr>
+
+        </table>
+
+        <!-- Your original footer remains outside the main container -->
+ 
+
+    </div>
     `;
 
     // console.log(html)

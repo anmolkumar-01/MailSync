@@ -185,7 +185,7 @@ const ComposeAndSend = () => {
                         modules={quillModules}
                         className={`flex flex-col ${attachmentsAvailable? 'h-[272px]' : 'h-[292px]' } `}
                         placeholder="Write your email content here..."
-                        style={{height: '296px'}}
+                        style={{height: '272px'}}
                       >
                       </ReactQuill>
                       

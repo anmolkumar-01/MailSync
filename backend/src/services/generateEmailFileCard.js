@@ -61,8 +61,8 @@ export const generateEmailFileCardHTML = (files) => {
     const fileSize = formatFileSize(file.size);
 
     return `
-      <!--[if mso | IE]><td style="padding:4px; width:158px;" valign="top"><![endif]-->
-        <a href="${file.url}" target="_blank" download title="${displayName}" class="attachment-card" style="display:inline-block; text-decoration:none; width:150px; border:1px solid #dadce0; border-radius:8px; margin:4px; vertical-align:top; background-color:#ffffff; transition: all 0.2s ease-in-out;">
+      <!--[if mso | IE]><td style="padding:4px; width:138px;" valign="top"><![endif]-->
+        <a href="${file.url}" target="_blank" download title="${displayName}" class="attachment-card" style="display:inline-block; text-decoration:none; width:130px; border:1px solid #dadce0; border-radius:8px; margin:4px; vertical-align:top; background-color:#ffffff; transition: all 0.2s ease-in-out;">
           <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-spacing:0;" role="presentation">
             <!-- Row 1: The Preview Area -->
             <tr>
@@ -80,7 +80,7 @@ export const generateEmailFileCardHTML = (files) => {
                   <tr>
                     <td style="width:20px; vertical-align:top; padding-top:1px;"><img src="${iconUrl}" alt="icon" style="width:16px; height:16px;"></td>
                     <td style="font-family:Roboto, Arial, sans-serif; padding-left:8px;">
-                      <div style="font-size:13px; color:#202124; font-weight:500; line-height:1.4; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                      <div style="font-size:10px; color:#202124; font-weight:500; line-height:1.4; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                         ${shortenName(displayName)}
                       </div>
                       ${fileSize ? `<div style="font-size:12px; color:#5f6368;">${fileSize}</div>` : ''}

@@ -8,9 +8,6 @@ export const geminiAI = async(prompt)=>{
   });
 
   const config = {
-    thinkingConfig: {
-      thinkingBudget: 5000,
-    },
     responseMimeType: 'text/plain',
   };
 
