@@ -10,7 +10,6 @@
 ╭──────────────────────────────────────────────────────────╮
 │  📧 MailSync automates bulk email sending process.       │
 │                                                           │
-│  ✔️ Google Sign-in                                       │
 │  ✔️ Upload files (.txt, .pdf, .docx, .xls, .xlsx, .csv)  │
 │  ✔️ Extract email addresses automatically                │
 │  ✔️ Generate email content with Google Gemini AI         │
