@@ -2,6 +2,7 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
 import { useAppStore } from "../../store/useAppStore";
 
+// todo : will work on this later
 const AutoGoogleLogin = () => {
 
   const {user, signin} = useAppStore();
@@ -16,7 +17,7 @@ const AutoGoogleLogin = () => {
       callback: (res) => {
         
         const decoded = jwtDecode(res.credential);
-        // console.log("Auto login success:", decoded);
+        console.log("Auto login success:", decoded);
 
         signin({fullName: decoded.name, email: decoded.email, picture: decoded.picture})
         

@@ -1,4 +1,4 @@
-import {NotificationContainer, AutoGoogleLogin, NavBar, SelectRecipients, UploadFile, ComposeAndSend, Notification } from "../components";
+import {NotificationContainer, NavBar, SelectRecipients, UploadFile, ComposeAndSend, Notification } from "../components";
 import { useAppStore } from "../store/useAppStore";
 
 function HomePage() {
@@ -7,7 +7,6 @@ function HomePage() {
   return (
     <>
       <div className="min-h-screen bg-secondary">
-        <AutoGoogleLogin />
         <NavBar />
 
         <main className="p-4 sm:p-6 lg:p-4">

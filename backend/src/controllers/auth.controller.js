@@ -2,46 +2,79 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {User} from "../models/userSchema.js"
+import { google } from 'googleapis';
 import jwt from 'jsonwebtoken'
 
 
 // 1. Signup or login => sign in
-const signin = asyncHandler( async(req,res) => {
+const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI,
+);
 
-    const {email, fullName, picture} = req.body;
-    // console.log("Data coming in signup call : " , req.body)
+const signin = asyncHandler(async (req, res) => {
 
-    if(!email.trim() || !fullName.trim()){
-        throw new ApiError(400 , "Please share your full name and email address")
+    // 1. getting data
+    const { code } = req.body;
+
+    if (!code) {
+        throw new ApiError(400, "Google OAuth code is required");
     }
 
-    let user = await User.findOne({email:email})
-    // if user doesn't exist create one
-    if(!user){
-        user = await User.create({email, fullName, picture})
+    // excange code for tokens
+    const { tokens } = await oauth2Client.getToken(code);
+
+    oauth2Client.setCredentials(tokens);
+
+    const oauth2 = google.oauth2({
+        auth: oauth2Client,
+        version: 'v2'
+    });
+
+    // get user info
+    const { data } = await oauth2.userinfo.get();
+    console.log("Google user data: ", data);
+
+    if (!data.email) {
+        throw new ApiError(400, "Google account does not have an email");
     }
 
-    if(!user){
-        throw new ApiError(500 , "Something went wrong during sign-in. Please try again")
+    let user = await User.findOne({ email: data.email });
+
+    // todo : if user exists then no need for the consent 
+    if (!user) {
+        user = await User.create({
+            email: data.email,
+            fullName: data.name,
+            picture: data.picture,
+            refreshToken: tokens.refresh_token
+        });
+    } 
+    else {
+        // Update user info + refresh token if new
+        user.fullName = data.name;
+        user.picture = data.picture;
+        if (tokens.refresh_token) {
+            user.refreshToken = tokens.refresh_token;
+        }
+        await user.save();
     }
 
-    // generate access token 
-    const token = jwt.sign(
-        {_id: user._id} , 
-        process.env.ACCESS_TOKEN_SECRET,
-        {expiresIn: process.env.ACCESS_TOKEN_EXPIRY}
-    )
-    res.cookie('jwt' , token, {
-        maxAge: 7*24*60*60*1000,
+    const token = jwt.sign({ _id: user._id }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRY
+    });
+
+    res.cookie('jwt', token, {
+        maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly: true,
         sameSite: 'none',
         secure: process.env.NODE_ENV !== 'development'
-    })
+    });
 
-    return res.status(201).json(
-        new ApiResponse(200 , user , "You have successfully signed in")
-    ) 
-})
+    return res.status(200).json(new ApiResponse(200, user, "Google sign-in successful"));
+});
+
 
 export {
     signin

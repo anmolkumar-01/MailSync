@@ -16,26 +16,28 @@ const NavBar = () => {
   const { user, signin, logout } = useAppStore();
 
   const handleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        });
-        const userInfo = await res.json();
-        signin({ fullName: userInfo.name, email: userInfo.email, picture: userInfo.picture });
+    flow: 'auth-code',
+    onSuccess: async (codeResponse) => {
 
-        // console.log("user info in manual login: ", userInfo)
-      } catch (error) {
-        console.error("Login failed:", error);
-      }
+      console.log("Google login code response: ", codeResponse);
+      await signin({ code: codeResponse.code }); 
     },
-    onError: () => console.log("Login failed"),
+    onError: () => console.log("Google login failed"),
+    scope: [
+        'openid',
+        'email',
+        'profile',
+        'https://www.googleapis.com/auth/gmail.send'
+    ].join(' '),
+    access_type: 'offline',
+    prompt: 'consent',
   });
 
   const handleLogout = () => {
     googleLogout();
     logout();
   };
+  
   
   const getInitials = (name = '') => {
     return name

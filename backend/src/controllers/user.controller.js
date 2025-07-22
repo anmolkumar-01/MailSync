@@ -1,14 +1,15 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
-import {User} from "../models/userSchema.js"
 import { readFileContent } from "../utils/readFileContent.js";
 import { geminiAI } from "../services/geminiApi.js";
 import { convertToJson } from "../services/convertToJson.js";
-import { transporter } from "../services/mailTransporter.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { generateEmailFileCardHTML } from "../services/generateEmailFileCard.js";
 import { systemPrompt } from "../constants/systemPrompt.js";
+import { google } from 'googleapis';
+import { encode } from 'js-base64';
+
 
 // 1. uploading the file and extract emails
 const uploadFile = asyncHandler( async(req, res) => {
@@ -76,133 +77,142 @@ const askAI = asyncHandler( async(req, res) => {
 })
 
 // 3. sending email
-const send = asyncHandler( async(req, res) => {
+// decode the subject to base64 format
+export const encodeSubject = (subject) => {
+    const base64 = Buffer.from(subject, 'utf-8').toString('base64');
+    return `=?UTF-8?B?${base64}?=`;
+}
 
-    // console.log("Data in send backend: ", req.body)
+// Helper function to create raw email
+function makeRawEmail({ from, to, subject, html, replyTo }) {
+    const messageParts = [
+        `From: ${from}`,
+        `To: ${to}`,
+        `Subject: ${encodeSubject(subject)}`,
+        `Reply-To: ${replyTo}`,
+        'MIME-Version: 1.0',
+        'Content-Type: text/html; charset=UTF-8',
+        '',
+        html
+    ];
 
-    const {subject, body} = req.body
-    const recipients = JSON.parse(req.body?.recipients || [])
+    const message = messageParts.join('\n');
+
+    const encodedMessage = encode(message)
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+
+    return encodedMessage;
+}
+
+// Main send controller
+const send = asyncHandler(async (req, res) => {
+
+    // 1. Get data
+    const { subject, body } = req.body;
+    const recipients = JSON.parse(req.body?.recipients || []);
 
     const currentUser = req.user;
-    // console.log(currentUser)
 
-    if(!subject || !body ){
+    if (!subject || !body) {
         throw new ApiError(400, 'Please add the subject line and content for your email');
     }
 
     if (!Array.isArray(recipients) || recipients.length === 0) {
         throw new ApiError(404, '404: Recipients emails not found');
     }
-    // console.log(recipients)
 
-    // handling the uploaded files
-    const fileData = req.files || []
-    // console.log("filedata : ", req.files);
+    // 2.Handle uploaded files and upload to Cloudinary
+    const fileData = req.files || [];
+    let localFilePathArray = [];
+    let requiredData = [];
 
-    let localFilePathArray = []
-    let requiredData = []
-
-    if(fileData.length){
-        for(const file of fileData){
-            localFilePathArray.push(file.path)
+    if (fileData.length) {
+        for (const file of fileData) {
+            localFilePathArray.push(file.path);
         }
-        const cloudinaryResponses = await uploadOnCloudinary(localFilePathArray)
 
-        if(!cloudinaryResponses){
-            throw new ApiError(400, "Unsupported file format. Please send another file")
+        const cloudinaryResponses = await uploadOnCloudinary(localFilePathArray);
+
+        if (!cloudinaryResponses) {
+            throw new ApiError(400, "Unsupported file format. Please send another file");
         }
-        // console.log(cloudinaryResponses)
+
         requiredData = cloudinaryResponses.map(file => ({
             name: file.original_filename,
             url: file.secure_url,
             size: file.bytes
         }));
-
     }
 
-    const filesHTML = generateEmailFileCardHTML(requiredData)
+    // Generate files HTML block
+    const filesHTML = generateEmailFileCardHTML(requiredData);
 
-    const html = ` 
+    // Prepare final email HTML
+    const html = `
     <div style="margin: 0; padding: 0; font-family: sans-serif;">
-
-        <!-- Main container table -->
         <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 700px; margin: 20px auto; border: 1px solid black; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
-            
-            <!-- Header Row -->
             <tr>
                 <td align="center" style="background-color: #3b82f6; padding: 20px; border-radius: 12px 12px 0 0;">
-                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                        <tr>
-                            <td align="center" style="color: #ffffff; font-size: 24px; font-weight: bold; font-family: sans-serif;">
-                                <!-- Placeholder for a white logo -->
-                                <img src="https://cdn-icons-png.flaticon.com/512/893/893257.png" alt="Logo" width="40" style="border:0; display:inline-block; vertical-align:middle; margin-right: 10px;">
-                                MailSync
-                            </td>
-                        </tr>
-                    </table>
+                    <img src="https://cdn-icons-png.flaticon.com/512/893/893257.png" alt="Logo" width="40" style="border:0; display:inline-block; vertical-align:middle; margin-right: 10px;">
+                    <span style="color: #ffffff; font-size: 24px; font-weight: bold;">MailSync</span>
                 </td>
             </tr>
-
-            <!-- Content Row -->
             <tr>
                 <td style="background-color: #ffffff; padding: 20px 30px; border-radius: 0 0 12px 12px;">
-                    
-                    <!-- YOUR EXISTING CONTENT GOES HERE -->
-                    <div>
-                        ${body}
-                    </div>
-                    
+                    <div>${body}</div>
                     ${filesHTML}
-                    
                 </td>
             </tr>
-
-            <tr>
-                <td style="font-size: 0.9em; padding: 20px">
-                    This message was sent by <strong>${currentUser.fullName}</strong> (${currentUser.email}) through the <strong>MailSync</strong> app.
-                </td>
-            </tr>
-
         </table>
-
-        <!-- Your original footer remains outside the main container -->
- 
-
     </div>
     `;
+    
+    
+    // Gmail API Setup
+    const oAuth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        "postmessage"
+    );
 
-    // console.log(html)
+    oAuth2Client.setCredentials({
+        refresh_token: currentUser.refreshToken
+    });
 
-        
+    const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
+
     let users = 0;
-    // sending parallelly
-    await Promise.all(
-    recipients.map(async (email) => {
+
+    // Send emails parallelly
+    await Promise.all(recipients.map(async (email) => {
         try {
-            await transporter.sendMail({
-                from: `${currentUser.fullName} <${process.env.EMAIL_USER}>`,
+            const raw = makeRawEmail({
+                from: `${currentUser.fullName} <${currentUser.email}>`,
                 to: email,
                 subject,
                 html,
                 replyTo: currentUser.email
             });
+
+            await gmail.users.messages.send({
+                userId: 'me',
+                requestBody: { raw }
+            });
+
             users++;
 
         } catch (err) {
             console.log(`Failed to send email to ${email}:`, err.message);
-            // throw new ApiError(400, `${email} is not a valid email`)
-            throw new ApiError(400, "Daily email sending limit exceeded. You can send more emails after 24 hours")
+            throw new ApiError(400, `Failed to send email to ${email}. Please try again later.`);
         }
-    })
-    );
+    }));
 
-    // console.log("emails sent to : " , users)    
-    
     return res.status(201).json(
-        new ApiResponse(200, requiredData , `Email has been successfully sent to ${users} ${users == 1 ? 'user' : 'users'}`)
-    )
-
-})
+        new ApiResponse(200, requiredData, `Email has been successfully sent to ${users} ${users === 1 ? 'user' : 'users'}`)
+    );
+});
 
 export{
     uploadFile,

@@ -28,17 +28,20 @@ persist(
     notifications: [],
 
     // 1. Sign In
-    signin: async(formData) => {
+    signin: async(code) => {
 
         set({isSigningIn : true})
         try {
-            const res = await axiosInstance.post('/auth/signin', formData)
+            const res = await axiosInstance.post('/auth/signin', { code })
             // console.log("data coming in signin route from axios is " , res.data.data)
-            set({user: res.data.data})
 
-            // saving in store
-            
+            const userData = res.data.data;
 
+            if (!userData.refreshToken) {
+                get().triggerNotification("Login successful, but email permissions are missing. Please re-authenticate.", "appError");
+            }
+
+            set({user: userData})
             get().triggerNotification("You have successfully signed in", "success")
 
         } catch (error) {
