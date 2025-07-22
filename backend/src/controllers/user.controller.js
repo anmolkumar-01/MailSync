@@ -168,7 +168,7 @@ const send = asyncHandler(async (req, res) => {
         </table>
     </div>
     `;
-    
+
     
     // Gmail API Setup
     const oAuth2Client = new google.auth.OAuth2(
