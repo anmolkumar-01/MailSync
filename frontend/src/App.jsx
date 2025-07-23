@@ -3,7 +3,7 @@ import { useAppStore } from './store/useAppStore'
 
 import {HomePage} from './pages/HomePage'
 import MailSyncSkeleton from './components/skeletons/MailSyncSkeleton';
-import { useEffect } from 'react';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
 
 function App() {
 
@@ -15,6 +15,7 @@ function App() {
     <div className='h-screen lg:overflow-hidden'>
       <Routes>
         <Route path='/' element={isSigningIn? <MailSyncSkeleton /> : <HomePage />}></Route>
+        <Route path='/privacy-policy' element={<PrivacyPolicy />}></Route>
       </Routes>
     </div>
   )
