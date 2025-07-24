@@ -12,7 +12,7 @@ function App() {
   // console.log("user : ", user);
 
   return (
-    <div className='h-screen lg:overflow-hidden'>
+    <div className='h-screen'>
       <Routes>
         <Route path='/' element={isSigningIn? <MailSyncSkeleton /> : <HomePage />}></Route>
         <Route path='/privacy-policy' element={<PrivacyPolicy />}></Route>

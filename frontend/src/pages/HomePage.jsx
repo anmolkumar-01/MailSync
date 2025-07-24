@@ -1,5 +1,6 @@
 import {NotificationContainer, NavBar, SelectRecipients, UploadFile, ComposeAndSend, Notification } from "../components";
 import { useAppStore } from "../store/useAppStore";
+import { Link } from "react-router";
 
 function HomePage() {
   const { user, isSigningIn} = useAppStore();
@@ -29,6 +30,13 @@ function HomePage() {
 
 
         </main>
+
+        <footer className="p-4 text-center">
+          <Link to="/privacy-policy" className="text-sm text-gray-500 hover:underline">
+            Privacy Policy
+          </Link>
+        </footer>
+
       </div>
 
       {/* ---------- Notifications --------- */}
