@@ -10,6 +10,10 @@ import { systemPrompt } from "../constants/systemPrompt.js";
 import { google } from 'googleapis';
 import { encode } from 'js-base64';
 
+import { OrgMember } from "../models/orgMemberSchema.js";
+
+// ------------------------------------- sending email related controllers ---------------------------
+// todo : change everything according to organization
 
 // 1. uploading the file and extract emails
 const uploadFile = asyncHandler( async(req, res) => {
@@ -214,8 +218,92 @@ const send = asyncHandler(async (req, res) => {
     );
 });
 
+// ------------------------------------- app related controllers ---------------------------
+
+// 1. Get all the invitation
+export const allInvites = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+
+    // 1. Find all pending invites
+    const invites = await OrgMember.find({
+        userId,
+        status: "invited"
+    })
+    .populate("organization", "name email tier dailyLimit") // Select org fields you want to expose
+    .sort({ invitedAt: -1 });
+
+    return res.status(200).json(
+        new ApiResponse(200, invites, "Pending invites retrieved successfully")
+    );
+});
+
+// 2. Accept the invitation request
+const acceptInvite = asyncHandler(async (req, res) => {
+
+    // 1. Take inputs
+    const userId = req.user._id;
+    const { organizationId } = req.body;
+
+    if (!organizationId) {
+        throw new ApiError(400, "Organization ID is required to accept an invite.");
+    }
+
+    // 2. Find invite
+    const member = await OrgMember.findOne({
+        userId,
+        organization: organizationId,
+        status: "invited"
+    });
+
+    if (!member) {
+        throw new ApiError(404, "No pending invite found for this organization.");
+    }
+
+    // 3. Update status to accepted
+    member.status = "accepted";
+    await member.save();
+
+    return res.status(200).json(
+        new ApiResponse(200, member, "Invitation accepted successfully.")
+    );
+});
+
+// 3. Reject the invitation request
+const rejectInvite = asyncHandler(async (req, res) => {
+
+    // 1. Take inputs
+    const userId = req.user._id;
+    const { organizationId } = req.body;
+
+    if (!organizationId) {
+        throw new ApiError(400, "Organization ID is required to accept an invite.");
+    }
+
+    // 2. Find invite
+    const member = await OrgMember.findOne({
+        userId,
+        organization: organizationId,
+        status: "invited"
+    });
+
+    if (!member) {
+        throw new ApiError(404, "No pending invite found for this organization.");
+    }
+
+    // 3. Update status to accepted
+    member.status = "rejected";
+    await member.save();
+
+    return res.status(200).json(
+        new ApiResponse(200, member, "Invitation accepted successfully.")
+    );
+});
+
 export{
     uploadFile,
     askAI,
-    send
+    send,
+    allInvites,
+    acceptInvite,
+    rejectInvite
 }

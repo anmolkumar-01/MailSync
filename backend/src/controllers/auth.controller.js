@@ -47,14 +47,14 @@ const signin = asyncHandler(async (req, res) => {
         user = await User.create({
             email: data.email,
             fullName: data.name,
-            picture: data.picture,
+            profilePic: data.picture,
             refreshToken: tokens.refresh_token
         });
     } 
     else {
         // Update user info + refresh token if new
         user.fullName = data.name;
-        user.picture = data.picture;
+        user.profilePic = data.picture;
         if (tokens.refresh_token) {
             user.refreshToken = tokens.refresh_token;
         }
@@ -72,10 +72,21 @@ const signin = asyncHandler(async (req, res) => {
         secure: process.env.NODE_ENV !== 'development'
     });
 
-    return res.status(200).json(new ApiResponse(200, user, "Google sign-in successful"));
+    const sanitizedUser = user.toObject();
+    return res.status(200).json(new ApiResponse(200, sanitizedUser, "Google sign-in successful"));
 });
 
+// 2. get the current user
+const me = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    const {refreshToken, ...sanitizedUser} = user.toObject();
+    return res.status(200).json(new ApiResponse(200, sanitizedUser, "User retrieved successfully"));
+});
 
 export {
-    signin
+    signin,
+    me
 }

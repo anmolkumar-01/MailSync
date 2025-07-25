@@ -2,14 +2,13 @@ import {Router} from 'express'
 import { verifyJWT } from '../middlewares/auth.middleware.js'
 
 import{
-    signin,
-    me
-} from "../controllers/auth.controller.js"
+    verify,
+} from "../controllers/payment.controller.js"
 
 const router = Router()
 
-router.post("/signin" , signin)
-router.get("/me", verifyJWT, me)
+router.use(verifyJWT)
 
+router.post("/payment-verify", verify)
 
 export default router

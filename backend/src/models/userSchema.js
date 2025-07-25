@@ -12,8 +12,16 @@ const userSchema = new Schema(
             required: true,
             unique: true,
         },
-        picture:{
+        googleId: {
+            type: String,
+        },
+        profilePic:{
             type:String,
+        },
+        role: {
+            type: String,
+            enum: ['user', 'admin'],
+            default: 'user',
         },
         refreshToken: {
             type: String,
