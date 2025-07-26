@@ -11,6 +11,8 @@ import { google } from 'googleapis';
 import { encode } from 'js-base64';
 
 import { OrgMember } from "../models/orgMemberSchema.js";
+import { Organization } from "../models/organizationSchema.js";
+import { User } from "../models/userSchema.js";
 
 // ------------------------------------- sending email related controllers ---------------------------
 // todo : change everything according to organization
@@ -82,13 +84,13 @@ const askAI = asyncHandler( async(req, res) => {
 
 // 3. sending email
 // decode the subject to base64 format
-export const encodeSubject = (subject) => {
+const encodeSubject = (subject) => {
     const base64 = Buffer.from(subject, 'utf-8').toString('base64');
     return `=?UTF-8?B?${base64}?=`;
 }
 
 // Helper function to create raw email
-function makeRawEmail({ from, to, subject, html, replyTo }) {
+const makeRawEmail=({ from, to, subject, html, replyTo }) => {
     const messageParts = [
         `From: ${from}`,
         `To: ${to}`,
@@ -114,17 +116,43 @@ function makeRawEmail({ from, to, subject, html, replyTo }) {
 const send = asyncHandler(async (req, res) => {
 
     // 1. Get data
-    const { subject, body } = req.body;
+    const { subject, body, organizationId  } = req.body;
     const recipients = JSON.parse(req.body?.recipients || []);
-
-    const currentUser = req.user;
 
     if (!subject || !body) {
         throw new ApiError(400, 'Please add the subject line and content for your email');
     }
 
+    if (!organizationId) {
+        throw new ApiError(400, 'Oranization is required');
+    }
+
     if (!Array.isArray(recipients) || recipients.length === 0) {
-        throw new ApiError(404, '404: Recipients emails not found');
+        throw new ApiError(404, 'Recipients emails not found');
+    }
+
+    const currentOrg = await Organization.findById(organizationId);
+    if(!currentOrg){
+        throw new ApiError(404, 'Oranization does not exist');
+    }
+
+    // is user a valid member of this organization
+    const isMember = currentOrganization.members.includes(req.user._id); // or check roles map
+    if (!isMember) {
+        throw new ApiError(403, 'You are not a member of this organization');
+    }
+
+    // recipients list must not be greater than daily Limit
+    if(currentOrg.dailyLimit == 0){
+        throw new ApiError(403, `Daily email sending limit exceeded. Please try again tomorrow`);
+    }
+    if(recipients.length > currentOrg.dailyLimit){
+        throw new ApiError(403, `Your organization can only send ${currentOrg.dailyLimit} emails today`);
+    }
+
+    const owner = await User.findById(currentOrg.owner);
+    if (!owner || !owner.refreshToken) {
+        throw new ApiError(400, 'Organization owner is not properly configured to send emails');
     }
 
     // 2.Handle uploaded files and upload to Cloudinary
@@ -182,7 +210,7 @@ const send = asyncHandler(async (req, res) => {
     );
 
     oAuth2Client.setCredentials({
-        refresh_token: currentUser.refreshToken
+        refresh_token: owner.refreshToken
     });
 
     const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
@@ -193,11 +221,11 @@ const send = asyncHandler(async (req, res) => {
     await Promise.all(recipients.map(async (email) => {
         try {
             const raw = makeRawEmail({
-                from: `${currentUser.fullName} <${currentUser.email}>`,
+                from: `${currentOrg.name} <${currentOrg.email}>`,
                 to: email,
                 subject,
                 html,
-                replyTo: currentUser.email
+                replyTo: currentOrg.email
             });
 
             await gmail.users.messages.send({
@@ -213,6 +241,9 @@ const send = asyncHandler(async (req, res) => {
         }
     }));
 
+    currentOrg.dailyLimit -= users;
+    await currentOrg.save();
+
     return res.status(201).json(
         new ApiResponse(200, requiredData, `Email has been successfully sent to ${users} ${users === 1 ? 'user' : 'users'}`)
     );
@@ -221,7 +252,7 @@ const send = asyncHandler(async (req, res) => {
 // ------------------------------------- app related controllers ---------------------------
 
 // 1. Get all the invitation
-export const allInvites = asyncHandler(async (req, res) => {
+const allInvites = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
     // 1. Find all pending invites

@@ -18,8 +18,8 @@ const createOrg = asyncHandler(async (req, res) => {
 
     // 2. Check if organization with same email already exists
     const existingOrg = await Organization.findOne({ email });
-    if (existingOrg && tier === "free") {
-        throw new ApiError(400, "You can only create one organization with anemail in free tier. Please select another email");
+    if (existingOrg) {
+        throw new ApiError(400, "An Organization is associated with this email. Please select another email");
     }
 
     // 3. Valid tier check and daily limit mapping
