@@ -14,6 +14,18 @@ import EmailSkeleton from "./skeletons/EmailSkeleton";
 import FileIconManual from "./custom/FileIconManual";
 import { AddEmailModal } from "./custom/AddEmailModal";
 
+import AnimatedGradientText from "./custom/AnimatedGradientText"
+import FeatureCard from "./custom/FeatureCard"
+import GoogleIcon from "./custom/GoogleIcon"
+
+import FeaturesSection from "./home/FeaturesSection"
+import HeroSection from "./home/HeroSection"
+import HowItWorksSection from "./home/HowItWorksSection"
+
+import Footer from "./layout/Footer"
+import Header from "./layout/Header"
+
+
 export {
     NavBar,
     Input,
@@ -30,5 +42,14 @@ export {
     NotificationContainer,
     EmailSkeleton,
     FileIconManual,
-    AddEmailModal
+    AddEmailModal,
+
+    AnimatedGradientText,
+    FeatureCard,
+    GoogleIcon,
+    FeaturesSection,
+    HeroSection,
+    HowItWorksSection,
+    Footer,
+    Header
 }
