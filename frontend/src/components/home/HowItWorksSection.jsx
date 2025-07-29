@@ -5,28 +5,32 @@ import {GoogleIcon} from '..';
 
 const HowItWorksSection = () => {
     const steps = [
-        {
+        {   iconCol: "blue",
             icon: <GoogleIcon className="w-6 h-6" />,
             title: "Sign-in with Google",
             description: "Connect your account securely with a single click to get started.",
         },
-        {
-            icon: <Building className="w-6 h-6 text-blue-500" />,
+        {   
+            iconCol: "yellow",
+            icon: <Building className="w-6 h-6 text-yellow-500" />,
             title: "Create Organization",
             description: "Set up a dedicated workspace for your team and projects.",
         },
         {
-            icon: <UserPlus className="w-6 h-6 text-blue-500" />,
+            iconCol: "orange",
+            icon: <UserPlus className="w-6 h-6 text-orange-500" />,
             title: "Invite Members",
             description: "Add team members to collaborate on your email campaigns.",
         },
         {
-            icon: <Bot className="w-6 h-6 text-blue-500" />,
+            iconCol: "red",
+            icon: <Bot className="w-6 h-6 text-red-500" />,
             title: "Generate with AI",
             description: "Use AI to generate personalized and effective email content.",
         },
         {
-            icon: <Send className="w-6 h-6 text-blue-500" />,
+            iconCol: "green",
+            icon: <Send className="w-6 h-6 text-green-500" />,
             title: "Send Emails",
             description: "Dispatch campaigns through your own Gmail for maximum trust.",
         },

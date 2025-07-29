@@ -37,4 +37,4 @@ const SendEmailsPage = () => {
   );
 }
 
-export { SendEmailsPage };
+export default SendEmailsPage ;

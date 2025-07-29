@@ -3,10 +3,9 @@ import { Header, HeroSection, FeaturesSection, HowItWorksSection, Footer } from 
 
 // The main App component now assembles the page from imported sections.
 // All styling is handled by /src/index.css and Tailwind classes.
-export function HomePage() {
+export default function HomePage() {
     return (
-        <div className="bg-white text-slate-800 font-sans antialiased">
-            <Header />
+        <div className="bg-white text-slate-800 font-sans antialiased h-screen overflow-y-scroll no-scrollbar">
             <main>
                 <HeroSection />
                 <FeaturesSection />

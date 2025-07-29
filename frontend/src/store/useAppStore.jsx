@@ -9,6 +9,8 @@ persist(
     (set, get) => ({
 
     user: null,
+    currentOrg: null,
+    currentOrgMembers: [],
 
     isSigningIn: false,
     isExtractingEmails: false,

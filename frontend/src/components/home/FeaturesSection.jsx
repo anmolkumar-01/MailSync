@@ -4,28 +4,33 @@ import {FeatureCard} from '..';
 
 const FeaturesSection = () => {
     const features = [
-        {
+        {   
+            iconCol: "blue",
             icon: <Building className="w-6 h-6 text-blue-500" />,
             title: "Create Organization",
             description: "Set up your team's workspace in seconds to manage campaigns and members.",
         },
-        {
-            icon: <Users className="w-6 h-6 text-blue-500" />,
+        {   
+            iconCol: "yellow",
+            icon: <Users className="w-6 h-6 text-yellow-500" />,
             title: "Manage Recipients",
             description: "Easily select, add, and manage your email recipients in one centralized place.",
         },
-        {
-            icon: <UploadCloud className="w-6 h-6 text-blue-500" />,
+        {   
+            iconCol: "orange",
+            icon: <UploadCloud className="w-6 h-6 text-orange-500" />,
             title: "Upload & Extract",
-            description: "Automatically extract emails from TXT, DOCX, XLSX, and CSV files.",
+            description: "Automatically extract emails from PDF, TXT, DOCX, XLSX, and CSV files.",
         },
-        {
-            icon: <Bot className="w-6 h-6 text-blue-500" />,
+        {   
+            iconCol: "red",
+            icon: <Bot className="w-6 h-6 text-red-500" />,
             title: "AI-Powered Composition",
             description: "Use our advanced AI to generate compelling email subjects and body content.",
         },
-        {
-            icon: <Send className="w-6 h-6 text-blue-500" />,
+        {   
+            iconCol: "green",
+            icon: <Send className="w-6 h-6 text-green-500" />,
             title: "Direct & Secure Send",
             description: "Send emails directly via your Gmail account for privacy and deliverability.",
         },
@@ -39,11 +44,12 @@ const FeaturesSection = () => {
                     <p className="text-lg text-slate-600">
                         From setup to sending, MailSync provides everything you need to streamline your email outreach.
                     </p>
+                
                 </div>
                 <div className="flex flex-wrap justify-center gap-8 max-w-6xl mx-auto">
                     {features.map((feature, i) => (
                         <div key={i} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.34rem)]">
-                             <FeatureCard {...feature} />
+                            <FeatureCard {...feature} />
                         </div>
                     ))}
                 </div>

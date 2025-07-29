@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Card, CardHeader, CardContent } from '../ui/card';
 
-const FeatureCard = ({ icon, title, description }) => {
+const FeatureCard = ({iconCol, icon, title, description }) => {
     const cardRef = useRef(null);
 
     useEffect(() => {
@@ -35,9 +35,9 @@ const FeatureCard = ({ icon, title, description }) => {
 
     return (
         <div ref={cardRef} className="transform-style-3d transition-transform duration-300 ease-out h-full">
-            <Card className="h-full group hover:shadow-hovery">
+            <Card className={`h-full group hover:shadow-hovery hover:bg-${iconCol}-50`}>
                 <CardHeader className="flex items-center gap-4">
-                    <div className="bg-blue-100 p-3 rounded-full border border-blue-200/80">
+                    <div className={`bg-${iconCol}-100 p-3 rounded-full border border-${iconCol}-200/80`}>
                         {icon}
                     </div>
                     <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
