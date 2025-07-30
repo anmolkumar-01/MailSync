@@ -1,4 +1,4 @@
-import {NotificationContainer, NavBar, SelectRecipients, UploadFile, ComposeAndSend,} from "../components";
+import {NotificationContainer, Navbar, SelectRecipients, UploadFile, ComposeAndSend,} from "../components";
 import { useAppStore } from "../store/useAppStore";
 import { Link } from "react-router";
 
@@ -8,7 +8,7 @@ const SendEmailsPage = () => {
   return (
     <>
       <div className="min-h-screen bg-secondary">
-        <NavBar />
+        <Navbar />
 
         <main className="p-4 sm:p-6 lg:p-4">
 

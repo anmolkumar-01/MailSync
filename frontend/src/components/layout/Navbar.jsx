@@ -14,7 +14,7 @@ import {
 } from '../ui/dropdown-menu';
 import { GoogleIcon } from '..';
 
-const Header = () => {
+const Navbar = () => {
     const { user, signin, logout } = useAppStore();
 
     const handleLogin = useGoogleLogin({
@@ -61,7 +61,7 @@ const Header = () => {
     ];
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-3 px-8 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200">
+        <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-3 px-8 bg-blue-50/50 backdrop-blur-md shadow-sm border-b border-slate-200">
         
         {/* --------- Logo ---------- */}
         <a href="/" className="flex items-center gap-3 text-xl font-semibold text-slate-900">
@@ -142,4 +142,4 @@ const Header = () => {
     );
 };
 
-export default Header;
+export default Navbar;

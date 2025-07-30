@@ -2,7 +2,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
-import NavBar from "./custom/NavBar";
 import UploadFile from "./custom/UploadFile";
 import SelectRecipients from "./custom/SelectRecipients";
 import ComposeAndSend from "./custom/ComposeAndSend";
@@ -23,11 +22,26 @@ import HeroSection from "./home/HeroSection"
 import HowItWorksSection from "./home/HowItWorksSection"
 
 import Footer from "./layout/Footer"
-import Header from "./layout/Header"
+import Navbar from "./layout/Navbar"
+
+
+import {MOCK_USERS} from './dashboard/data'
+import {MOCK_ORGS} from './dashboard/data'
+import {MOCK_ACTIVITIES} from './dashboard/data'
+
+import Header from "./dashboard/Header";
+import AdminPanel from './dashboard/AdminPanel'
+import OrgDashboard from './dashboard/OrgDashboard'
+import UserDashboard from './dashboard/UserDashboard'
+import AnalyticsChartPlaceholder from './dashboard/AnalyticsChartPlaceholder'
+import ActivityTable from './dashboard/ActivityTable'
+import Sidebar from "./dashboard/Sidebar";
+import StatCard from './dashboard/StatCard'
+
 
 
 export {
-    NavBar,
+    Navbar,
     Input,
     Button,
     Checkbox,
@@ -51,5 +65,17 @@ export {
     HeroSection,
     HowItWorksSection,
     Footer,
-    Header
+    Header,
+
+    AdminPanel, 
+    OrgDashboard,
+    UserDashboard,
+    AnalyticsChartPlaceholder,
+    ActivityTable,
+    Sidebar,
+    StatCard,
+    
+    MOCK_USERS,
+    MOCK_ORGS,
+    MOCK_ACTIVITIES
 }

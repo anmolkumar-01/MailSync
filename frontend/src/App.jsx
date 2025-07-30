@@ -1,7 +1,7 @@
 import {Routes, Route, Navigate} from 'react-router'
 import { useAppStore } from './store/useAppStore'
 
-import {HomePage, OrgDashboard, UserDashboard, PrivacyPolicy, SendEmailsPage} from './pages'
+import {HomePage, OrgDashboard, UserDashboard, PrivacyPolicy, SendEmailsPage, AdminPanel, OrgAdminActivity, OrgMemberActivity} from './pages'
 import {Header} from './components'
 import MailSyncSkeleton from './components/skeletons/MailSyncSkeleton';
 import { NotificationContainer } from './components';
@@ -21,8 +21,6 @@ function App() {
   return (
     <div className='h-screen verflow-auto no-scrollbar'>
 
-      <Header />
-
       <Routes>
 
         <Route path='/' element={isSigningIn? <MailSyncSkeleton /> : <HomePage />}></Route>
@@ -35,6 +33,10 @@ function App() {
           <Route path='/dashboard' element={ <UserDashboard /> }></Route>    
           <Route path='/org-dashboard' element={ <OrgDashboard />}></Route>    
           <Route path='/send' element={userRoleInOrg? <SendEmailsPage /> : <OrgDashboard/>}></Route>
+
+          <Route path='/admin-panel' element={ user.role == 'admin'? <AdminPanel /> : <UserDashboard/>}></Route>    
+          <Route path='/org-activity' element={userRoleInOrg? (userRoleInOrg == 'orgAdmin'? <OrgAdminActivity /> : <OrgMemberActivity/>) : <UserDashboard/>}></Route>    
+          
         </Route>
 
       </Routes>
