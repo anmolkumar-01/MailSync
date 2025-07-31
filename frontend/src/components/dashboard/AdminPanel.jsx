@@ -15,12 +15,6 @@ const AdminPanel = ({ user }) => (
         </div>
     </div>
 
-    {/* 
-        👇 THE CRUCIAL FIX IS HERE 👇
-        - We replace `grid` with `flex` for better height distribution.
-        - `flex-1`: This makes the container grow to fill all available vertical space.
-        - `min-h-0`: This is essential. It allows the flex container to shrink below its content's intrinsic size, which is what makes overflow work correctly inside its children.
-    */}
     <div className="flex-1 flex gap-6 md:gap-8 min-h-0">
             {/* 
             - This div now takes up 2/3 of the width.

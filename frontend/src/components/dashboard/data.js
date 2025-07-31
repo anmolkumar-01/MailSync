@@ -7,9 +7,9 @@ export const MOCK_USERS = {
 };
 
 export const MOCK_ORGS = [
-  { id: 'org-1', name: 'Innovate Inc.', plan: 'Enterprise', members: [MOCK_USERS.orgAdmin, MOCK_USERS.orgMember] },
-  { id: 'org-2', name: 'Synergy Corp.', plan: 'Startup' , members: []},
-  { id: 'org-3', name: 'Quantum Solutions', plan: 'Pro', members: [] },
+  { id: 'org-1', name: 'Innovate Inc.', plan: 'Free', members: [MOCK_USERS.orgAdmin, MOCK_USERS.orgMember] },
+  { id: 'org-2', name: 'Synergy Corp.', plan: 'Pro' , members: []},
+  { id: 'org-3', name: 'Quantum Solutions', plan: 'Premium', members: [] },
 ];
 
 export const MOCK_ACTIVITIES = [

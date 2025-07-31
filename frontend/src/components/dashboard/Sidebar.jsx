@@ -1,62 +1,90 @@
 import React, { useMemo } from 'react';
-import {Link} from 'react-router';
+import { Link } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Mail, LayoutDashboard, Building2, PanelLeft, Activity, Send, Users, LineChart } from 'lucide-react';
 
-const Sidebar = ({ currentUser, currentView, selectedOrg, handleBackToUserDashboard }) => {
+// Added `onSelectOrg` to the props to handle view switching
+const Sidebar = ({ currentUser, currentView, selectedOrg, handleBackToUserDashboard, onSelectOrg, orgSubView, setOrgSubView }) => {
+    
     const sidebarContent = useMemo(() => {
-        const baseItems = [
-            { label: 'Dashboard', icon: LayoutDashboard, view: 'user-dashboard' },
-            { label: 'Organizations', icon: Building2, view: 'user-dashboard' },
-
+        
+        // --- sidebar options ---
+        let baseItems = [
+            { 
+                label: 'Organizations', 
+                icon: Building2, 
+                view: 'user-dashboard',
+                // This button should take the user back to the main organization list
+                onClick: handleBackToUserDashboard 
+            },
         ];
 
+        // todo : user check
+        // If the user is an admin, add the "Admin Dashboard" option to the start of the list.
+        if (currentUser.role === 'admin') {
+            baseItems.unshift({
+                label: 'Admin Dashboard',
+                icon: LayoutDashboard,
+                view: 'admin-panel',
+                // This button specifically triggers the switch to the admin panel view
+                onClick: () => onSelectOrg({ id: 'admin-panel' })
+            });
+        }
+
+        // --- Logic for contextual menu items remains the same ---
         let orgMenuItems = [];
         if (currentView === 'org-dashboard' && selectedOrg) {
             orgMenuItems = [
-                { label: 'Activity', icon: Activity, active: true },
-                { label: 'Send Email', icon: Send },
+                { label: 'Send Email', icon: Send, viewId: 'send-email', onClick: () => setOrgSubView('send-email') },
             ];
             if (currentUser.role === 'orgAdmin') {
-                orgMenuItems.push({ label: 'Members', icon: Users });
-                orgMenuItems.push({ label: 'Analytics', icon: LineChart });
+                orgMenuItems.unshift({ label: 'Members', icon: Users, viewId: 'members', onClick: () => setOrgSubView('members') });
+                orgMenuItems.unshift({ label: 'Analytics', icon: LineChart, viewId: 'analytics', onClick: () => setOrgSubView('analytics') });
             }
-        } else if (currentView === 'admin-panel') {
-            orgMenuItems = [{ label: 'Admin Panel', icon: PanelLeft, active: true }];
-        }
 
+            // make item active whose viewId = orgSubView
+            orgMenuItems.forEach(item => {
+                item.active = item.viewId === orgSubView;
+            });
+        }
+        
         return (
             <nav className="flex flex-col gap-1 p-2">
-                {currentView !== 'user-dashboard' && (
-                    <Button variant="ghost" className="mb-2 justify-start text-blue-600 hover:text-blue-700" onClick={handleBackToUserDashboard}>
-                        ← All Organizations
-                    </Button>
-                )}
+
                 <h3 className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-400">Menu</h3>
+                
+                {/* ---------- Sidebar main options --------- */}
                 {baseItems.map(item => (
-                    <Link key={item.label} href="#">
-                        <Button variant={currentView === item.view ? 'secondary' : 'ghost'} className="w-full justify-start" onClick={handleBackToUserDashboard}>
-                            <item.icon className="mr-2 h-4 w-4" /> {item.label}
-                        </Button>
-                    </Link>
+                    <Button 
+                        key={item.label} 
+                        variant={currentView === item.view ? 'secondary' : 'ghost'} 
+                        className="w-full justify-start" 
+                        onClick={item.onClick} // Use the specific onClick for each item
+                    >
+                        <item.icon className="mr-2 h-4 w-4" /> {item.label}
+                    </Button>
                 ))}
+                
+                {/* ----------- Items related to each organizations ----------- */}
                 {orgMenuItems.length > 0 && <h3 className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-400">{selectedOrg?.name || 'Platform'}</h3>}
+                
                 {orgMenuItems.map(item => (
-                    <Button key={item.label} variant={item.active ? 'secondary' : 'ghost'} className="w-full justify-start">
+                    <Button key={item.label} variant={item.active ? 'secondary' : 'ghost'} className="w-full justify-start"
+                    onClick={item.onClick}>
                         <item.icon className="mr-2 h-4 w-4" /> {item.label}
                     </Button>
                 ))}
             </nav>
         );
-    }, [currentView, selectedOrg, currentUser.role, handleBackToUserDashboard]);
+    }, [currentView, selectedOrg, currentUser.role, handleBackToUserDashboard, onSelectOrg]);
 
     return (
         <div className="flex h-full flex-col bg-white">
             <div className="flex h-[60px] items-center border-b border-slate-200 px-6">
-                <Link href="/" className="flex items-center gap-2 font-semibold text-slate-800">
-                    <Mail className="h-6 w-6 text-blue-500" />
-                    <span>MailSync</span>
+                <Link to="/" className="flex items-center gap-2 font-semibold text-slate-800">
+                <img src="./logo.png" alt="MailSync" className="w-6 h-6 "/>
+                <span>MailSync</span>
                 </Link>
             </div>
             <ScrollArea className="flex-1 min-h-0">{sidebarContent}</ScrollArea>
@@ -64,4 +92,4 @@ const Sidebar = ({ currentUser, currentView, selectedOrg, handleBackToUserDashbo
     );
 };
 
-export default Sidebar
+export default Sidebar;

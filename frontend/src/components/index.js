@@ -32,11 +32,12 @@ import {MOCK_ACTIVITIES} from './dashboard/data'
 import Header from "./dashboard/Header";
 import AdminPanel from './dashboard/AdminPanel'
 import OrgDashboard from './dashboard/OrgDashboard'
-import UserDashboard from './dashboard/UserDashboard'
+import Organizations from './dashboard/Organisations'
 import AnalyticsChartPlaceholder from './dashboard/AnalyticsChartPlaceholder'
 import ActivityTable from './dashboard/ActivityTable'
 import Sidebar from "./dashboard/Sidebar";
 import StatCard from './dashboard/StatCard'
+import PricingDialog from "./dashboard/PricingDialog";
 
 
 
@@ -69,11 +70,12 @@ export {
 
     AdminPanel, 
     OrgDashboard,
-    UserDashboard,
+    Organizations,
     AnalyticsChartPlaceholder,
     ActivityTable,
     Sidebar,
     StatCard,
+    PricingDialog,
     
     MOCK_USERS,
     MOCK_ORGS,

@@ -1,4 +1,4 @@
-import React from 'react';
+import {Link} from 'react-router'
 import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import { LogOut, ChevronDown, Home, Building2, LayoutDashboard } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
@@ -64,14 +64,14 @@ const Navbar = () => {
         <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-3 px-8 bg-blue-50/50 backdrop-blur-md shadow-sm border-b border-slate-200">
         
         {/* --------- Logo ---------- */}
-        <a href="/" className="flex items-center gap-3 text-xl font-semibold text-slate-900">
+        <Link to="/" className="flex items-center gap-3 text-xl font-semibold text-slate-900">
             <img
             src="./logo.png"
             alt="MailSync"
             className="w-8 h-8 object-contain"
             />
             <span className='hidden sm:block'>MailSync</span>
-        </a>
+        </Link>
 
         {/* --------- Right side: Links + Auth status ---------- */}
         <div className="flex items-center gap-4">
