@@ -1,24 +1,8 @@
 import { AnalyticsChartPlaceholder,StatCard } from '..';
 import { Users, Send, Activity, Star } from 'lucide-react';
-import { SendEmailsPage as  SendEmailView} from '../../pages';
+import { SendEmailsPage, OrgMembersPage} from '../../pages';
 
 const OrgDashboard = ({ org, user, orgSubView }) => {
-
-    // todo : replace with the component containing members table ( with add and remove functionality)
-    const MembersView = () => (
-        <div className="text-center p-10 bg-white rounded-lg shadow-sm">
-            <h2 className="text-2xl font-bold">Member Management</h2>
-            <p className="text-slate-500 mt-2">Member list and invitation controls would be displayed here.</p>
-        </div>
-    );
-
-    // // todo : replace it with send email page
-    // const SendEmailView = () => (
-    //     <div className="text-center p-10 bg-white rounded-lg shadow-sm">
-    //         <h2 className="text-2xl font-bold">Send Email</h2>
-    //         <p className="text-slate-500 mt-2">The AI-powered email composer would be displayed here.</p>
-    //     </div>
-    // );
 
     // The main Analytics view you already built
     const AnalyticsView = () => (
@@ -40,8 +24,8 @@ const OrgDashboard = ({ org, user, orgSubView }) => {
     return (
         <div>
             {orgSubView === 'analytics' && <AnalyticsView />}
-            {orgSubView === 'members' && <MembersView />}
-            {orgSubView === 'send-email' && <SendEmailView />}
+            {orgSubView === 'members' && <OrgMembersPage />}
+            {orgSubView === 'send-email' && <SendEmailsPage />}
         </div>
     );
 }

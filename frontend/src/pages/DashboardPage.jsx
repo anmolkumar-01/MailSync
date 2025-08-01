@@ -6,7 +6,7 @@ import { MOCK_USERS } from '../components';
 import { Sidebar, Header, AdminPanel, OrgDashboard, Organizations } from '../components';
 
 const DashboardPage = () => {
-  const [currentUser, setCurrentUser] = useState(MOCK_USERS.appAdmin);
+  const [currentUser, setCurrentUser] = useState(MOCK_USERS.orgAdmin);
   const [currentView, setCurrentView] = useState('user-dashboard'); 
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [orgSubView, setOrgSubView] = useState('send-email');
