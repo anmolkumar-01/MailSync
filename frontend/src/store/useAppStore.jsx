@@ -8,9 +8,7 @@ export const useAppStore = create(
 persist(
     (set, get) => ({
 
-    user: null,
-    currentOrg: null,
-    currentOrgMembers: [],
+    currentUser: null,
 
     isSigningIn: false,
     isExtractingEmails: false,
@@ -27,8 +25,157 @@ persist(
     uploadedFileName: null,
     attachmentsAvailable: false,
 
+    orgs: [],
+    currentOrg: null,
+    currentOrgMembers: [],
+
     notifications: [],
 
+    // --------------------- ORGANIZATION RELATED ROUTES ----------------------
+
+    // Fetch all orgs where current user is a member
+    fetchUserOrgs: async () => {
+        try {
+            const res = await axiosInstance.get("/organization/allOrgs");
+            console.log("user organizations : ", res.data.data);
+            const orgs = res.data?.data || [];
+            set({ orgs });
+
+        } catch (err) {
+            console.error("Error fetching orgs:", err);
+            get().triggerNotification("Failed to load organizations", "appError");
+        }
+    },
+
+    // payment gateway
+    openRazorpayCheckout: (order, orgInfo) => {
+        const options = {
+            key: import.meta.env.VITE_RAZORPAY_KEY,
+            amount: order.amount,
+            currency: order.currency,
+            name: "MailSync",
+            description: "Organization Plan Upgrade",
+            order_id: order.id,
+
+            handler: async function (response) {
+                const verification = await axios.post('/api/payment/verify', {
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                    orgInfo
+                });
+            // ✅ Show success and fetch orgs again
+            },
+            prefill: {
+                name: currentUser.name,
+                email: orgInfo.email
+            },
+            theme: {
+                color: "#6366f1"
+            }
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+    },
+    // Create an org (free tier or paid)
+    createOrg: async (orgData) => {
+        try {
+            // console.log(orgData);
+            const res = await axiosInstance.post("/organization/createOrg", orgData);
+            const data = res.data?.data;
+
+            if (data?.tier === "free") {
+                get().triggerNotification("Organization created. Awaiting admin approval.", "success");
+            } else {
+                // redirect user to Razorpay checkout using returned order ID
+                const { razorpayOrder, paymentId, tier, amount, orgInfo } = data;
+                openRazorpayCheckout(razorpayOrder, orgInfo);
+            }
+
+            await get().fetchUserOrgs();
+        } catch (err) {
+            console.error("Error creating org:", err.response?.data?.message);
+            get().triggerNotification(err.response?.data?.message || "Failed to create org", "appError");
+        }
+    },
+
+    // delete an org
+    deleteOrg: async (orgId) => {
+        try {
+            await axiosInstance.delete(`/organization/deleteOrg/${orgId}`);
+            await get().fetchUserOrgs(); // Refresh orgs after deletion
+            get().triggerNotification("Organization deleted", "success");
+        } catch (err) {
+            console.error("Error deleting org:", err);
+            get().triggerNotification("Failed to delete organization", "appError");
+        }
+    },
+
+    // updatea an org
+    updateOrg: async (orgId, updates) => {
+        try {
+            console.log(orgId);
+            await axiosInstance.put(`/organization/updateOrg/${orgId}`, updates);
+            await get().fetchUserOrgs(); // Refresh after update
+            get().triggerNotification("Organization updated", "success");
+        } catch (err) {
+            console.error("Error updating org:", err.response.data.message);
+            get().triggerNotification("Failed to update organization", "appError");
+        }
+    },
+
+    // Set the current org
+    setCurrentOrg: (org) => set({ currentOrg: org }),
+
+    // Fetch single org by ID
+    fetchCurrentOrg: async (orgId) => {
+        try {
+            const res = await axiosInstance.get(`/org/${orgId}`);
+            set({ currentOrg: res.data?.data });
+        } catch (err) {
+            console.error("Error fetching org:", err);
+            get().triggerNotification("Failed to fetch organization", "appError");
+        }
+    },
+
+    // Fetch members of current org
+    fetchCurrentOrgMembers: async (orgId) => {
+        try {
+            const res = await axiosInstance.get(`/org/${orgId}/members`);
+            set({ currentOrgMembers: res.data?.data });
+        } catch (err) {
+            console.error("Error fetching members:", err);
+            get().triggerNotification("Failed to load members", "appError");
+        }
+    },
+
+    // Invite member
+    inviteMember: async (orgId, email, role = "member") => {
+        try {
+            const res = await axiosInstance.post(`/org/${orgId}/add-member`, { email, role });
+            get().triggerNotification(res.data?.message || "Invitation sent", "success");
+            await get().fetchOrgMembers(orgId);
+        } catch (err) {
+            console.error("Error inviting member:", err);
+            get().triggerNotification(err.response?.data?.message || "Failed to invite", "appError");
+        }
+    },
+
+    // Remove member
+    removeMember: async (orgId, memberId) => {
+        try {
+            const res = await axiosInstance.delete(`/org/${orgId}/remove-member/${memberId}`);
+            get().triggerNotification("Member removed", "success");
+            await get().fetchOrgMembers(orgId);
+        } catch (err) {
+            console.error("Error removing member:", err);
+            get().triggerNotification(err.response?.data?.message || "Failed to remove member", "appError");
+        }
+    },
+
+    // ------------------------------ Send emails routes ----------------
+    
     // 1. Sign In
     signin: async(code) => {
 
@@ -43,7 +190,7 @@ persist(
                 get().triggerNotification("Login successful, but email permissions are missing. Please re-authenticate.", "appError");
             }
 
-            set({user: userData})
+            set({currentUser: userData})
             get().triggerNotification("You have successfully signed in", "success")
 
         } catch (error) {
@@ -58,7 +205,7 @@ persist(
     logout: async()=>{
 
         set({
-            user: null,
+            currentUser: null,
             extractedEmails: [],
             selectedEmails: [],
             uploadedFileName: null,
@@ -207,7 +354,7 @@ persist(
         name: 'mailsync-storage',
 
         partialize: (state) => ({
-            user: state.user,
+            currentUser: state.currentUser,
             extractedEmails: state.extractedEmails,
             selectedEmails: state.selectedEmails,
             uploadedFileName: state.uploadedFileName,

@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { MOCK_ORGS as initialOrgs } from '..';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -8,25 +7,25 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { LayoutDashboard, Plus, Pencil, Trash2 } from 'lucide-react';
 
-// Import the PricingDialog component
+import { useAppStore } from '@/store/useAppStore';
 import { PricingDialog } from '..'; 
 
 // Helper function for styling plans
 const getPlanStyles = (plan) => {
     switch (plan) {
-        case 'Premium':
+        case 'premium':
             return {
                 badge: 'bg-purple-100 text-purple-800 border-purple-300',
                 button: 'bg-purple-600 hover:bg-purple-700',
                 iconColor: 'text-purple-500',
             };
-        case 'Pro':
+        case 'pro':
             return {
                 badge: 'bg-amber-100 text-amber-800 border-amber-300',
                 button: 'bg-amber-500 hover:bg-amber-600',
                 iconColor: 'text-amber-500',
             };
-        case 'Free':
+        case 'free':
         default:
             return {
                 badge: 'bg-blue-100 text-blue-800 border-blue-300',
@@ -36,11 +35,20 @@ const getPlanStyles = (plan) => {
     }
 };
 
-// The main Organizations component
-const Organizations = ({ user, onSelectOrg }) => {
+const Organizations = ({ onSelectOrg }) => {
 
     // --- STATE MANAGEMENT ---
-    const [orgs, setOrgs] = useState(initialOrgs);
+
+    const {
+        orgs,
+        fetchUserOrgs,
+        createOrg,
+        deleteOrg,
+        updateOrg,
+        setCurrentOrg,
+        currentUser
+    } = useAppStore();
+
     const [isPricingDialogOpen, setPricingDialogOpen] = useState(false);
     const [isDetailsDialogOpen, setDetailsDialogOpen] = useState(false);
     const [isEditDialogOpen, setEditDialogOpen] = useState(false);
@@ -49,6 +57,57 @@ const Organizations = ({ user, onSelectOrg }) => {
     const [newOrgDescription, setNewOrgDescription] = useState('');
     const [editingOrg, setEditingOrg] = useState(null);
 
+    // ----- fetching the all organizations or a user -------
+    useEffect(() => {
+        if (currentUser && orgs.length === 0) {
+            fetchUserOrgs();
+        }
+    }, [currentUser]);
+
+    const renderOrgs = useMemo(()=>{
+        return orgs.map(org => {
+            console.log(org)
+            const planStyles = getPlanStyles(org.tier);
+            return (
+                //  ------- Each organizaion card ------
+                <Card key={org._id} className="bg-white flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-slate-200">
+                    <CardHeader className="flex flex-row items-start justify-between">
+                        <CardTitle className="text-lg font-semibold text-slate-900">{org.name}</CardTitle>
+                        
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {/* ----- edit  */}
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingOrg({ ...org }); setEditDialogOpen(true); }}>
+                                <Pencil className="h-4 w-4 text-slate-500" />
+                            </Button>
+
+                            {/* ---- delete */}
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteOrg(org._id)}>
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                        </div>
+                    </CardHeader>
+
+                    <CardContent className="flex-1">
+                        <p className="text-sm text-slate-500 line-clamp-2">{org.description}</p>
+
+                        {/*  todo : show members number */}
+                        {/* <p className="text-sm text-slate-500 line-clamp-2">{org.members?.length} members</p> */}
+                    </CardContent>
+
+                    <CardFooter className="flex items-center justify-between">
+                        <Badge variant="outline" className={`font-semibold border-2 ${planStyles.badge}`}>{org.tier}</Badge>
+                        <Button size="sm" className={`w-fit text-white ${planStyles.button}`} onClick={() =>{
+                            setCurrentOrg(org);
+                            onSelectOrg(org);
+                        }}>
+                            <LayoutDashboard className="mr-2 h-4 w-4"/> Enter
+                        </Button>
+                    </CardFooter>
+                </Card>
+            );
+        })
+    }, [orgs])
+
     // --- EVENT HANDLERS ---
     const handlePlanSelect = (planName) => {
         setSelectedPlan(planName);
@@ -56,29 +115,32 @@ const Organizations = ({ user, onSelectOrg }) => {
         setDetailsDialogOpen(true);
     };
 
-    const handleCreateOrg = () => {
-    
+    const handleCreateOrg = async () => {
         if (!newOrgName?.trim()) return;
-        const newOrg = {
-            id: `org-${Date.now()}`,
+        
+        const data = await createOrg({
             name: newOrgName.trim(),
-            plan: selectedPlan,
-            members: [],
+            email: currentUser.email,
             description: newOrgDescription,
-        };
-        setOrgs([newOrg, ...orgs]);
-        setDetailsDialogOpen(false);
-        setNewOrgName('');
-        setNewOrgDescription('');
+            tier: selectedPlan.toLowerCase(),
+        });
+        if (!data) {
+            setDetailsDialogOpen(false);
+            setNewOrgName('');
+            setNewOrgDescription('');
+        }
     };
     
-    const handleDeleteOrg = (orgId) => {
-        setOrgs(orgs.filter(org => org.id !== orgId));
+    const handleDeleteOrg = async(orgId) => {
+        await deleteOrg(orgId);
     };
     
-    const handleSaveChanges = () => {
-        if (!editingOrg) return;
-        setOrgs(orgs.map(org => org.id === editingOrg.id ? editingOrg : org));
+    const handleSaveChanges = async () => {
+        if (!editingOrg || !editingOrg.name.trim()) return;
+        await updateOrg(editingOrg._id, {
+            name: editingOrg.name,
+            description: editingOrg.description,
+        });
         setEditDialogOpen(false);
     };
 
@@ -102,40 +164,7 @@ const Organizations = ({ user, onSelectOrg }) => {
 
                 <CardContent>
                     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 p-2">
-                        {orgs.map(org => {
-                            const planStyles = getPlanStyles(org.plan);
-                            return (
-                                //  ------- Each organizaion card ------
-                                <Card key={org.id} className="bg-white flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-slate-200">
-                                    <CardHeader className="flex flex-row items-start justify-between">
-                                        <CardTitle className="text-lg font-semibold text-slate-900">{org.name}</CardTitle>
-                                        
-                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            {/* ----- edit  */}
-                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingOrg({ ...org }); setEditDialogOpen(true); }}>
-                                                <Pencil className="h-4 w-4 text-slate-500" />
-                                            </Button>
-
-                                            {/* ---- delete */}
-                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteOrg(org.id)}>
-                                                <Trash2 className="h-4 w-4 text-red-500" />
-                                            </Button>
-                                        </div>
-                                    </CardHeader>
-
-                                    <CardContent className="flex-1">
-                                        <p className="text-sm text-slate-500 line-clamp-2">{org.description || `${org.members.length} members`}</p>
-                                    </CardContent>
-
-                                    <CardFooter className="flex items-center justify-between">
-                                        <Badge variant="outline" className={`font-semibold border-2 ${planStyles.badge}`}>{org.plan}</Badge>
-                                        <Button size="sm" className={`w-fit text-white ${planStyles.button}`} onClick={() => onSelectOrg(org)}>
-                                            <LayoutDashboard className="mr-2 h-4 w-4"/> Enter
-                                        </Button>
-                                    </CardFooter>
-                                </Card>
-                            );
-                        })}
+                    {renderOrgs}
                     </div>
                 </CardContent>
             </Card>

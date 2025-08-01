@@ -11,6 +11,10 @@ const organizationSchema = new Schema(
             required: true,
             unique: true,
         },
+        description: {
+            type: String,
+            default: ''
+        },
         owner: {
             type: Schema.Types.ObjectId,
             ref: 'User',

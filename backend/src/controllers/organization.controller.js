@@ -10,7 +10,7 @@ import { OrgMember } from "../models/orgMemberSchema.js";
 const createOrg = asyncHandler(async (req, res) => {
 
     // 1. Take input
-    const { name, email, tier } = req.body;
+    const { name, email, tier, description } = req.body;
     const owner = req.user._id;
     if (!name || !email || !tier) {
         throw new ApiError(400, "All fields are required.");
@@ -39,11 +39,20 @@ const createOrg = asyncHandler(async (req, res) => {
             name,
             email,
             owner,
+            description,
             tier,
             dailyLimit: tierLimits[tier],
             status: "pending"  // Requires admin approval
         });
 
+        await OrgMember.create({
+            userId: owner._id,
+            organization: organization._id,
+            role: "orgAdmin",
+            status: "accepted", 
+        })
+
+        console.log(organization);
         return res.status(201).json(
             new ApiResponse(201, organization, "Organization created with free tier. Awaiting admin approval.")
         );
@@ -75,30 +84,34 @@ const updateOrg = asyncHandler(async (req, res) => {
 
     // 1. Take input
     const { orgId } = req.params;
-    const { name, email, owner } = req.body;
+    const { name, description} = req.body;
+
+    if(!name || !orgId){
+        throw new ApiError(400, "All fields are required");
+    }
 
     // 2. update organization
-    const organization = await Organization.findByIdAndUpdate(
+    const org = await Organization.findByIdAndUpdate(
         orgId,
         { 
-            name: name || org.name, 
-            email: email || org.email, 
-            owner: owner || org.owner
+            name,
+            description,
         },
         { new: true }
     );
 
-    if (!organization) {
+    if (!org) {
         throw new ApiError(404, "Organization not found");
     }
 
-    res.status(200).json(new ApiResponse(200,  organization, "Organization updated successfully"));
+    res.status(200).json(new ApiResponse(200,  org, "Organization updated successfully"));
 })
 
 // 3. Delete Organization by id
 const deleteOrg = asyncHandler(async (req, res) => {
     const { orgId } = req.params;
 
+    // todo : delete all org members related to this organization
     const organization = await Organization.findByIdAndDelete(orgId);
 
     if (!organization) {
@@ -127,10 +140,18 @@ const allOrgs = asyncHandler(async (req, res) => {
 
     const memberships = await OrgMember.find({
         userId : userId,
-        status: 'accepted'
-    }).select("organisation role status").populate("organization")
+        status: 'accepted',
+    }).select("organization").populate("organization")
 
-    res.status(200).json(new ApiResponse(200, memberships, "Organizations retrieved successfully"));
+    // console.log(memberships);
+
+    const orgs = memberships
+    .filter(m => (m.organization.status === 'approved'))
+    .map(m => m.organization)
+
+    // console.log("all organizations : ", orgs)
+
+    res.status(200).json(new ApiResponse(200, orgs, "Organizations retrieved successfully"));
 })
 
 // 6. Add members to organization

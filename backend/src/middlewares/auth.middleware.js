@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from 'jsonwebtoken'
 import { OrgMember } from "../models/orgMemberSchema.js";
+import { Organization } from "../models/organizationSchema.js";
 
 // 1. Is user authenticated
 const verifyJWT = asyncHandler( async(req,res , next) => {
@@ -32,7 +33,7 @@ const verifyJWT = asyncHandler( async(req,res , next) => {
 
 // 2. Is user an orgAdmin or owner of the organization
 export const isOrgAdminLogin = asyncHandler(async (req, res, next) => {
-    const orgId = req.params.orgId || req.body.organizationId;
+    const orgId = req.params.orgId || req.body.orgId;
 
     if (!orgId) {
         throw new ApiError(400, "Organization ID is required.");
