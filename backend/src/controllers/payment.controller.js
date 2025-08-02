@@ -23,7 +23,7 @@ const verify = asyncHandler(async (req, res) => {
     }
 
   // 2. Generate expected signature using secret key
-    const shasum = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET);
+    const shasum = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
     shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     const expectedSignature = shasum.digest("hex");
 
@@ -59,12 +59,14 @@ const verify = asyncHandler(async (req, res) => {
     await payment.save();
 
     // 6. Create the current org member as the owner
-    await OrgMember.create({
-        userId: org.owner,
-        organization: org._id,
+    const orgMember = await OrgMember.create({
+        userId: organization.owner,
+        organization: organization._id,
         role: "orgAdmin",
         status: "accepted", 
     });
+
+    // console.log("Orgmember created after payment: ", orgMember)
 
     return res.status(200).json(
         new ApiResponse(200, { organization }, "Payment verified & organization created successfully.")

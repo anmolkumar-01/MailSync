@@ -45,7 +45,6 @@ const Organizations = ({ onSelectOrg }) => {
         createOrg,
         deleteOrg,
         updateOrg,
-        setCurrentOrg,
         currentUser
     } = useAppStore();
 
@@ -95,13 +94,24 @@ const Organizations = ({ onSelectOrg }) => {
                     </CardContent>
 
                     <CardFooter className="flex items-center justify-between">
-                        <Badge variant="outline" className={`font-semibold border-2 ${planStyles.badge}`}>{org.tier}</Badge>
-                        <Button size="sm" className={`w-fit text-white ${planStyles.button}`} onClick={() =>{
-                            setCurrentOrg(org);
-                            onSelectOrg(org);
-                        }}>
-                            <LayoutDashboard className="mr-2 h-4 w-4"/> Enter
-                        </Button>
+                        {org.status === 'pending'?
+                        (
+                            <Badge variant="outline" className={`font-semibold border-2 bg-green-100 text-green-800 border-green-300`}>pending</Badge>
+                        ):
+                        (   <>
+                                <Badge variant="outline" className={`font-semibold border-2 ${planStyles.badge}`}>{org.tier}</Badge>
+                                <Button 
+                                size="sm" 
+                                className={`w-fit text-white ${planStyles.button}`} 
+                                onClick={() =>{
+                                    onSelectOrg(org);
+                                }}>
+                                    <LayoutDashboard className="mr-2 h-4 w-4"/> Enter
+                                </Button>
+                            </>
+                        )
+                        }
+
                     </CardFooter>
                 </Card>
             );

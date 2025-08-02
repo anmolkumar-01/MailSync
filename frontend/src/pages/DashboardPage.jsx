@@ -37,9 +37,8 @@ const DashboardPage = () => {
       case 'admin-panel':
         return <AdminPanel user={currentUser} />;
       case 'org-dashboard':
-        return <OrgDashboard org={selectedOrg} user={currentUser} orgSubView={orgSubView}/>;
+        return <OrgDashboard org={selectedOrg} orgSubView={orgSubView}/>;
       case 'user-dashboard':
-        return <Organizations user={currentUser} onSelectOrg={handleSelectOrg} />;
       default:
           return <Organizations user={currentUser} onSelectOrg={handleSelectOrg} />;
     }

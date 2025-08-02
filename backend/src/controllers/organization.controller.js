@@ -15,6 +15,7 @@ const createOrg = asyncHandler(async (req, res) => {
     if (!name || !email || !tier) {
         throw new ApiError(400, "All fields are required.");
     }
+    // console.log(req.body)
 
     // 2. Check if organization with same email already exists
     const existingOrg = await Organization.findOne({ email });
@@ -52,17 +53,22 @@ const createOrg = asyncHandler(async (req, res) => {
             status: "accepted", 
         })
 
-        console.log(organization);
+        console.log("Paid organization ", organization);
         return res.status(201).json(
             new ApiResponse(201, organization, "Organization created with free tier. Awaiting admin approval.")
         );
     }
 
     // 5. Handle Paid Tiers (pro, premium)
+    const amount = tier === "pro" ? 19900 : 39900; // ₹199 or ₹399
     const {order, paymentId} = await initiatePayment({
         userId: owner,
-        tier
+        tier,
+        amount
     });
+
+    // console.log("paymentid: " , paymentId)
+    // console.log("order: " , order)
 
     return res.status(200).json(
         new ApiResponse(200, {
@@ -111,7 +117,7 @@ const updateOrg = asyncHandler(async (req, res) => {
 const deleteOrg = asyncHandler(async (req, res) => {
     const { orgId } = req.params;
 
-    // todo : delete all org members related to this organization
+    await OrgMember.deleteMany({organization : orgId})
     const organization = await Organization.findByIdAndDelete(orgId);
 
     if (!organization) {
@@ -121,7 +127,7 @@ const deleteOrg = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, organization, "Organization deleted successfully" ));
 })
 
-// 4. Get Organization by ID
+// 4. Get Organization by ID , todo: remove this if not used in future
 const org = asyncHandler(async (req, res) => {
     const { orgId } = req.params;
 
@@ -145,16 +151,38 @@ const allOrgs = asyncHandler(async (req, res) => {
 
     // console.log(memberships);
 
-    const orgs = memberships
-    .filter(m => (m.organization.status === 'approved'))
-    .map(m => m.organization)
+    const orgs = memberships.map(m => m.organization)
 
     // console.log("all organizations : ", orgs)
 
     res.status(200).json(new ApiResponse(200, orgs, "Organizations retrieved successfully"));
 })
 
-// 6. Add members to organization
+// 6. Get the current member of current organization
+const orgCurrentMember = asyncHandler(async (req,res) => {
+
+    const { orgId } = req.params;
+    if(!orgId){
+        throw new ApiError(400, "Organization Id is required")
+    }
+
+    const currentMember = await OrgMember.findOne({
+        organization: orgId,
+        userId: req.user._id
+    })
+
+    if(!currentMember){
+        throw new ApiError(400, "You are not a member of this organization")
+    }
+
+    // console.log("current org member ", currentMember)
+    return res.status(201).json(
+        new ApiResponse(201, currentMember, "Current Member of current organization is successfully fetched")
+    );
+
+})
+
+// 7. Add members to organization
 const addMember = asyncHandler(async (req, res) => {
 
     // 1. Take inputs
@@ -202,7 +230,7 @@ const addMember = asyncHandler(async (req, res) => {
     );
 });
 
-// 7. Remove members from organization
+// 8. Remove members from organization
 const removeMember = asyncHandler(async (req, res) => {
 
     // 1. Take input
@@ -241,16 +269,14 @@ const removeMember = asyncHandler(async (req, res) => {
 });
 
 // Initial Payment Function
-const initiatePayment = async ({ userId, tier }) => {
+const initiatePayment = async ({ userId, tier, amount }) => {
     if (!userId || !tier) {
         throw new ApiError(400, "User ID and tier are required for payment initiation.");
     }
 
-    const amount = tier === "pro" ? 19900 : 39900; // ₹199 or ₹399
-
     const razorpay = new Razorpay({
         key_id: process.env.RAZORPAY_KEY_ID,
-        key_secret: process.env.RAZORPAY_SECRET,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
     const order = await razorpay.orders.create({
@@ -277,6 +303,7 @@ export {
     deleteOrg,
     org,
     allOrgs,
+    orgCurrentMember,
     addMember,
     removeMember
 }

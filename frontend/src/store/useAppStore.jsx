@@ -26,8 +26,9 @@ persist(
     attachmentsAvailable: false,
 
     orgs: [],
-    currentOrg: null,
     currentOrgMembers: [],
+    currentOrg: null,
+    orgCurrentUser: null,
 
     notifications: [],
 
@@ -49,35 +50,48 @@ persist(
 
     // payment gateway
     openRazorpayCheckout: (order, orgInfo) => {
-        const options = {
-            key: import.meta.env.VITE_RAZORPAY_KEY,
-            amount: order.amount,
-            currency: order.currency,
-            name: "MailSync",
-            description: "Organization Plan Upgrade",
-            order_id: order.id,
+        try {
+            const options = {
+                key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+                amount: order.amount,
+                currency: order.currency,
+                name: "MailSync",
+                description: "Organization Plan Upgrade",
+                order_id: order.id,
+    
+                handler: async function (response) {
+                    const verification = await axiosInstance.post('/payment/payment-verify', {
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_signature: response.razorpay_signature,
+                        orgInfo
+                    });
+                    
+                    // console.log("verification: ", verification)
+                    get().fetchUserOrgs();
+                    get().triggerNotification("Payment Successfull", "success");
+                    get().triggerNotification("Organization created successfully.", "success");
+                // Show success and fetch orgs again
+                },
+                prefill: {
+                    name: get().currentUser.fullName,
+                    email: orgInfo.email
+                },
+                theme: {
+                    color: "#6366f1"
+                }
+            };
+    
+            // console.log("options: ", options)
+            const rzp = new window.Razorpay(options);
+            rzp.open();
 
-            handler: async function (response) {
-                const verification = await axios.post('/api/payment/verify', {
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_signature: response.razorpay_signature,
-                    orgInfo
-                });
-            // ✅ Show success and fetch orgs again
-            },
-            prefill: {
-                name: currentUser.name,
-                email: orgInfo.email
-            },
-            theme: {
-                color: "#6366f1"
-            }
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.open();
+        } catch (error) {
+            console.error("Error in payment :", error?.response?.data?.message || error)
+            get().triggerNotification(err.response?.data?.message || "Payment failed", "error");
+        }
     },
+
     // Create an org (free tier or paid)
     createOrg: async (orgData) => {
         try {
@@ -90,12 +104,14 @@ persist(
             } else {
                 // redirect user to Razorpay checkout using returned order ID
                 const { razorpayOrder, paymentId, tier, amount, orgInfo } = data;
-                openRazorpayCheckout(razorpayOrder, orgInfo);
+                // console.log(razorpayOrder, paymentId);
+                get().openRazorpayCheckout(razorpayOrder, orgInfo);
             }
 
-            await get().fetchUserOrgs();
+            get().fetchUserOrgs();
+
         } catch (err) {
-            console.error("Error creating org:", err.response?.data?.message);
+            console.error("Error creating org:", err.response?.data?.message || err);
             get().triggerNotification(err.response?.data?.message || "Failed to create org", "appError");
         }
     },
@@ -128,13 +144,26 @@ persist(
     // Set the current org
     setCurrentOrg: (org) => set({ currentOrg: org }),
 
-    // Fetch single org by ID
-    fetchCurrentOrg: async (orgId) => {
+    // todo: remove this if not used in future
+    // // Fetch single org by ID
+    // fetchCurrentOrg: async (orgId) => {
+    //     try {
+    //         const res = await axiosInstance.get(`/org/${orgId}`);
+    //         set({ currentOrg: res.data?.data });
+    //     } catch (err) {
+    //         console.error("Error fetching org:", err);
+    //         get().triggerNotification("Failed to fetch organization", "appError");
+    //     }
+    // },
+
+    // get the role of user in current organization
+    fetchOrgCurrentUser: async (orgId) => {
         try {
-            const res = await axiosInstance.get(`/org/${orgId}`);
-            set({ currentOrg: res.data?.data });
+            const res = await axiosInstance.get(`/organization/org/${orgId}/org-current-member`);
+            // console.log("current user's role in current org in app store : ", res);
+            set({ orgCurrentUser: res.data?.data });
         } catch (err) {
-            console.error("Error fetching org:", err);
+            console.error("Error fetching current User of Organization:", err);
             get().triggerNotification("Failed to fetch organization", "appError");
         }
     },

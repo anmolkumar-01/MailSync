@@ -1,12 +1,24 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Link } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Mail, LayoutDashboard, Building2, PanelLeft, Activity, Send, Users, LineChart } from 'lucide-react';
+import { useAppStore } from '@/store/useAppStore';
 
 // Added `onSelectOrg` to the props to handle view switching
-const Sidebar = ({ currentUser, currentView, selectedOrg, handleBackToUserDashboard, onSelectOrg, orgSubView, setOrgSubView }) => {
+const Sidebar = ({currentUser, currentView, selectedOrg, handleBackToUserDashboard, onSelectOrg, orgSubView, setOrgSubView }) => {
     
+    const {orgCurrentUser, fetchOrgCurrentUser} = useAppStore()
+
+    // console.log("selected org", selectedOrg)
+    // console.log("role of current user in current org", orgCurrentUser)
+    
+    useEffect(() => {
+        if (selectedOrg?._id) {
+            fetchOrgCurrentUser(selectedOrg._id);
+        }
+    },[selectedOrg])
+
     const sidebarContent = useMemo(() => {
         
         // --- sidebar options ---
@@ -20,9 +32,9 @@ const Sidebar = ({ currentUser, currentView, selectedOrg, handleBackToUserDashbo
             },
         ];
 
-        // todo : user check
+
         // If the user is an admin, add the "Admin Dashboard" option to the start of the list.
-        if (currentUser.role === 'admin') {
+        if (currentUser?.role === 'admin') {
             baseItems.unshift({
                 label: 'Admin Dashboard',
                 icon: LayoutDashboard,
@@ -38,7 +50,7 @@ const Sidebar = ({ currentUser, currentView, selectedOrg, handleBackToUserDashbo
             orgMenuItems = [
                 { label: 'Send Email', icon: Send, viewId: 'send-email', onClick: () => setOrgSubView('send-email') },
             ];
-            if (currentUser.role === 'orgAdmin') {
+            if (orgCurrentUser?.role === 'orgAdmin') {
                 orgMenuItems.unshift({ label: 'Members', icon: Users, viewId: 'members', onClick: () => setOrgSubView('members') });
                 orgMenuItems.unshift({ label: 'Analytics', icon: LineChart, viewId: 'analytics', onClick: () => setOrgSubView('analytics') });
             }
@@ -77,7 +89,7 @@ const Sidebar = ({ currentUser, currentView, selectedOrg, handleBackToUserDashbo
                 ))}
             </nav>
         );
-    }, [currentView, selectedOrg, currentUser.role, handleBackToUserDashboard, onSelectOrg]);
+    }, [currentView, selectedOrg, currentUser?.role, orgCurrentUser?.role, handleBackToUserDashboard, onSelectOrg]);
 
     return (
         <div className="flex h-full flex-col bg-white">

@@ -9,6 +9,6 @@ const router = Router()
 
 router.use(verifyJWT)
 
-router.post("/payment-verify", verify)
+router.post("/payment-verify", verifyJWT, verify)
 
 export default router

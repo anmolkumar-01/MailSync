@@ -2,13 +2,14 @@ import { AnalyticsChartPlaceholder,StatCard } from '..';
 import { Users, Send, Activity, Star } from 'lucide-react';
 import { SendEmailsPage, OrgMembersPage} from '../../pages';
 
-const OrgDashboard = ({ org, user, orgSubView }) => {
+const OrgDashboard = ({ org, orgSubView }) => {
 
     // The main Analytics view you already built
     const AnalyticsView = () => (
         <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-                <StatCard title="Team Members" value={org.members.length} change="+2" changeType="increase" icon={Users} />
+                {/* todo: organization members .length */}
+                {/* <StatCard title="Team Members" value={org.members.length} change="+2" changeType="increase" icon={Users} /> */}
                 <StatCard title="Emails Sent" value="1,284" change="+35%" changeType="increase" icon={Send} />
                 <StatCard title="Open Rate" value="58.3%" change="-1.2%" changeType="decrease" icon={Activity} />
                 <StatCard title="Click Rate" value="12.7%" change="+4.5%" changeType="increase" icon={Star} />
