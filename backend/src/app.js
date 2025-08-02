@@ -23,7 +23,7 @@ import paymentRoutes from "./routes/payment.route.js"
 
 app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/user", userRoutes)
-app.use("/api/v1/organization", organizationRoutes)
+app.use("/api/v1/org", organizationRoutes)
 app.use("/api/v1/payment", paymentRoutes)
 
 app.use(errorHandler)

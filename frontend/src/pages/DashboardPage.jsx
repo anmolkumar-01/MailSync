@@ -4,14 +4,16 @@ import { MOCK_USERS } from '../components';
 
 // Import newly created components
 import { Sidebar, Header, AdminPanel, OrgDashboard, Organizations } from '../components';
+import { useAppStore } from '@/store/useAppStore';
 
 const DashboardPage = () => {
-  const [currentUser, setCurrentUser] = useState(MOCK_USERS.appAdmin);
+
+  const{currentUser, selectedOrg, setSelectedOrg} = useAppStore()
   const [currentView, setCurrentView] = useState('user-dashboard'); 
-  const [selectedOrg, setSelectedOrg] = useState(null);
-  const [orgSubView, setOrgSubView] = useState('send-email');
+  const [orgSubView, setOrgSubView] = useState('send-email'); // todo : default set to activity when current org member is orgadmin
 
   const handleSelectOrg = (org) => {
+    console.log("org in heandleselectorg : ", org);
     if (org.id === 'admin-panel') {
       setSelectedOrg(null);
       setCurrentView('admin-panel');
@@ -37,8 +39,9 @@ const DashboardPage = () => {
       case 'admin-panel':
         return <AdminPanel user={currentUser} />;
       case 'org-dashboard':
-        return <OrgDashboard org={selectedOrg} orgSubView={orgSubView}/>;
+        return <OrgDashboard org={selectedOrg} user={currentUser} orgSubView={orgSubView}/>;
       case 'user-dashboard':
+        return <Organizations user={currentUser} onSelectOrg={handleSelectOrg} />;
       default:
           return <Organizations user={currentUser} onSelectOrg={handleSelectOrg} />;
     }
@@ -69,7 +72,6 @@ const DashboardPage = () => {
             <Header
               dashboardTitle={dashboardTitle}
               currentUser={currentUser}
-              setCurrentUser={setCurrentUser}
               handleBackToUserDashboard={handleBackToUserDashboard}
             />
             

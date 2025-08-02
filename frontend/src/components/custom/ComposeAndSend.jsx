@@ -14,7 +14,7 @@ import { useEffect } from "react";
 
 const ComposeAndSend = () => {
 
-  const {selectedEmails, user, askAI, isAskingAi, subject, body, setSubject, setBody, triggerNotification, isSendingEmail, send, setAttachmentsAvailable, attachmentsAvailable} = useAppStore()
+  const {selectedOrg, selectedEmails, currentUser, askAI, isAskingAi, subject, body, setSubject, setBody, triggerNotification, isSendingEmail, send, setAttachmentsAvailable, attachmentsAvailable} = useAppStore()
 
   const [attachments, setAttachments] = useState([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -58,7 +58,7 @@ const ComposeAndSend = () => {
 
   const handleSendEmail = async () => {
     
-    if(!user){
+    if(!currentUser){
       triggerNotification("Please sign in first to send email", "appError");
       return;
     }
@@ -83,9 +83,9 @@ const ComposeAndSend = () => {
     const formData = new FormData();
     formData.append('subject', subject);
     formData.append('body', body);
+    formData.append('orgId', selectedOrg._id)
     formData.append('recipients', JSON.stringify(selectedEmails));
 
-    
     attachments.forEach(file =>{
       formData.append('fileData', file)
     })

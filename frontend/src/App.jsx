@@ -11,10 +11,6 @@ function App() {
 
   const { currentUser, isSigningIn, currentOrgMembers} = useAppStore();
 
-  const userRoleInOrg = currentOrgMembers.find(
-    m => m.userId.toString() === currentUser._id.toString()
-  )?.role;
-
   // console.log("currentUser : ", currentUser);
 
   return (

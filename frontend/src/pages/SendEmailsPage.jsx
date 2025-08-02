@@ -3,7 +3,7 @@ import { useAppStore } from "../store/useAppStore";
 import { Link } from "react-router";
 
 const SendEmailsPage = () => {
-  const { user, isSigningIn} = useAppStore();
+  const { currentUser, isSigningIn} = useAppStore();
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-4 space-y-8 lg:space-y-0">

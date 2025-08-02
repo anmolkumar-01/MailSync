@@ -53,7 +53,7 @@ const createOrg = asyncHandler(async (req, res) => {
             status: "accepted", 
         })
 
-        console.log("Paid organization ", organization);
+        // console.log("Paid organization ", organization);
         return res.status(201).json(
             new ApiResponse(201, organization, "Organization created with free tier. Awaiting admin approval.")
         );
@@ -143,6 +143,9 @@ const org = asyncHandler(async (req, res) => {
 // 5. Get All Organizations of current user where user is a member
 const allOrgs = asyncHandler(async (req, res) => {
     const userId = req.user._id;
+    if(!userId){
+        throw new ApiError(500, "User id is required")
+    }
 
     const memberships = await OrgMember.find({
         userId : userId,
@@ -156,6 +159,26 @@ const allOrgs = asyncHandler(async (req, res) => {
     // console.log("all organizations : ", orgs)
 
     res.status(200).json(new ApiResponse(200, orgs, "Organizations retrieved successfully"));
+})
+
+// 6. Get all the members of the current organization
+const allMembers = asyncHandler(async (req, res) => {
+
+    const {orgId} = req.params;
+    if(!orgId){
+        throw new ApiError(400, "OrgId is required");
+    }
+
+    const members = await OrgMember
+    .find({organization: orgId})
+    .populate("userId")
+
+    if(!members){
+        throw new ApiError(400, "This Organization doesn't exist")
+    }
+
+    // console.log("all members of current organization: ", members)
+    res.status(200).json(new ApiResponse(200, [members], "Organization members retrieved successfully"));
 })
 
 // 6. Get the current member of current organization
@@ -303,6 +326,7 @@ export {
     deleteOrg,
     org,
     allOrgs,
+    allMembers,
     orgCurrentMember,
     addMember,
     removeMember

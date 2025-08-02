@@ -7,6 +7,7 @@ import{
     deleteOrg,
     org,
     allOrgs,
+    allMembers,
     orgCurrentMember,
     addMember,
     removeMember
@@ -22,8 +23,9 @@ router.delete("/deleteOrg/:orgId", isOrgAdminLogin, deleteOrg)
 router.get("/org/:orgId", org)
 router.get("/allOrgs", allOrgs)
 
-router.get('/org/:orgId/org-current-member', orgCurrentMember)
-router.post("/org/:orgId/add-member", isOrgAdminLogin, addMember)
-router.delete("/org/:orgId/remove-member/:memberId", isOrgAdminLogin, removeMember)
+router.get('/:orgId/all-members', allMembers)
+router.get('/:orgId/org-current-member', orgCurrentMember)
+router.post("/:orgId/add-member", isOrgAdminLogin, addMember)
+router.delete("/:orgId/remove-member/:memberId", isOrgAdminLogin, removeMember)
 
 export default router

@@ -116,14 +116,14 @@ const makeRawEmail=({ from, to, subject, html, replyTo }) => {
 const send = asyncHandler(async (req, res) => {
 
     // 1. Get data
-    const { subject, body, organizationId  } = req.body;
+    const { subject, body, orgId  } = req.body;
     const recipients = JSON.parse(req.body?.recipients || []);
 
     if (!subject || !body) {
         throw new ApiError(400, 'Please add the subject line and content for your email');
     }
 
-    if (!organizationId) {
+    if (!orgId) {
         throw new ApiError(400, 'Oranization is required');
     }
 
@@ -131,13 +131,16 @@ const send = asyncHandler(async (req, res) => {
         throw new ApiError(404, 'Recipients emails not found');
     }
 
-    const currentOrg = await Organization.findById(organizationId);
+    const currentOrg = await Organization.findById(orgId);
     if(!currentOrg){
         throw new ApiError(404, 'Oranization does not exist');
     }
 
     // is user a valid member of this organization
-    const isMember = currentOrganization.members.includes(req.user._id); // or check roles map
+    const isMember = await OrgMember.find({
+        userId: req.user._id,
+        organization: orgId
+    })
     if (!isMember) {
         throw new ApiError(403, 'You are not a member of this organization');
     }

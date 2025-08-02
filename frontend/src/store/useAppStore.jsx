@@ -2,7 +2,6 @@ import {create} from 'zustand'
 import {axiosInstance} from '../lib/axios'
 import { persist } from 'zustand/middleware'
 
-
 export const useAppStore = create(
 
 persist(
@@ -27,7 +26,7 @@ persist(
 
     orgs: [],
     currentOrgMembers: [],
-    currentOrg: null,
+    selectedOrg: null,
     orgCurrentUser: null,
 
     notifications: [],
@@ -37,8 +36,8 @@ persist(
     // Fetch all orgs where current user is a member
     fetchUserOrgs: async () => {
         try {
-            const res = await axiosInstance.get("/organization/allOrgs");
-            console.log("user organizations : ", res.data.data);
+            const res = await axiosInstance.get("/org/allOrgs");
+            // console.log("user organizations : ", res.data.data);
             const orgs = res.data?.data || [];
             set({ orgs });
 
@@ -96,7 +95,7 @@ persist(
     createOrg: async (orgData) => {
         try {
             // console.log(orgData);
-            const res = await axiosInstance.post("/organization/createOrg", orgData);
+            const res = await axiosInstance.post("/org/createOrg", orgData);
             const data = res.data?.data;
 
             if (data?.tier === "free") {
@@ -119,7 +118,7 @@ persist(
     // delete an org
     deleteOrg: async (orgId) => {
         try {
-            await axiosInstance.delete(`/organization/deleteOrg/${orgId}`);
+            await axiosInstance.delete(`/org/deleteOrg/${orgId}`);
             await get().fetchUserOrgs(); // Refresh orgs after deletion
             get().triggerNotification("Organization deleted", "success");
         } catch (err) {
@@ -131,8 +130,8 @@ persist(
     // updatea an org
     updateOrg: async (orgId, updates) => {
         try {
-            console.log(orgId);
-            await axiosInstance.put(`/organization/updateOrg/${orgId}`, updates);
+            // console.log(orgId);
+            await axiosInstance.put(`/org/updateOrg/${orgId}`, updates);
             await get().fetchUserOrgs(); // Refresh after update
             get().triggerNotification("Organization updated", "success");
         } catch (err) {
@@ -142,24 +141,12 @@ persist(
     },
 
     // Set the current org
-    setCurrentOrg: (org) => set({ currentOrg: org }),
-
-    // todo: remove this if not used in future
-    // // Fetch single org by ID
-    // fetchCurrentOrg: async (orgId) => {
-    //     try {
-    //         const res = await axiosInstance.get(`/org/${orgId}`);
-    //         set({ currentOrg: res.data?.data });
-    //     } catch (err) {
-    //         console.error("Error fetching org:", err);
-    //         get().triggerNotification("Failed to fetch organization", "appError");
-    //     }
-    // },
+    setSelectedOrg: (org) => set({ selectedOrg: org }),
 
     // get the role of user in current organization
     fetchOrgCurrentUser: async (orgId) => {
         try {
-            const res = await axiosInstance.get(`/organization/org/${orgId}/org-current-member`);
+            const res = await axiosInstance.get(`/org/${orgId}/org-current-member`);
             // console.log("current user's role in current org in app store : ", res);
             set({ orgCurrentUser: res.data?.data });
         } catch (err) {
@@ -168,11 +155,12 @@ persist(
         }
     },
 
-    // Fetch members of current org
+    // Fetch all members of current org
     fetchCurrentOrgMembers: async (orgId) => {
         try {
-            const res = await axiosInstance.get(`/org/${orgId}/members`);
-            set({ currentOrgMembers: res.data?.data });
+            const res = await axiosInstance.get(`/org/${orgId}/all-members`);
+            // console.log("current org members : ", res.data?.data?.[0])
+            set({ currentOrgMembers: res.data?.data?.[0] });
         } catch (err) {
             console.error("Error fetching members:", err);
             get().triggerNotification("Failed to load members", "appError");
@@ -182,7 +170,7 @@ persist(
     // Invite member
     inviteMember: async (orgId, email, role = "member") => {
         try {
-            const res = await axiosInstance.post(`/org/${orgId}/add-member`, { email, role });
+            const res = await axiosInstance.post(`/${orgId}/add-member`, { email, role });
             get().triggerNotification(res.data?.message || "Invitation sent", "success");
             await get().fetchOrgMembers(orgId);
         } catch (err) {
@@ -194,7 +182,7 @@ persist(
     // Remove member
     removeMember: async (orgId, memberId) => {
         try {
-            const res = await axiosInstance.delete(`/org/${orgId}/remove-member/${memberId}`);
+            const res = await axiosInstance.delete(`/${orgId}/remove-member/${memberId}`);
             get().triggerNotification("Member removed", "success");
             await get().fetchOrgMembers(orgId);
         } catch (err) {
@@ -300,6 +288,7 @@ persist(
     send: async(formData) => {
         set({isSendingEmail: true})
         try {
+
             const res = await axiosInstance.post('/user/send', formData)
             
             // console.log("data coming in send email route from axios is " , res)
