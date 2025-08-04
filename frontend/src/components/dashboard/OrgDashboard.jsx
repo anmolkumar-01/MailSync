@@ -2,7 +2,7 @@ import { AnalyticsChartPlaceholder,StatCard } from '..';
 import { Users, Send, Activity, Star } from 'lucide-react';
 import { SendEmailsPage, OrgMembersPage} from '../../pages';
 
-const OrgDashboard = ({ org, orgSubView }) => {
+const OrgDashboard = ({ orgSubView }) => {
 
     // The main Analytics view you already built
     const AnalyticsView = () => (

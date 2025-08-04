@@ -25,21 +25,50 @@ persist(
     attachmentsAvailable: false,
 
     orgs: [],
+    invitedOrgs: [],
     currentOrgMembers: [],
     selectedOrg: null,
+    setSelectedOrg: (org) => set({ selectedOrg: org }),
+
     orgCurrentUser: null,
+    currentView: 'user-dashboard',
+    setCurrentView: (view) => set({ currentView: view }),
 
     notifications: [],
 
     // --------------------- ORGANIZATION RELATED ROUTES ----------------------
 
-    // Fetch all orgs where current user is a member
+    // Set the current org
+
+
+    handleSelectOrg: (org) => {
+        if (org.id === 'admin-panel') {
+            get().setSelectedOrg(null);
+            get().setCurrentView('admin-panel');
+        } else {
+            get().setSelectedOrg(org);
+            get().setCurrentView('org-dashboard');
+        }
+    },
+
+    // 1. Fetch all orgs where current user is a member
     fetchUserOrgs: async () => {
         try {
             const res = await axiosInstance.get("/org/allOrgs");
-            // console.log("user organizations : ", res.data.data);
-            const orgs = res.data?.data || [];
+            console.log("user organizations : ", res.data.data);
+            const memberships = res.data?.data || [];
+
+            // 
+            const orgs = memberships
+                .filter(m=> m.status === 'accepted')
+                .map(m => m.organization)
+            
+            const invitedOrgs = memberships
+                .filter(m => m.status === 'invited')
+                .map(m => m.organization)
+
             set({ orgs });
+            set({ invitedOrgs })
 
         } catch (err) {
             console.error("Error fetching orgs:", err);
@@ -91,7 +120,7 @@ persist(
         }
     },
 
-    // Create an org (free tier or paid)
+    // 2. Create an org (free tier or paid)
     createOrg: async (orgData) => {
         try {
             // console.log(orgData);
@@ -115,7 +144,7 @@ persist(
         }
     },
 
-    // delete an org
+    // 3. delete an org
     deleteOrg: async (orgId) => {
         try {
             await axiosInstance.delete(`/org/deleteOrg/${orgId}`);
@@ -127,7 +156,7 @@ persist(
         }
     },
 
-    // updatea an org
+    // 4. updatea an org
     updateOrg: async (orgId, updates) => {
         try {
             // console.log(orgId);
@@ -140,10 +169,7 @@ persist(
         }
     },
 
-    // Set the current org
-    setSelectedOrg: (org) => set({ selectedOrg: org }),
-
-    // get the role of user in current organization
+    // 5. get the role of user in current organization
     fetchOrgCurrentUser: async (orgId) => {
         try {
             const res = await axiosInstance.get(`/org/${orgId}/org-current-member`);
@@ -155,7 +181,7 @@ persist(
         }
     },
 
-    // Fetch all members of current org
+    // 6. Fetch all members of current org
     fetchCurrentOrgMembers: async (orgId) => {
         try {
             const res = await axiosInstance.get(`/org/${orgId}/all-members`);
@@ -167,27 +193,40 @@ persist(
         }
     },
 
-    // Invite member
-    inviteMember: async (orgId, email, role = "member") => {
+    // 7. Invite member to a current organization
+    inviteMember: async ({orgId, email, role = "member"}) => {
         try {
-            const res = await axiosInstance.post(`/${orgId}/add-member`, { email, role });
+            const res = await axiosInstance.post(`/org/${orgId}/invite-member`, { email, role });
+            get().fetchCurrentOrgMembers(orgId);
             get().triggerNotification(res.data?.message || "Invitation sent", "success");
-            await get().fetchOrgMembers(orgId);
         } catch (err) {
-            console.error("Error inviting member:", err);
+            console.error("Error inviting member:", err.response?.data?.message || err);
             get().triggerNotification(err.response?.data?.message || "Failed to invite", "appError");
         }
     },
 
     // Remove member
-    removeMember: async (orgId, memberId) => {
+    removeMember: async ({orgId, memberId}) => {
+        console.log(memberId)
         try {
-            const res = await axiosInstance.delete(`/${orgId}/remove-member/${memberId}`);
-            get().triggerNotification("Member removed", "success");
-            await get().fetchOrgMembers(orgId);
+            const res = await axiosInstance.delete(`/org/${orgId}/remove-member/${memberId}`);
+            await get().fetchCurrentOrgMembers(orgId);
+            get().triggerNotification("Member removed successfully", "success");
         } catch (err) {
-            console.error("Error removing member:", err);
+            console.error("Error removing member:", err.response?.data?.message || err);
             get().triggerNotification(err.response?.data?.message || "Failed to remove member", "appError");
+        }
+    },
+
+    // Change the role of a user in organization
+    changeRole: async ({orgId, memberId, role = "member"}) => {
+        try {
+            const res = await axiosInstance.put(`/org/${orgId}/change-role`, {role, memberId});
+            get().fetchCurrentOrgMembers(orgId);
+            get().triggerNotification(res.data?.message || "Role updated successfully", "success");
+        } catch (err) {
+            console.error("Error updating member role member:", err.response?.data?.message || err);
+            get().triggerNotification(err.response?.data?.message || "Failed to update role", "appError");
         }
     },
 

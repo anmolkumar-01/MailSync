@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import { Organization } from "../models/organizationSchema.js";
+import { User } from "../models/userSchema.js";
 import { Payment } from "../models/paymentSchema.js"
 import Razorpay from "razorpay";
 import { OrgMember } from "../models/orgMemberSchema.js";
@@ -127,20 +128,7 @@ const deleteOrg = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, organization, "Organization deleted successfully" ));
 })
 
-// 4. Get Organization by ID , todo: remove this if not used in future
-const org = asyncHandler(async (req, res) => {
-    const { orgId } = req.params;
-
-    const organization = await Organization.findById(orgId);
-
-    if (!organization) {
-        throw new ApiError(404, "Organization not found");
-    }
-
-    res.status(200).json(new ApiResponse(200, organization, "Organization retrieved successfully"));
-})
-
-// 5. Get All Organizations of current user where user is a member
+// 4. Get All Organizations of current user where user is a member
 const allOrgs = asyncHandler(async (req, res) => {
     const userId = req.user._id;
     if(!userId){
@@ -149,19 +137,16 @@ const allOrgs = asyncHandler(async (req, res) => {
 
     const memberships = await OrgMember.find({
         userId : userId,
-        status: 'accepted',
-    }).select("organization").populate("organization")
+        // status: 'accepted',
+    }).populate("organization")
 
     // console.log(memberships);
 
-    const orgs = memberships.map(m => m.organization)
 
-    // console.log("all organizations : ", orgs)
-
-    res.status(200).json(new ApiResponse(200, orgs, "Organizations retrieved successfully"));
+    res.status(200).json(new ApiResponse(200, memberships, "Organizations retrieved successfully"));
 })
 
-// 6. Get all the members of the current organization
+// 5. Get all the members of the current organization
 const allMembers = asyncHandler(async (req, res) => {
 
     const {orgId} = req.params;
@@ -205,15 +190,22 @@ const orgCurrentMember = asyncHandler(async (req,res) => {
 
 })
 
-// 7. Add members to organization
-const addMember = asyncHandler(async (req, res) => {
+// 7. Invite new members to organization : todo: allow adding multiple members at the same time
+const inviteMember = asyncHandler(async (req, res) => {
 
     // 1. Take inputs
-    const orgId = req.params.orgId;
-    const { email, role } = req.body;
+    const {orgId} = req.params;
+    const {email, role} = req.body;
 
-    if (!email) {
-        throw new ApiError(400, "Email is required to invite a member.");
+    // console.log(email, role)
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if(!email || !emailRegex.test(email)){
+        throw new ApiError(400, "Please provide a valid email")
+    }
+
+    if(!role){
+        throw new ApiError(400, "Please provide a role")
     }
 
     // 2. Check organization exists
@@ -222,15 +214,13 @@ const addMember = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Organization not found.");
     }
 
-    // todo : send invite link on email and remove this user registered or not
-
-    // 3. Check if the user being invited exists
+    // 3. Check if the user being invited exists , todo : if user not exists create a notification schema
     const invitedUser = await User.findOne({ email });
     if (!invitedUser) {
         throw new ApiError(404, "No user found with this email. Please register the member on the app first");
     }
 
-    // 4. Prevent duplicate membership
+    // 4. If invited user is already a member of the organization
     const existingMember = await OrgMember.findOne({
         userId: invitedUser._id,
         organization: orgId
@@ -239,6 +229,8 @@ const addMember = asyncHandler(async (req, res) => {
     if (existingMember) {
         throw new ApiError(400, "User is already a member or has already been invited.");
     }
+
+    // todo : send invite link on email and remove this user registered or not
 
     // 5. Create OrgMember invitation
     const newMember = await OrgMember.create({
@@ -253,43 +245,88 @@ const addMember = asyncHandler(async (req, res) => {
     );
 });
 
-// 8. Remove members from organization
+// 8. Remove member from organization
 const removeMember = asyncHandler(async (req, res) => {
 
     // 1. Take input
-    const {orgId, memberId} = req.params.orgId;
+    const {orgId, memberId} = req.params;
+
+    if(!orgId || !memberId){
+        throw new ApiError(400, "Please provide valid organization Id and member Id")
+    }
 
     // 2. Ensure org exists
-    const organization = await Organization.findById(orgId);
-    if (!organization) {
+    const org = await Organization.findById(orgId);
+    if (!org) {
         throw new ApiError(404, "Organization not found.");
     }
 
-    // 2. Prevent removing the owner
-    if (organization.owner.toString() === memberId) {
-        throw new ApiError(403, "Cannot remove the organization owner.");
-    }
-
     // 3. Check if user is actually a member
-    const memberRecord = await OrgMember.findOne({
-        userId: userIdToRemove,
-        organization: orgId
-    });
+    const memberRecord = await OrgMember.findById(memberId);
 
     if (!memberRecord) {
         throw new ApiError(404, "User is not a member of this organization.");
     }
 
+    // 2. Prevent removing the owner
+    // console.log(org.owner , memberId)
+    if (org.owner.toString() === memberRecord.userId.toString()) {
+        throw new ApiError(403, "Cannot remove the organization owner.");
+    }
+
     // 4. Delete member record
-    await OrgMember.deleteOne({
-        userId: userIdToRemove,
-        organization: orgId
-    });
+    await OrgMember.deleteOne({_id: memberRecord._id})
 
     return res.status(200).json(
         new ApiResponse(200, null, "Member removed from organization successfully.")
     );
 });
+
+// 9. change role of a member of organization
+const changeRole = asyncHandler( async (req, res) => {
+
+     // 1. Take input
+    const {orgId} = req.params;
+    const {role, memberId} = req.body
+
+    if(!memberId || !role){
+        throw new ApiError(400, "Please provide valid organization Id, role and member Id")
+    }
+
+    // 2. Ensure org exists
+    const org = await Organization.findById(orgId);
+    if (!org) {
+        throw new ApiError(404, "Organization not found.");
+    }
+
+    // 3. Check if user is actually a member
+    const memberRecord = await OrgMember.findById(memberId);
+
+    if (!memberRecord) {
+        throw new ApiError(404, "User is not a member of this organization.");
+    }
+
+    // 4. Prevent changing the role of owner
+    // console.log(org.owner , memberId)
+    if (org.owner.toString() === memberRecord.userId.toString()) {
+        throw new ApiError(403, "Cannot change the role of organization owner.");
+    }
+
+    // 5. update member role - if already this then no changes else update
+    if(memberRecord.role === role){
+        return res.status(200).json(
+            new ApiResponse(200, memberRecord, "Member Role updated successfully.")
+        );
+    }
+    memberRecord.role = role;
+    await memberRecord.save()
+
+    return res.status(200).json(
+        new ApiResponse(200, memberRecord, "Member Role updated successfully.")
+    );
+})
+
+// 10. Accept the invite
 
 // Initial Payment Function
 const initiatePayment = async ({ userId, tier, amount }) => {
@@ -324,10 +361,10 @@ export {
     createOrg,
     updateOrg,
     deleteOrg,
-    org,
     allOrgs,
     allMembers,
     orgCurrentMember,
-    addMember,
-    removeMember
+    inviteMember,
+    removeMember,
+    changeRole
 }

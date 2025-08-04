@@ -5,12 +5,12 @@ import{
     createOrg,
     updateOrg,
     deleteOrg,
-    org,
     allOrgs,
     allMembers,
     orgCurrentMember,
-    addMember,
-    removeMember
+    inviteMember,
+    removeMember,
+    changeRole
 } from "../controllers/organization.controller.js"
 
 const router = Router()
@@ -20,12 +20,12 @@ router.use(verifyJWT)
 router.post("/createOrg" , createOrg)
 router.put("/updateOrg/:orgId", isOrgAdminLogin, updateOrg)
 router.delete("/deleteOrg/:orgId", isOrgAdminLogin, deleteOrg)
-router.get("/org/:orgId", org)
 router.get("/allOrgs", allOrgs)
 
 router.get('/:orgId/all-members', allMembers)
 router.get('/:orgId/org-current-member', orgCurrentMember)
-router.post("/:orgId/add-member", isOrgAdminLogin, addMember)
+router.post("/:orgId/invite-member", isOrgAdminLogin, inviteMember)
 router.delete("/:orgId/remove-member/:memberId", isOrgAdminLogin, removeMember)
+router.put("/:orgId/change-role", isOrgAdminLogin, changeRole)
 
 export default router

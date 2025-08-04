@@ -21,10 +21,11 @@ const orgMemberSchema = new Schema(
             type: String,
             enum: ['invited', 'accepted', 'rejected'],
         },
-        invitedAt: {
+        lastActivityAt: {
             type: Date,
-            default: Date.now,
+            default: Date.now
         }
+
     },
     { timestamps: true }
 );

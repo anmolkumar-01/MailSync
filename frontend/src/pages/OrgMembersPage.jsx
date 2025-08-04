@@ -22,12 +22,12 @@ const Avatar = ({ name }) => (
 // Helper to render the correct activity badge based on status
 const ActivityBadge = ({ activity }) => {
     const styles = {
-        'Active': { icon: Waves, color: 'text-green-600' },
         'accepted': { icon: Waves, color: 'text-green-600' },
+        'invited': { icon: User, color: 'text-gray-400' },
+        'Active': { icon: Waves, color: 'text-green-600' },
         'Top 10%': { icon: Star, color: 'text-amber-500' },
         'Inactive': { icon: Moon, color: 'text-slate-500' },
         'Lurker': { icon: User, color: 'text-sky-500' },
-        'Pending': { icon: User, color: 'text-gray-400' },
     };
     const currentStyle = styles[activity] || styles['Pending'];
     const Icon = currentStyle.icon;
@@ -54,9 +54,17 @@ const getRoleButtonClasses = (role) => {
 
 const OrgMembersPage = () => {
 
-    const{selectedOrg, currentOrgMembers, fetchCurrentOrgMembers} = useAppStore();
+    const{
+        selectedOrg,
+        currentOrgMembers,
+        fetchCurrentOrgMembers,
+        inviteMember,
+        removeMember,
+        changeRole,
+        triggerNotification
+    } = useAppStore();
 
-    const [isAddMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
+    const [isInviteMemberDialogOpen, setInviteMemberDialogOpen] = useState(false);
     const [newMemberEmail, setNewMemberEmail] = useState('');
     const [newMemberRole, setNewMemberRole] = useState('orgMember');
 
@@ -64,29 +72,37 @@ const OrgMembersPage = () => {
         fetchCurrentOrgMembers(selectedOrg._id)
     },[selectedOrg, currentOrgMembers?.length])
 
-    const handleInviteMember = () => {
-        if (!newMemberEmail) return;
-        const newMember = {
-            id: Date.now(),
-            name: newMemberEmail.split('@')[0], // Simple name generation
+    const handleInviteMember = async() => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if(!newMemberEmail?.trim() || !emailRegex.test(newMemberEmail)){
+            triggerNotification("Please provide valid email of the new member", "appError");
+            return;
+        }
+        if (!newMemberRole){
+            triggerNotification("Please provide valid role of the new member", "appError")
+            return;
+        }
+        
+        await inviteMember({
+            orgId: selectedOrg._id,
             email: newMemberEmail,
             role: newMemberRole,
-            activity: 'Pending',
-            memberSince: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-            lastActivity: 'Never',
-        };
-        // setMembers([newMember, ...members]);
+        })
         setNewMemberEmail('');
         setNewMemberRole('orgMember');
-        setAddMemberDialogOpen(false);
+        setInviteMemberDialogOpen(false);
     };
 
     const handleDeleteMember = (memberId) => {
-        // setMembers(members.filter(m => m.id !== memberId));
+        removeMember({
+            orgId: selectedOrg._id,
+            memberId
+        })
     };
 
-    const handleRoleChange = (memberId, newRole) => {
-        // setMembers(members.map(m => m.id === memberId ? { ...m, role: newRole } : m));
+    const handleRoleChange = async(memberId, newRole) => {
+        await changeRole({orgId: selectedOrg._id, memberId, role: newRole})
     };
 
     return (
@@ -101,7 +117,7 @@ const OrgMembersPage = () => {
                         <CardDescription>Manage your organization's members.</CardDescription>
                     </div>
 
-                    <Dialog open={isAddMemberDialogOpen} onOpenChange={setAddMemberDialogOpen}>
+                    <Dialog open={isInviteMemberDialogOpen} onOpenChange={setInviteMemberDialogOpen}>
                     <DialogTrigger asChild>
                         <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                             <UserPlus className="mr-2 h-4 w-4" />
@@ -124,7 +140,7 @@ const OrgMembersPage = () => {
                             </Select>
                         </div>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setAddMemberDialogOpen(false)}>Cancel</Button>
+                            <Button variant="outline" onClick={() => setInviteMemberDialogOpen(false)}>Cancel</Button>
                             <Button onClick={handleInviteMember}>Invite Member</Button>
                         </DialogFooter>
                     </DialogContent>
@@ -155,8 +171,9 @@ const OrgMembersPage = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
+
                         {currentOrgMembers.map(member => (
-                            <TableRow key={member.id} className="hover:bg-slate-50">
+                            <TableRow key={member._id} className="hover:bg-slate-50">
                                 <TableCell className="pl-6">
                                     <div className="flex items-center gap-3">
                                         <Avatar name={member.userId?.fullName} />
@@ -186,16 +203,17 @@ const OrgMembersPage = () => {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Change Role</DropdownMenuLabel>
-                                            <DropdownMenuItem onSelect={() => handleRoleChange(member.id, 'orgMember')}>Member</DropdownMenuItem>
-                                            <DropdownMenuItem onSelect={() => handleRoleChange(member.id, 'orgAdmin')}>Admin</DropdownMenuItem>
+                                            <DropdownMenuItem onSelect={() => handleRoleChange(member._id, 'orgMember')}>Member</DropdownMenuItem>
+                                            <DropdownMenuItem onSelect={() => handleRoleChange(member._id, 'orgAdmin')}>Admin</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
                                 <TableCell>
-                                    <ActivityBadge activity={member.status} /> {/* todo: add member activity field */}
+                                    <ActivityBadge activity={member.status} /> {/* todo: Invite member activity field */}
                                 </TableCell>
                                 <TableCell className="hidden md:table-cell text-slate-600">{new Date(member.createdAt).toLocaleDateString()}</TableCell>
-                                {/* <TableCell className="hidden lg:table-cell text-slate-600">{member.lastActivity}</TableCell> */} {/* todo: add a last activity */}
+                                <TableCell className="hidden lg:table-cell text-slate-600">{new Date(member.lastActivityAt).toLocaleDateString()}</TableCell>
+                                
                                 <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -203,10 +221,11 @@ const OrgMembersPage = () => {
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
+                                        
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                             <DropdownMenuItem
-                                                onSelect={() => handleDeleteMember(member.id)}
+                                                onSelect={() => handleDeleteMember(member._id)}
                                                 className="text-red-500 focus:text-red-600 focus:bg-red-50"
                                             >
                                                 Remove Member

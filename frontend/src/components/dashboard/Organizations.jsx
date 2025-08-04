@@ -1,16 +1,16 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { LayoutDashboard, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Plus } from 'lucide-react';
 
 import { useAppStore } from '@/store/useAppStore';
-import { PricingDialog } from '..'; 
+import { PricingDialog, OrgsTabs } from '..'; 
 
-// Helper function for styling plans
+// Helper function for styling plans, todo : move this to utility functions 
 const getPlanStyles = (plan) => {
     switch (plan) {
         case 'premium':
@@ -35,7 +35,7 @@ const getPlanStyles = (plan) => {
     }
 };
 
-const Organizations = ({ onSelectOrg }) => {
+const Organizations = () => {
 
     // --- STATE MANAGEMENT ---
 
@@ -63,60 +63,7 @@ const Organizations = ({ onSelectOrg }) => {
         }
     }, [currentUser]);
 
-    const renderOrgs = useMemo(()=>{
-        return orgs.map(org => {
-            console.log(org)
-            const planStyles = getPlanStyles(org.tier);
-            return (
-                //  ------- Each organizaion card ------
-                <Card key={org._id} className="bg-white flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-slate-200">
-                    <CardHeader className="flex flex-row items-start justify-between">
-                        <CardTitle className="text-lg font-semibold text-slate-900">{org.name}</CardTitle>
-                        
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {/* ----- edit  */}
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingOrg({ ...org }); setEditDialogOpen(true); }}>
-                                <Pencil className="h-4 w-4 text-slate-500" />
-                            </Button>
-
-                            {/* ---- delete */}
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteOrg(org._id)}>
-                                <Trash2 className="h-4 w-4 text-red-500" />
-                            </Button>
-                        </div>
-                    </CardHeader>
-
-                    <CardContent className="flex-1">
-                        <p className="text-sm text-slate-500 line-clamp-2">{org.description}</p>
-
-                        {/*  todo : show members number */}
-                        {/* <p className="text-sm text-slate-500 line-clamp-2">{org.members?.length} members</p> */}
-                    </CardContent>
-
-                    <CardFooter className="flex items-center justify-between">
-                        {org.status === 'pending'?
-                        (
-                            <Badge variant="outline" className={`font-semibold border-2 bg-green-100 text-green-800 border-green-300`}>pending</Badge>
-                        ):
-                        (   <>
-                                <Badge variant="outline" className={`font-semibold border-2 ${planStyles.badge}`}>{org.tier}</Badge>
-                                <Button 
-                                size="sm" 
-                                className={`w-fit text-white ${planStyles.button}`} 
-                                onClick={() =>{
-                                    onSelectOrg(org);
-                                }}>
-                                    <LayoutDashboard className="mr-2 h-4 w-4"/> Enter
-                                </Button>
-                            </>
-                        )
-                        }
-
-                    </CardFooter>
-                </Card>
-            );
-        })
-    }, [orgs])
+    // todo: move to another component
 
     // --- EVENT HANDLERS ---
     const handlePlanSelect = (planName) => {
@@ -158,26 +105,55 @@ const Organizations = ({ onSelectOrg }) => {
 
         <div>
 
-            {/* ------------- Organization Card ---------------- */}
-            <Card className="bg-white shadow-sm border">
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-slate-800">Your Organizations</CardTitle>
-                            <CardDescription>Select an organization to manage its dashboard.</CardDescription>
-                        </div>
-                        <Button size="sm" onClick={() => setPricingDialogOpen(true)}>
-                            <Plus className="mr-2 h-4 w-4" /> Add New
-                        </Button>
-                    </div>
-                </CardHeader>
+            {/* ------------- Organization Card ( tabs )---------------- */}
+            <Tabs defaultValue="accepted-orgs">
 
-                <CardContent>
-                    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 p-2">
-                    {renderOrgs}
-                    </div>
-                </CardContent>
-            </Card>
+                <TabsList className="grid  grid-cols-2">
+                    <TabsTrigger value="accepted-orgs">All Organizations</TabsTrigger>
+                    <TabsTrigger value="invited-orgs">Invited Organizations</TabsTrigger>
+                </TabsList>
+
+                {/* --- Tab 1 Content : Accepted organizations --- */}
+                <TabsContent value="accepted-orgs" >
+                    <Card className="bg-white shadow-sm border">
+                        <CardHeader>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    {/* <CardTitle className="text-slate-800">Your Organizations</CardTitle> */}
+                                    <CardDescription>Select an organization to manage its dashboard.</CardDescription>
+                                </div>
+                                <Button size="sm" onClick={() => setPricingDialogOpen(true)}>
+                                    <Plus className="mr-2 h-3 w-4" /> Add New
+                                </Button>
+                            </div>
+                        </CardHeader>
+
+                        <CardContent>
+                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 p-2">
+                                <OrgsTabs inviteStatus="accepted"/>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                {/* --- Tab 2 Content : Invited organizations --- */}
+                <TabsContent value="invited-orgs">
+                    <Card className="bg-white shadow-sm border">
+                        <CardHeader>
+                            <CardDescription className="my-2"
+                            >Accept or decline the invite from an organization.</CardDescription>
+                        </CardHeader>
+
+                        <CardContent>
+                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 p-2">
+                                <OrgsTabs inviteStatus="invited"/>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+            </Tabs>
+
 
             {/* ------------ Pricing dialog box ---------------- */}
             <PricingDialog
@@ -208,7 +184,7 @@ const Organizations = ({ onSelectOrg }) => {
                 </DialogContent>
             </Dialog>
 
-            {/* ------------------ Edit the existing organization dialog --------- */}
+            {/* ------------------ Edit the existing organization (dialog) --------- */}
             <Dialog open={isEditDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogContent>
                     <DialogHeader>

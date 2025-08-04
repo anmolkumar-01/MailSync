@@ -5,10 +5,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Mail, LayoutDashboard, Building2, PanelLeft, Activity, Send, Users, LineChart } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 
-// Added `onSelectOrg` to the props to handle view switching
-const Sidebar = ({currentUser, currentView, selectedOrg, handleBackToUserDashboard, onSelectOrg, orgSubView, setOrgSubView }) => {
+const Sidebar = ({handleBackToUserDashboard, orgSubView, setOrgSubView }) => {
     
-    const {orgCurrentUser, fetchOrgCurrentUser} = useAppStore()
+    const {
+        currentUser,
+        currentView,
+        selectedOrg,
+        handleSelectOrg,
+        orgCurrentUser, fetchOrgCurrentUser} = useAppStore()
 
     // console.log("selected org", selectedOrg)
     // console.log("role of current user in current org", orgCurrentUser)
@@ -40,7 +44,7 @@ const Sidebar = ({currentUser, currentView, selectedOrg, handleBackToUserDashboa
                 icon: LayoutDashboard,
                 view: 'admin-panel',
                 // This button specifically triggers the switch to the admin panel view
-                onClick: () => onSelectOrg({ id: 'admin-panel' })
+                onClick: () => handleSelectOrg({ id: 'admin-panel' })
             });
         }
 
@@ -89,7 +93,7 @@ const Sidebar = ({currentUser, currentView, selectedOrg, handleBackToUserDashboa
                 ))}
             </nav>
         );
-    }, [currentView, selectedOrg, currentUser?.role, orgCurrentUser?.role, handleBackToUserDashboard, onSelectOrg]);
+    }, [currentView, selectedOrg, currentUser?.role, orgCurrentUser?.role, handleBackToUserDashboard, handleSelectOrg]);
 
     return (
         <div className="flex h-full flex-col bg-white">

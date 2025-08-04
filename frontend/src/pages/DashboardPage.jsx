@@ -8,20 +8,15 @@ import { useAppStore } from '@/store/useAppStore';
 
 const DashboardPage = () => {
 
-  const{currentUser, selectedOrg, setSelectedOrg} = useAppStore()
-  const [currentView, setCurrentView] = useState('user-dashboard'); 
-  const [orgSubView, setOrgSubView] = useState('send-email'); // todo : default set to activity when current org member is orgadmin
+  const{
+    currentUser,
+    selectedOrg,
+    setSelectedOrg,
+    currentView,
+    setCurrentView
+  } = useAppStore()
 
-  const handleSelectOrg = (org) => {
-    console.log("org in heandleselectorg : ", org);
-    if (org.id === 'admin-panel') {
-      setSelectedOrg(null);
-      setCurrentView('admin-panel');
-    } else {
-      setSelectedOrg(org);
-      setCurrentView('org-dashboard');
-    }
-  };
+  const [orgSubView, setOrgSubView] = useState('send-email'); // todo : default set to activity when current org member is orgadmin
 
   const handleBackToUserDashboard = () => {
     setSelectedOrg(null);
@@ -35,15 +30,15 @@ const DashboardPage = () => {
   }, [currentView, selectedOrg]);
 
   const renderContent = () => {
+    console.log("currentView", currentView)
     switch (currentView) {
       case 'admin-panel':
-        return <AdminPanel user={currentUser} />;
+        return <AdminPanel />;
       case 'org-dashboard':
-        return <OrgDashboard org={selectedOrg} user={currentUser} orgSubView={orgSubView}/>;
+        return <OrgDashboard orgSubView={orgSubView}/>;
       case 'user-dashboard':
-        return <Organizations user={currentUser} onSelectOrg={handleSelectOrg} />;
       default:
-          return <Organizations user={currentUser} onSelectOrg={handleSelectOrg} />;
+          return <Organizations />;
     }
   };
 
@@ -54,10 +49,6 @@ const DashboardPage = () => {
         {/* --------- Sidebar Panel ---------- */}
         <ResizablePanel defaultSize={15} minSize={12} maxSize={25}>
           <Sidebar 
-            currentUser={currentUser}
-            currentView={currentView}
-            selectedOrg={selectedOrg}
-            onSelectOrg={handleSelectOrg}
             handleBackToUserDashboard={handleBackToUserDashboard}
             orgSubView={orgSubView}       // for the selected field of organization
             setOrgSubView={setOrgSubView}
