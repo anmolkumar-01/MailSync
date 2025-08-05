@@ -30,7 +30,7 @@ const DashboardPage = () => {
   }, [currentView, selectedOrg]);
 
   const renderContent = () => {
-    console.log("currentView", currentView)
+    // console.log("currentView", currentView)
     switch (currentView) {
       case 'admin-panel':
         return <AdminPanel />;

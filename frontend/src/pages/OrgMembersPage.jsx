@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
-import { Search, MoreHorizontal, User, Waves, Moon, Star, ChevronDown, UserPlus } from 'lucide-react';
+import { Search, MoreHorizontal, User, Waves, Moon, Star, ChevronDown, UserPlus, X, LogOut } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 
 
@@ -19,22 +19,25 @@ const Avatar = ({ name }) => (
     </div>
 );
 
-// Helper to render the correct activity badge based on status
-const ActivityBadge = ({ activity }) => {
+// Helper to render the correct status badge based on status
+const StatusBadge = ({ status }) => {
     const styles = {
         'accepted': { icon: Waves, color: 'text-green-600' },
         'invited': { icon: User, color: 'text-gray-400' },
+        'rejected': {icon : X, color: 'text-red-400'},
+        'left': {icon : LogOut, color: 'text-red-400'},
+
         'Active': { icon: Waves, color: 'text-green-600' },
         'Top 10%': { icon: Star, color: 'text-amber-500' },
         'Inactive': { icon: Moon, color: 'text-slate-500' },
         'Lurker': { icon: User, color: 'text-sky-500' },
     };
-    const currentStyle = styles[activity] || styles['Pending'];
+    const currentStyle = styles[status] || styles['Pending'];
     const Icon = currentStyle.icon;
     return (
         <div className={`flex items-center gap-2 text-sm font-medium ${currentStyle.color}`}>
             <Icon className="h-4 w-4" />
-            <span>{activity}</span>
+            <span>{status}</span>
         </div>
     );
 };
@@ -45,8 +48,34 @@ const getRoleButtonClasses = (role) => {
         case 'orgAdmin': // Approved style
             return 'bg-green-100 text-green-700 hover:bg-green-200';
         case 'orgMember': // Pending style
+            'bg-blue-100 text-blue-700 hover:bg-blue-200';
         default:
+            return 'bg-slate-200 text-slate-800 hover:bg-slate-300';
+    }
+};
+
+const getStatusFilterButtonClasses = (status) => {
+    switch (status) {
+        
+        case 'accepted':
+            return 'bg-green-100 text-green-700 hover:bg-green-200';
+        case 'invited':
+            return 'bg-gray-100 text-gray-700 hover:bg-gray-200';
+        case 'rejected':
+            return 'bg-red-100 text-red-700 hover:bg-red-200';
+        case 'left':
+            return 'bg-red-100 text-red-700 hover:bg-red-200';
+
+        case 'Active':
+            return 'bg-green-100 text-green-700 hover:bg-green-200';
+        case 'Inactive':
+            return 'bg-slate-100 text-slate-700 hover:bg-slate-200';
+        case 'Pending':
             return 'bg-blue-100 text-blue-700 hover:bg-blue-200';
+        case 'Lurker':
+            return 'bg-sky-100 text-sky-700 hover:bg-sky-200';
+        default: // for 'all'
+            return 'bg-slate-200 text-slate-800 hover:bg-slate-300';
     }
 };
 
@@ -67,6 +96,9 @@ const OrgMembersPage = () => {
     const [isInviteMemberDialogOpen, setInviteMemberDialogOpen] = useState(false);
     const [newMemberEmail, setNewMemberEmail] = useState('');
     const [newMemberRole, setNewMemberRole] = useState('orgMember');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [roleFilter, setRoleFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('all');
 
     useEffect(()=>{
         fetchCurrentOrgMembers(selectedOrg._id)
@@ -104,6 +136,37 @@ const OrgMembersPage = () => {
     const handleRoleChange = async(memberId, newRole) => {
         await changeRole({orgId: selectedOrg._id, memberId, role: newRole})
     };
+
+    const filteredMembers = useMemo(() => {
+        
+        let membersToFilter = currentOrgMembers;
+
+        // 1. Apply Search Query Filter
+        if (searchQuery.trim()) {
+            const lowercasedQuery = searchQuery.toLowerCase();
+            membersToFilter = membersToFilter.filter(member => {
+                const nameMatch = member.userId?.fullName.toLowerCase().includes(lowercasedQuery);
+                const emailMatch = member.userId?.email.toLowerCase().includes(lowercasedQuery);
+                const roleMatch = member.role.toLowerCase().includes(lowercasedQuery);
+                return nameMatch || emailMatch || roleMatch;
+            });
+        }
+
+        // 2. Apply Role Filter (if not 'all')
+        if (roleFilter !== 'all') {
+            membersToFilter = membersToFilter.filter(member => member.role === roleFilter);
+        }
+
+        // 3. Apply Status Filter (if not 'all')
+        if (statusFilter !== 'all') {
+            // The status is called 'status' in your mock data
+            membersToFilter = membersToFilter.filter(member => member.status === statusFilter);
+        }
+
+        return membersToFilter;
+
+    // Add the new state variables to the dependency array
+    }, [currentOrgMembers, searchQuery, roleFilter, statusFilter]);
 
     return (
         <Card className="h-full flex flex-col shadow-sm bg-white border-slate-200">
@@ -150,10 +213,66 @@ const OrgMembersPage = () => {
                 <div className="flex items-center gap-2 pt-4">
                     <div className="relative flex-1">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
-                        <Input placeholder="Search for user, role and etc." className="pl-8" />
+                        <Input 
+                            placeholder="Search for user, role and etc." 
+                            className="pl-8"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
                     </div>
-                    <Button variant="outline">Roles</Button>
-                    <Button variant="outline">Activity level</Button>
+
+                    {/* ----------- Filter Dropdowns --- */}
+                    <div className="flex items-center gap-2 ml-auto">
+
+                        {/* ---- Filter by roles badge ------ */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                
+                                <Button
+                                    variant="outline"
+                                    className={`
+                                        font-medium border-0 rounded-full h-auto text-xs 
+                                        flex items-center justify-between w-28 px-2.5 py-1
+                                        ${getRoleButtonClasses(roleFilter)}
+                                    `}
+                                >
+                                    <span className="capitalize">{roleFilter === 'all' ? 'All Roles' : (roleFilter === 'orgAdmin' ? 'Admin' : 'Member')}</span>
+                                    <ChevronDown className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Filter by Role</DropdownMenuLabel>
+                                <DropdownMenuItem onSelect={() => setRoleFilter('all')}>All Roles</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setRoleFilter('orgAdmin')}>Admin</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setRoleFilter('orgMember')}>Member</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        {/* ---- Filter by status badge ------ */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className={`
+                                        font-medium border-0 rounded-full h-auto text-xs 
+                                        flex items-center justify-between w-28 px-2.5 py-1
+                                        ${getStatusFilterButtonClasses(statusFilter)}
+                                    `}
+                                >
+                                    <span className="capitalize">{statusFilter}</span>
+                                    <ChevronDown className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                                <DropdownMenuItem onSelect={() => setStatusFilter('all')}>All</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setStatusFilter('accepted')}>Accepted</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setStatusFilter('invited')}>Invited</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setStatusFilter('rejected')}>Rejected</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setStatusFilter('left')}>Left</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
             </CardHeader>
 
@@ -164,15 +283,16 @@ const OrgMembersPage = () => {
                         <TableRow>
                             <TableHead className="pl-6">Member</TableHead>
                             <TableHead>Role</TableHead>
-                            <TableHead>Activity Level</TableHead>
+                            <TableHead>Status</TableHead>
                             <TableHead className="hidden md:table-cell">Member since</TableHead>
                             <TableHead className="hidden lg:table-cell">Last activity at</TableHead>
                             <TableHead><span className="sr-only">Actions</span></TableHead>
                         </TableRow>
                     </TableHeader>
+                    
                     <TableBody>
 
-                        {currentOrgMembers.map(member => (
+                        {filteredMembers.map(member => (
                             <TableRow key={member._id} className="hover:bg-slate-50">
                                 <TableCell className="pl-6">
                                     <div className="flex items-center gap-3">
@@ -183,6 +303,7 @@ const OrgMembersPage = () => {
                                         </div>
                                     </div>
                                 </TableCell>
+                                
                                 <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -208,9 +329,11 @@ const OrgMembersPage = () => {
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
+                                
                                 <TableCell>
-                                    <ActivityBadge activity={member.status} /> {/* todo: Invite member activity field */}
+                                    <StatusBadge status={member.status} /> {/* todo: Invite member status field */}
                                 </TableCell>
+                                
                                 <TableCell className="hidden md:table-cell text-slate-600">{new Date(member.createdAt).toLocaleDateString()}</TableCell>
                                 <TableCell className="hidden lg:table-cell text-slate-600">{new Date(member.lastActivityAt).toLocaleDateString()}</TableCell>
                                 
@@ -235,6 +358,7 @@ const OrgMembersPage = () => {
                                 </TableCell>
                             </TableRow>
                         ))}
+
                     </TableBody>
                 </Table>
             </CardContent>

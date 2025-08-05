@@ -19,7 +19,7 @@ const orgMemberSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ['invited', 'accepted', 'rejected'],
+            enum: ['invited', 'accepted', 'rejected', 'left'],
         },
         lastActivityAt: {
             type: Date,

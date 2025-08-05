@@ -63,8 +63,6 @@ const Organizations = () => {
         }
     }, [currentUser]);
 
-    // todo: move to another component
-
     // --- EVENT HANDLERS ---
     const handlePlanSelect = (planName) => {
         setSelectedPlan(planName);
@@ -86,10 +84,6 @@ const Organizations = () => {
             setNewOrgName('');
             setNewOrgDescription('');
         }
-    };
-    
-    const handleDeleteOrg = async(orgId) => {
-        await deleteOrg(orgId);
     };
     
     const handleSaveChanges = async () => {
@@ -130,7 +124,7 @@ const Organizations = () => {
 
                         <CardContent>
                             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 p-2">
-                                <OrgsTabs inviteStatus="accepted"/>
+                                <OrgsTabs inviteStatus="accepted" setEditingOrg={setEditingOrg} setEditDialogOpen={setEditDialogOpen}/>
                             </div>
                         </CardContent>
                     </Card>

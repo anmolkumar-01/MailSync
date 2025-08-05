@@ -163,7 +163,7 @@ const allMembers = asyncHandler(async (req, res) => {
     }
 
     // console.log("all members of current organization: ", members)
-    res.status(200).json(new ApiResponse(200, [members], "Organization members retrieved successfully"));
+    res.status(200).json(new ApiResponse(200, members, "Organization members retrieved successfully"));
 })
 
 // 6. Get the current member of current organization
@@ -220,16 +220,25 @@ const inviteMember = asyncHandler(async (req, res) => {
         throw new ApiError(404, "No user found with this email. Please register the member on the app first");
     }
 
-    // 4. If invited user is already a member of the organization
+    // 4. If an invite or accepted is there
     const existingMember = await OrgMember.findOne({
         userId: invitedUser._id,
-        organization: orgId
+        organization: orgId,
     });
 
-    if (existingMember) {
+    if (existingMember?.status === 'invited' || existingMember?.status === 'accepted') {
         throw new ApiError(400, "User is already a member or has already been invited.");
     }
 
+    // the case when a member rejected and had not been removed from the organization
+    if(existingMember){
+        existingMember.status = 'invited';
+        existingMember.save();
+
+        return res.status(201).json(
+            new ApiResponse(201, existingMember, "Invitation sent to user successfully.")
+        );
+    }
     // todo : send invite link on email and remove this user registered or not
 
     // 5. Create OrgMember invitation
@@ -327,6 +336,91 @@ const changeRole = asyncHandler( async (req, res) => {
 })
 
 // 10. Accept the invite
+const acceptInvite = asyncHandler( async (req,res) => {
+
+    const userId = req.user._id
+    const {orgId} = req.params;
+
+    if(!orgId || !userId){
+        throw new ApiError(400, "UserId and org Id is required");
+    }
+
+    const orgMember = await OrgMember.findOneAndUpdate(
+        {
+            userId,
+            organization: orgId,
+        },
+        {$set: {status: "accepted"}},
+        {new : true}
+    )
+
+    if(!orgMember){
+        throw new ApiError(404, "Org member not found for accepting invite");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, orgMember, "Invite accepted successfully")
+    );
+    
+})
+
+// 11. Reject the invite
+const rejectInvite = asyncHandler( async (req,res) => {
+
+    const userId = req.user._id
+    const {orgId} = req.params;
+
+    if(!orgId || !userId){
+        throw new ApiError(400, "UserId and org Id is required");
+    }
+
+    const orgMember = await OrgMember.findOneAndUpdate(
+        {
+            userId,
+            organization: orgId,
+        },
+        {$set: {status: "rejected"}},
+        {new : true}
+    )
+
+    if(!orgMember){
+        throw new ApiError(404, "Org member not found for rejecting invite");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, orgMember, "Invite accepted successfully")
+    );
+    
+})
+
+// 12. Left an organization
+const leftOrg = asyncHandler( async (req,res) => {
+
+    const userId = req.user._id
+    const {orgId} = req.params;
+
+    if(!orgId || !userId){
+        throw new ApiError(400, "UserId and org Id is required");
+    }
+
+    const orgMember = await OrgMember.findOneAndUpdate(
+        {
+            userId,
+            organization: orgId,
+        },
+        {$set: {status: "left"}},
+        {new : true}
+    )
+
+    if(!orgMember){
+        throw new ApiError(404, "Org member not found for rejecting invite");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, orgMember, "Invite accepted successfully")
+    );
+    
+})
 
 // Initial Payment Function
 const initiatePayment = async ({ userId, tier, amount }) => {
@@ -366,5 +460,8 @@ export {
     orgCurrentMember,
     inviteMember,
     removeMember,
-    changeRole
+    changeRole,
+    acceptInvite,
+    rejectInvite,
+    leftOrg
 }

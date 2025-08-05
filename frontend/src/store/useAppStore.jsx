@@ -186,7 +186,7 @@ persist(
         try {
             const res = await axiosInstance.get(`/org/${orgId}/all-members`);
             // console.log("current org members : ", res.data?.data?.[0])
-            set({ currentOrgMembers: res.data?.data?.[0] });
+            set({ currentOrgMembers: res.data?.data });
         } catch (err) {
             console.error("Error fetching members:", err);
             get().triggerNotification("Failed to load members", "appError");
@@ -205,7 +205,7 @@ persist(
         }
     },
 
-    // Remove member
+    // 8. Remove member
     removeMember: async ({orgId, memberId}) => {
         console.log(memberId)
         try {
@@ -218,7 +218,7 @@ persist(
         }
     },
 
-    // Change the role of a user in organization
+    // 9. Change the role of a user in organization
     changeRole: async ({orgId, memberId, role = "member"}) => {
         try {
             const res = await axiosInstance.put(`/org/${orgId}/change-role`, {role, memberId});
@@ -227,6 +227,48 @@ persist(
         } catch (err) {
             console.error("Error updating member role member:", err.response?.data?.message || err);
             get().triggerNotification(err.response?.data?.message || "Failed to update role", "appError");
+        }
+    },
+
+    // 10. Accept the invite to an orgnization
+    acceptInvite: async (orgId) => {
+        try {
+            const res = await axiosInstance.post(`/org/${orgId}/accept-invite`);
+            
+            get().fetchUserOrgs();
+            get().triggerNotification("Invitation accepted successfully", "notify");
+
+        } catch (err) {
+            console.error("Error in accepting invite:", err.response?.data?.message || err);
+            get().triggerNotification("Failed to accept invite", "appError");
+        }
+    },
+
+    // 11. Reject the invite to an orgnaization
+    rejectInvite: async (orgId) => {
+        try {
+            const res = await axiosInstance.post(`/org/${orgId}/reject-invite`);
+
+            get().fetchUserOrgs();
+            get().triggerNotification("Invitation rejected successfully", "notify");
+
+        } catch (err) {
+            console.error("Error in rejecting invite:", err.response?.data?.message || err);
+            get().triggerNotification("Failed to reject invite", "appError");
+        }
+    },
+
+    // 12. Left an orgnaization
+    leftOrg: async (orgId) => {
+        try {
+            const res = await axiosInstance.post(`/org/${orgId}/left-org`);
+
+            get().fetchUserOrgs();
+            get().triggerNotification("Successfully Left", "notify");
+
+        } catch (err) {
+            console.error("Error in Left org :", err.response?.data?.message || err);
+            get().triggerNotification("Failed to left Organization", "appError");
         }
     },
 
