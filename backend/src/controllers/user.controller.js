@@ -252,92 +252,31 @@ const send = asyncHandler(async (req, res) => {
     );
 });
 
-// ------------------------------------- app related controllers ---------------------------
+// ------------------------------------- Admin related controllers ---------------------------
 
-// 1. Get all the invitation
-const allInvites = asyncHandler(async (req, res) => {
-    const userId = req.user._id;
+//1. Get all the organizations
+const adminAllOrgs = asyncHandler(async (req, res) => {
 
-    // 1. Find all pending invites
-    const invites = await OrgMember.find({
-        userId,
-        status: "invited"
-    })
-    .populate("organization", "name email tier dailyLimit") // Select org fields you want to expose
-    .sort({ invitedAt: -1 });
+    const allOrgs = await Organization.find()
+        .select('name email tier status createdAt owner')
+        .populate('owner', 'fullName');
 
-    return res.status(200).json(
-        new ApiResponse(200, invites, "Pending invites retrieved successfully")
+    if(!allOrgs){
+        throw new ApiError(400, "Error fetching organizations");
+    }
+
+    return res.status(201).json(
+        new ApiResponse(200, allOrgs,"Organizations retrieved successfully")
     );
-});
 
-// 2. Accept the invitation request
-const acceptInvite = asyncHandler(async (req, res) => {
+})
 
-    // 1. Take inputs
-    const userId = req.user._id;
-    const { organizationId } = req.body;
+//2. 
 
-    if (!organizationId) {
-        throw new ApiError(400, "Organization ID is required to accept an invite.");
-    }
-
-    // 2. Find invite
-    const member = await OrgMember.findOne({
-        userId,
-        organization: organizationId,
-        status: "invited"
-    });
-
-    if (!member) {
-        throw new ApiError(404, "No pending invite found for this organization.");
-    }
-
-    // 3. Update status to accepted
-    member.status = "accepted";
-    await member.save();
-
-    return res.status(200).json(
-        new ApiResponse(200, member, "Invitation accepted successfully.")
-    );
-});
-
-// 3. Reject the invitation request
-const rejectInvite = asyncHandler(async (req, res) => {
-
-    // 1. Take inputs
-    const userId = req.user._id;
-    const { organizationId } = req.body;
-
-    if (!organizationId) {
-        throw new ApiError(400, "Organization ID is required to accept an invite.");
-    }
-
-    // 2. Find invite
-    const member = await OrgMember.findOne({
-        userId,
-        organization: organizationId,
-        status: "invited"
-    });
-
-    if (!member) {
-        throw new ApiError(404, "No pending invite found for this organization.");
-    }
-
-    // 3. Update status to accepted
-    member.status = "rejected";
-    await member.save();
-
-    return res.status(200).json(
-        new ApiResponse(200, member, "Invitation accepted successfully.")
-    );
-});
 
 export{
     uploadFile,
     askAI,
     send,
-    allInvites,
-    acceptInvite,
-    rejectInvite
+    adminAllOrgs,
 }

@@ -48,7 +48,7 @@ const getRoleButtonClasses = (role) => {
         case 'orgAdmin': // Approved style
             return 'bg-green-100 text-green-700 hover:bg-green-200';
         case 'orgMember': // Pending style
-            'bg-blue-100 text-blue-700 hover:bg-blue-200';
+            return 'bg-blue-100 text-blue-700 hover:bg-blue-200';
         default:
             return 'bg-slate-200 text-slate-800 hover:bg-slate-300';
     }

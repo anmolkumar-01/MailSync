@@ -3,48 +3,24 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Switch } from "@/components/ui/switch";
 import { CheckCircle2, Zap, Diamond, Globe, ChevronRight } from 'lucide-react';
+import { getPlanStyles } from '@/lib/helperFxns';
 
 // --- DATA & STYLING HELPERS ---
 
 // Updated to provide styles for the new light-themed, color-coded design
-const getPlanStyles = (planName) => {
-    switch (planName) {
-        case 'Premium':
-            return {
-                accentColor: 'text-purple-600',
-                borderColor: 'border-purple-600',
-                buttonClass: 'bg-purple-600 hover:bg-purple-700 text-white',
-                icon: Globe,
-            };
-        case 'Pro':
-            return {
-                accentColor: 'text-amber-500',
-                borderColor: 'border-amber-500',
-                buttonClass: 'bg-amber-500 hover:bg-amber-600 text-white',
-                icon: Diamond,
-            };
-        case 'Free':
-        default:
-            return {
-                accentColor: 'text-blue-600',
-                borderColor: 'border-blue-600',
-                buttonClass: 'bg-blue-600 hover:bg-blue-700 text-white',
-                icon: Zap,
-            };
-    }
-};
+
 
 // Data remains the same, but we will use the new `icon` from the style helper
 const pricingPlans = {
     monthly: [
-        { name: 'Free', price: '$0', description: "Ideal for new investors or those with smaller portfolios.", features: ['Market data and news', 'Basic portfolio tracking', 'Limited customer support'] },
-        { name: 'Pro', price: '$59', description: "A comprehensive plan for investors seeking more advanced features.", features: ['All features from Free', 'Advanced portfolio analysis', 'Personalized recommendations', 'Priority customer support'], highlighted: true },
-        { name: 'Premium', price: '$299', description: "Tailored for experienced investors and companies with complex needs.", features: ['All features from Pro', 'Exclusive research & analysis', 'Dedicated account manager', 'Exclusive investment opportunities'] }
+        { name: 'free', price: '$0', description: "Ideal for new investors or those with smaller portfolios.", features: ['Market data and news', 'Basic portfolio tracking', 'Limited customer support'] },
+        { name: 'pro', price: '$59', description: "A comprehensive plan for investors seeking more advanced features.", features: ['All features from Free', 'Advanced portfolio analysis', 'Personalized recommendations', 'Priority customer support'], highlighted: true },
+        { name: 'premium', price: '$299', description: "Tailored for experienced investors and companies with complex needs.", features: ['All features from Pro', 'Exclusive research & analysis', 'Dedicated account manager', 'Exclusive investment opportunities'] }
     ],
     annually: [
-        { name: 'Free', price: '$0', description: "Ideal for new investors or those with smaller portfolios.", features: ['Market data and news', 'Basic portfolio tracking', 'Limited customer support'] },
-        { name: 'Pro', price: '$590', description: "A comprehensive plan for investors seeking more advanced features.", features: ['All features from Free', 'Advanced portfolio analysis', 'Personalized recommendations', 'Priority customer support'], highlighted: true },
-        { name: 'Premium', price: '$2990', description: "Tailored for experienced investors and companies with complex needs.", features: ['All features from Pro', 'Exclusive research & analysis', 'Dedicated account manager', 'Exclusive investment opportunities'] }
+        { name: 'free', price: '$0', description: "Ideal for new investors or those with smaller portfolios.", features: ['Market data and news', 'Basic portfolio tracking', 'Limited customer support'] },
+        { name: 'pro', price: '$590', description: "A comprehensive plan for investors seeking more advanced features.", features: ['All features from Free', 'Advanced portfolio analysis', 'Personalized recommendations', 'Priority customer support'], highlighted: true },
+        { name: 'premium', price: '$2990', description: "Tailored for experienced investors and companies with complex needs.", features: ['All features from Pro', 'Exclusive research & analysis', 'Dedicated account manager', 'Exclusive investment opportunities'] }
     ]
 };
 
@@ -86,8 +62,8 @@ const PricingPlan_Card = ({ plan, onSelect, billingCycle, isHighlighted, onHighl
             </ul>
             
             <Button onClick={() => onSelect(plan.name)} className={`w-full mt-auto text-base py-5 rounded-lg ${styles.buttonClass}`}>
-                {plan.name === 'Free' ? 'Register For Free' : 'Get Started'}
-                {plan.name !== 'Free' && <ChevronRight className="h-4 w-4 ml-2" />}
+                {plan.name === 'free' ? 'Register For Free' : 'Get Started'}
+                {plan.name !== 'free' && <ChevronRight className="h-4 w-4 ml-2" />}
             </Button>
         </div>
     );
@@ -98,7 +74,7 @@ const PricingPlan_Card = ({ plan, onSelect, billingCycle, isHighlighted, onHighl
 
 export const PricingDialog = ({ open, onOpenChange, onPlanSelect }) => {
     const [billingCycle, setBillingCycle] = useState('monthly');
-    const [highlightedPlan, setHighlightedPlan] = useState('Pro');
+    const [highlightedPlan, setHighlightedPlan] = useState('pro');
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -123,7 +99,7 @@ export const PricingDialog = ({ open, onOpenChange, onPlanSelect }) => {
                 {/* Scrollable content area */}
                 <div 
                     className="flex-1 overflow-y-auto min-h-0 pt-1 mt-2 -mx-4 px-4"
-                    onMouseLeave={() => setHighlightedPlan('Pro')}
+                    onMouseLeave={() => setHighlightedPlan('pro')}
                 >
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {pricingPlans[billingCycle].map(plan => (

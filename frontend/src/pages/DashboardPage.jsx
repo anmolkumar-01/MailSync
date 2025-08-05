@@ -13,10 +13,11 @@ const DashboardPage = () => {
     selectedOrg,
     setSelectedOrg,
     currentView,
-    setCurrentView
+    setCurrentView,
+    orgSubView,
+    setOrgSubView 
   } = useAppStore()
 
-  const [orgSubView, setOrgSubView] = useState('send-email'); // todo : default set to activity when current org member is orgadmin
 
   const handleBackToUserDashboard = () => {
     setSelectedOrg(null);
@@ -35,7 +36,7 @@ const DashboardPage = () => {
       case 'admin-panel':
         return <AdminPanel />;
       case 'org-dashboard':
-        return <OrgDashboard orgSubView={orgSubView}/>;
+        return <OrgDashboard/>;
       case 'user-dashboard':
       default:
           return <Organizations />;
@@ -50,8 +51,6 @@ const DashboardPage = () => {
         <ResizablePanel defaultSize={15} minSize={12} maxSize={25}>
           <Sidebar 
             handleBackToUserDashboard={handleBackToUserDashboard}
-            orgSubView={orgSubView}       // for the selected field of organization
-            setOrgSubView={setOrgSubView}
           />
         </ResizablePanel>
 

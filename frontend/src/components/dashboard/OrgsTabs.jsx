@@ -4,32 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { LayoutDashboard, Pencil, Trash2, Check, X, LogOut } from 'lucide-react';
-
+import { getPlanStyles } from '@/lib/helperFxns';
 
 // todo : move this to utility functions 
-const getPlanStyles = (plan) => {
-    switch (plan) {
-        case 'premium':
-            return {
-                badge: 'bg-purple-100 text-purple-800 border-purple-300',
-                button: 'bg-purple-600 hover:bg-purple-700',
-                iconColor: 'text-purple-500',
-            };
-        case 'pro':
-            return {
-                badge: 'bg-amber-100 text-amber-800 border-amber-300',
-                button: 'bg-amber-500 hover:bg-amber-600',
-                iconColor: 'text-amber-500',
-            };
-        case 'free':
-        default:
-            return {
-                badge: 'bg-blue-100 text-blue-800 border-blue-300',
-                button: 'bg-blue-600 hover:bg-blue-700',
-                iconColor: 'text-blue-600',
-            };
-    }
-};
+
+// todo: move to utility
+function truncateName(name, maxLength = 10) {
+    return name.length > maxLength
+    ? name.slice(0, maxLength) + '...'
+    : name;
+}
 
 const OrgsTabs= ({inviteStatus = "accepted", setEditingOrg, setEditDialogOpen}) => {
 
@@ -61,10 +45,9 @@ const OrgsTabs= ({inviteStatus = "accepted", setEditingOrg, setEditDialogOpen}) 
                 //  ------- Each organizaion card ------
                 <Card key={org._id} className="bg-white flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-slate-200">
                     <CardHeader className="flex flex-row items-start justify-between">
-                        <CardTitle className="text-lg font-semibold text-slate-900">{org.name}</CardTitle>
+                        <CardTitle className="text-lg font-semibold text-slate-900">{truncateName(org.name, 20)}</CardTitle>
                         <Badge variant="outline" className={`font-semibold border-2 ${planStyles.badge}`}>{org.tier}</Badge>
 
-                        
                     </CardHeader>
 
                     <CardContent className="flex-1">
@@ -131,7 +114,7 @@ const OrgsTabs= ({inviteStatus = "accepted", setEditingOrg, setEditDialogOpen}) 
                 //  ------- Each organizaion card ------
                 <Card key={org._id} className="bg-white flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-slate-200">
                     <CardHeader className="flex flex-row items-start justify-between">
-                        <CardTitle className="text-lg font-semibold text-slate-900">{org.name}</CardTitle>
+                        <CardTitle className="text-lg font-semibold text-slate-900">{truncateName(org.name, 20)}</CardTitle>
                         <Badge variant="outline" className={`font-semibold border-2 ${planStyles.badge}`}>{org.tier}</Badge>
                     </CardHeader>
 

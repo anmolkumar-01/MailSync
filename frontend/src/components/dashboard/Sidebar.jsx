@@ -5,14 +5,18 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Mail, LayoutDashboard, Building2, PanelLeft, Activity, Send, Users, LineChart } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 
-const Sidebar = ({handleBackToUserDashboard, orgSubView, setOrgSubView }) => {
+const Sidebar = ({handleBackToUserDashboard, }) => {
     
     const {
         currentUser,
         currentView,
         selectedOrg,
         handleSelectOrg,
-        orgCurrentUser, fetchOrgCurrentUser} = useAppStore()
+        orgCurrentUser,
+        fetchOrgCurrentUser,
+        orgSubView,
+        setOrgSubView 
+    } = useAppStore()
 
     // console.log("selected org", selectedOrg)
     // console.log("role of current user in current org", orgCurrentUser)

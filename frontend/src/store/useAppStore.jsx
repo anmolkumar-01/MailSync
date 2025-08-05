@@ -33,6 +33,8 @@ persist(
     orgCurrentUser: null,
     currentView: 'user-dashboard',
     setCurrentView: (view) => set({ currentView: view }),
+    orgSubView: 'send-email',
+    setOrgSubView: (view) => set({orgSubView: view}),
 
     notifications: [],
 
@@ -55,7 +57,7 @@ persist(
     fetchUserOrgs: async () => {
         try {
             const res = await axiosInstance.get("/org/allOrgs");
-            console.log("user organizations : ", res.data.data);
+            // console.log("user organizations : ", res.data.data);
             const memberships = res.data?.data || [];
 
             // 
@@ -174,7 +176,12 @@ persist(
         try {
             const res = await axiosInstance.get(`/org/${orgId}/org-current-member`);
             // console.log("current user's role in current org in app store : ", res);
-            set({ orgCurrentUser: res.data?.data });
+            const user = res.data?.data;
+            console.log(user)
+            set({ orgCurrentUser: user,
+                orgSubView: user.role === 'orgAdmin'? 'analytics' : 'send-email'
+            });
+
         } catch (err) {
             console.error("Error fetching current User of Organization:", err);
             get().triggerNotification("Failed to fetch organization", "appError");
@@ -272,8 +279,11 @@ persist(
         }
     },
 
-    // ------------------------------ Send emails routes ----------------
+    // ------------------------------ User and auth related  ----------------
     
+    adminOrgs:[],
+    isFetchingAdminOrgs: false,
+
     // 1. Sign In
     signin: async(code) => {
 
@@ -316,7 +326,25 @@ persist(
 
     },
 
-    // 3. Upload files
+    // 3. get all orgs of the admin,
+    fetchAdminOrgs: async() => {
+        set({isFetchingAdminOrgs: true})
+        try {
+            
+            const res = await axiosInstance.get('/user/admin-orgs');
+            console.log("admin orgs : ", res.data?.data)
+            set({adminOrgs: res.data?.data});
+
+        } catch (error) {
+            console.error("Error in asking Ai file: ", error.response?.data?.message || error);
+        } finally{
+            set({isFetchingAdminOrgs: false})
+        }
+    } ,
+
+    // --------------------------- send emails related -------------------- 
+
+    // 1. Upload files
     uploadFile: async(formData) => {
         set({isExtractingEmails: true})
         try {
@@ -338,7 +366,7 @@ persist(
         }
     },
 
-    // 4. AskAI
+    // 2. AskAI
     askAI: async(query) => {
         set({isAskingAi: true})
         try {
@@ -365,7 +393,7 @@ persist(
         }
     },
 
-    // 5. Send Emails
+    // 3. Send Emails
     send: async(formData) => {
         set({isSendingEmail: true})
         try {
@@ -461,6 +489,7 @@ persist(
             body: state.body,
             attachmentsAvailable: state.attachmentsAvailable,
             isSendingEmail: state.isSendingEmail,
+
         }),
 
     }

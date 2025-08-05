@@ -71,4 +71,19 @@ export const isOrgAdminLogin = asyncHandler(async (req, res, next) => {
     next();
 });
 
+// 3. Is user the admin of the Mailsync
+export const isAdminLogin = asyncHandler(async(req, res, next) => {
+
+    const user = await Organization.findById(req.user._id);
+    if(!user){
+        throw new ApiError(404, "User not found")
+    }
+
+    if(user.role !== 'admin'){
+        throw new ApiError(403, "Unauthorized request !!")
+    }
+
+    next();
+})
+
 export {verifyJWT}

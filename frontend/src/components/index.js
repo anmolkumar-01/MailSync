@@ -24,7 +24,7 @@ import HowItWorksSection from "./home/HowItWorksSection"
 import Footer from "./layout/Footer"
 import Navbar from "./layout/Navbar"
 
-
+//  todo: remove them
 import {MOCK_USERS} from './dashboard/data'
 import {MOCK_ORGS} from './dashboard/data'
 import {MOCK_ACTIVITIES} from './dashboard/data'
@@ -34,7 +34,7 @@ import AdminPanel from './dashboard/AdminPanel'
 import OrgDashboard from './dashboard/OrgDashboard'
 import Organizations from './dashboard/Organizations'
 import AnalyticsChartPlaceholder from './dashboard/AnalyticsChartPlaceholder'
-import ActivityTable from './dashboard/ActivityTable'
+import AdminOrgsTable from './dashboard/AdminOrgsTable'
 import Sidebar from "./dashboard/Sidebar";
 import StatCard from './dashboard/StatCard'
 import PricingDialog from "./dashboard/PricingDialog";
@@ -73,7 +73,7 @@ export {
     OrgDashboard,
     Organizations,
     AnalyticsChartPlaceholder,
-    ActivityTable,
+    AdminOrgsTable,
     Sidebar,
     StatCard,
     PricingDialog,
