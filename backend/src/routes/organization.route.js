@@ -11,9 +11,6 @@ import{
     inviteMember,
     removeMember,
     changeRole,
-    acceptInvite,
-    rejectInvite,
-    leftOrg
 } from "../controllers/organization.controller.js"
 
 const router = Router()
@@ -30,9 +27,5 @@ router.get('/:orgId/org-current-member', orgCurrentMember)
 router.post("/:orgId/invite-member", isOrgAdminLogin, inviteMember)
 router.delete("/:orgId/remove-member/:memberId", isOrgAdminLogin, removeMember)
 router.put("/:orgId/change-role", isOrgAdminLogin, changeRole)
-
-router.post("/:orgId/accept-invite", acceptInvite)
-router.post("/:orgId/reject-invite", rejectInvite)
-router.post("/:orgId/left-org", leftOrg)
 
 export default router

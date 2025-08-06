@@ -29,15 +29,12 @@ const AdminPanel = () => {
         
         {/*  reason for scrollability - min-h-0 and h-full of activity table*/}
         <div className="flex-1 flex gap-6 md:gap-8 min-h-0">
-                {/* 
-                - This div now takes up 2/3 of the width.
-                - It is also a flex container that will pass its full height down to the AdminOrgsTable.
-                */}
+                
                 <div className="w-full flex flex-col">
                     <AdminOrgsTable />
                 </div>
 
-                {/* This div takes up the remaining 1/3 of the width. */}
+                {/*---------- chart*/}
                 {/* <div className="w-1/3 flex flex-col">
                     <AnalyticsChartPlaceholder 
                         title="Platform Revenue" 

@@ -12,6 +12,7 @@ import NotificationContainer from "./custom/NotificationContainer";
 import EmailSkeleton from "./skeletons/EmailSkeleton";
 import FileIconManual from "./custom/FileIconManual";
 import { AddEmailModal } from "./custom/AddEmailModal";
+import UserIcon from "./custom/UserIcon";
 
 import AnimatedGradientText from "./custom/AnimatedGradientText"
 import FeatureCard from "./custom/FeatureCard"
@@ -59,6 +60,7 @@ export {
     EmailSkeleton,
     FileIconManual,
     AddEmailModal,
+    UserIcon,
 
     AnimatedGradientText,
     FeatureCard,

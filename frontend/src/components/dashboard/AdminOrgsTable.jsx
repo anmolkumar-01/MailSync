@@ -19,14 +19,11 @@ const AdminOrgsTable = () => {
 
     const {
         adminOrgs,
+        adminUpdateOrgStatus
     } = useAppStore()
 
-    const [activities, setActivities] = useState(INITIAL_ACTIVITIES);
-
-
-
-    const handleStatusChange = (orgId, newStatus) => {
-
+    const handleStatusChange = async(orgId, newStatus) => {
+        await adminUpdateOrgStatus({orgId, status: newStatus})
     };
 
     return (
@@ -49,6 +46,7 @@ const AdminOrgsTable = () => {
                     
                     <TableBody>
                         {adminOrgs.map(org => {
+                            // console.log(org)
                             const planStyles = getPlanStyles(org.tier);
                         return (                            
                             <TableRow key={org._id} className="hover:bg-slate-50">
@@ -78,13 +76,13 @@ const AdminOrgsTable = () => {
                                         
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Change Status</DropdownMenuLabel>
-                                            <DropdownMenuItem onSelect={() => handleStatusChange(org._id, 'Pending')}>
+                                            <DropdownMenuItem onSelect={() => handleStatusChange(org._id, 'pending')}>
                                                 Pending
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem onSelect={() => handleStatusChange(org._id, 'Approved')}>
+                                            <DropdownMenuItem onSelect={() => handleStatusChange(org._id, 'approved')}>
                                                 Approved
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem onSelect={() => handleStatusChange(org._id, 'Rejected')}>
+                                            <DropdownMenuItem onSelect={() => handleStatusChange(org._id, 'rejected')}>
                                                 Rejected
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>

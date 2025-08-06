@@ -62,7 +62,7 @@ persist(
 
             // 
             const orgs = memberships
-                .filter(m=> m.status === 'accepted')
+                .filter(m=> (m.status === 'accepted'))
                 .map(m => m.organization)
             
             const invitedOrgs = memberships
@@ -237,52 +237,12 @@ persist(
         }
     },
 
-    // 10. Accept the invite to an orgnization
-    acceptInvite: async (orgId) => {
-        try {
-            const res = await axiosInstance.post(`/org/${orgId}/accept-invite`);
-            
-            get().fetchUserOrgs();
-            get().triggerNotification("Invitation accepted successfully", "notify");
-
-        } catch (err) {
-            console.error("Error in accepting invite:", err.response?.data?.message || err);
-            get().triggerNotification("Failed to accept invite", "appError");
-        }
-    },
-
-    // 11. Reject the invite to an orgnaization
-    rejectInvite: async (orgId) => {
-        try {
-            const res = await axiosInstance.post(`/org/${orgId}/reject-invite`);
-
-            get().fetchUserOrgs();
-            get().triggerNotification("Invitation rejected successfully", "notify");
-
-        } catch (err) {
-            console.error("Error in rejecting invite:", err.response?.data?.message || err);
-            get().triggerNotification("Failed to reject invite", "appError");
-        }
-    },
-
-    // 12. Left an orgnaization
-    leftOrg: async (orgId) => {
-        try {
-            const res = await axiosInstance.post(`/org/${orgId}/left-org`);
-
-            get().fetchUserOrgs();
-            get().triggerNotification("Successfully Left", "notify");
-
-        } catch (err) {
-            console.error("Error in Left org :", err.response?.data?.message || err);
-            get().triggerNotification("Failed to left Organization", "appError");
-        }
-    },
 
     // ------------------------------ User and auth related  ----------------
     
     adminOrgs:[],
     isFetchingAdminOrgs: false,
+    isUpdatingStatus: false,
 
     // 1. Sign In
     signin: async(code) => {
@@ -326,7 +286,49 @@ persist(
 
     },
 
-    // 3. get all orgs of the admin,
+    // 3. Accept the invite to an orgnization
+    acceptInvite: async (orgId) => {
+        try {
+            const res = await axiosInstance.post(`/user/${orgId}/accept-invite`);
+            
+            get().fetchUserOrgs();
+            get().triggerNotification("Invitation accepted successfully", "notify");
+
+        } catch (err) {
+            console.error("Error in accepting invite:", err.response?.data?.message || err);
+            get().triggerNotification("Failed to accept invite", "appError");
+        }
+    },
+
+    // 4. Reject the invite to an orgnaization
+    rejectInvite: async (orgId) => {
+        try {
+            const res = await axiosInstance.post(`/user/${orgId}/reject-invite`);
+
+            get().fetchUserOrgs();
+            get().triggerNotification("Invitation rejected successfully", "notify");
+
+        } catch (err) {
+            console.error("Error in rejecting invite:", err.response?.data?.message || err);
+            get().triggerNotification("Failed to reject invite", "appError");
+        }
+    },
+
+    // 5. Left an orgnaization
+    leftOrg: async (orgId) => {
+        try {
+            const res = await axiosInstance.post(`/user/${orgId}/left-org`);
+
+            get().fetchUserOrgs();
+            get().triggerNotification("Successfully Left", "notify");
+
+        } catch (err) {
+            console.error("Error in Left org :", err.response?.data?.message || err);
+            get().triggerNotification("Failed to left Organization", "appError");
+        }
+    },
+
+    // 6. get all orgs of the admin,
     fetchAdminOrgs: async() => {
         set({isFetchingAdminOrgs: true})
         try {
@@ -336,9 +338,25 @@ persist(
             set({adminOrgs: res.data?.data});
 
         } catch (error) {
-            console.error("Error in asking Ai file: ", error.response?.data?.message || error);
+            console.error("Error in fetching admin orgs: ", error.response?.data?.message || error);
         } finally{
             set({isFetchingAdminOrgs: false})
+        }
+    } ,
+
+    adminUpdateOrgStatus: async({orgId, status}) => {
+        set({isUpdatingStatus: true})
+        try {
+            const res = await axiosInstance.post('/user/admin-update-status', {orgId, status});
+            // console.log("updated org : ", res.data?.data)
+            get().fetchAdminOrgs()
+            get().triggerNotification(`Status of ${res.data?.data?.name || "organization" } updated successfully`, "notify" )
+
+        } catch (error) {
+            console.error("Error in updating organization status: ", error.response?.data?.message || error);
+            get().triggerNotification(`Error in updating status of ${res.data?.data?.name || "organization" }. Please try again`, "appError")
+        } finally{
+            set({isUpdatingStatus: false})
         }
     } ,
 
@@ -348,7 +366,7 @@ persist(
     uploadFile: async(formData) => {
         set({isExtractingEmails: true})
         try {
-            const res = await axiosInstance.post('/user/uploadFile', formData)
+            const res = await axiosInstance.post('/emails/uploadFile', formData)
             // console.log("data coming in upload route from backend is " , res.data?.data)
             const emails = res.data?.data || [];
             const fileName = formData.get("emailData").name
@@ -371,7 +389,7 @@ persist(
         set({isAskingAi: true})
         try {
             // console.log("query in ask ai ", query);
-            const res = await axiosInstance.post('/user/askAI', {query})
+            const res = await axiosInstance.post('/emails/askAI', {query})
             // console.log("data coming in askAI route from axios is " , res.data?.data)
 
             const newResponseData = {
@@ -398,7 +416,7 @@ persist(
         set({isSendingEmail: true})
         try {
 
-            const res = await axiosInstance.post('/user/send', formData)
+            const res = await axiosInstance.post('/emails/send', formData)
             
             // console.log("data coming in send email route from axios is " , res)
             get().triggerNotification(res.data.message, "success")

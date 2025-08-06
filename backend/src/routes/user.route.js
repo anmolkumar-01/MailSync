@@ -1,24 +1,23 @@
 import {Router} from 'express'
 import { verifyJWT, isAdminLogin } from '../middlewares/auth.middleware.js'
-import {upload} from '../middlewares/multer.middleware.js'
 
 import{
-    uploadFile,
-    askAI,
-    send,
-    adminAllOrgs
+    acceptInvite,
+    rejectInvite,
+    leftOrg,
+    adminAllOrgs,
+    adminUpdateOrgStatus
 } from "../controllers/user.controller.js"
 
 const router = Router()
 
+router.use(verifyJWT)
 
-router.post("/uploadFile" , upload.fields([{name: 'emailData', maxCount:1}]), uploadFile)
-router.post("/askAI" , askAI)
-router.post("/send",verifyJWT, upload.array('fileData'), send)
-
-router.get("/admin-orgs", verifyJWT, adminAllOrgs);
-
-
+router.post("/:orgId/accept-invite", acceptInvite)
+router.post("/:orgId/reject-invite", rejectInvite)
+router.post("/:orgId/left-org", leftOrg)
+router.get("/admin-orgs", isAdminLogin, adminAllOrgs);
+router.post("/admin-update-status", isAdminLogin, adminUpdateOrgStatus);
 
 
 export default router

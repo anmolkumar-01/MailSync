@@ -74,7 +74,7 @@ export const isOrgAdminLogin = asyncHandler(async (req, res, next) => {
 // 3. Is user the admin of the Mailsync
 export const isAdminLogin = asyncHandler(async(req, res, next) => {
 
-    const user = await Organization.findById(req.user._id);
+    const user = await User.findById(req.user._id);
     if(!user){
         throw new ApiError(404, "User not found")
     }

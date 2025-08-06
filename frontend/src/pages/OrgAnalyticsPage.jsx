@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import { AnalyticsChartPlaceholder,StatCard } from '@/components';
 import { Users, Send, Activity, Star } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
@@ -7,10 +7,17 @@ function OrgAnalyticsPage() {
 
     const {
         orgs,
-        selectedOrg
+        selectedOrg,
+        currentOrgMembers,
+        fetchCurrentOrgMembers
     } = useAppStore();
 
-    console.log(selectedOrg)
+    // console.log(selectedOrg)
+    const currentOrgMembersLength = currentOrgMembers.filter(m => m.status === 'accepted').length
+
+    useEffect(()=>{
+        fetchCurrentOrgMembers(selectedOrg._id)
+    },[selectedOrg, currentOrgMembers?.length])
 
     const tierMaxEmail = {
         free: 25,
@@ -21,10 +28,9 @@ function OrgAnalyticsPage() {
     return (
         <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-
                 {/* todo: organization members .length */}
-                <StatCard title="Team Members" value={orgs.length} change="+2" changeType="increase" icon={Users} />
-                <StatCard title="Emails Sent" value={tierMaxEmail[selectedOrg?.tier] - selectedOrg?.dailyLimit} change="+35%" changeType="increase" icon={Send} />
+                <StatCard title="Team Members" value={currentOrgMembersLength} change="+2" changeType="increase" icon={Users} />
+                <StatCard title="Emails Sent" value={selectedOrg.totalEmailsSent} change="+35%" changeType="increase" icon={Send} />
                 <StatCard title="Open Rate" value="58.3%" change="-1.2%" changeType="decrease" icon={Activity} />
                 <StatCard title="Click Rate" value="12.7%" change="+4.5%" changeType="increase" icon={Star} />
             </div>

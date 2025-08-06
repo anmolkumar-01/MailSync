@@ -24,6 +24,10 @@ const organizationSchema = new Schema(
             type: Number,
             default: 25,
         },
+        totalEmailsSent: {
+            type: Number,
+            default: 0,
+        },
         tier: {
             type: String,
             enum: ['free', 'pro', 'premium'],

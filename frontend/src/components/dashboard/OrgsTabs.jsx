@@ -58,9 +58,22 @@ const OrgsTabs= ({inviteStatus = "accepted", setEditingOrg, setEditDialogOpen}) 
                     </CardContent>
 
                     <CardFooter className="flex items-center justify-between">
-                        {org.status === 'pending'?
-                        (
-                            <Badge variant="outline" className={`font-semibold border-2 bg-green-100 text-green-800 border-green-300`}>pending</Badge>
+                        {org.status !== 'approved'?
+                        (   <>
+                                {org.status === 'pending' && <Badge variant="outline" className={`font-semibold bg-blue-100 text-blue-800`}>pending</Badge>}
+                                {org.status === 'rejected' && <Badge variant="outline" className={`font-semibold bg-red-100 text-red-800`}>rejected</Badge>}
+                                {/* ---- delete or leave */}
+                                {org.owner === currentUser._id?
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteOrg(org._id)}>
+                                        <Trash2 className="h-4 w-4 text-red-500" />
+                                    </Button>
+                                    : 
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleLeftOrg(org._id)}>
+                                        <LogOut className="h-4 w-4 text-red-500" />
+                                    </Button>
+
+                                }
+                            </>
                         ):
                         (   <>
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
