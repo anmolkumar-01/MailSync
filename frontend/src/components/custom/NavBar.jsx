@@ -1,4 +1,4 @@
-import { googleLogout, useGoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 import { LogIn, LogOut, Mail, ChevronDown } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { Button } from '../ui/button';
@@ -32,11 +32,6 @@ const NavBar = () => {
     access_type: 'offline',
     prompt: 'consent',
   });
-
-  const handleLogout = () => {
-    googleLogout();
-    logout();
-  };
   
   
   const getInitials = (name = '') => {
