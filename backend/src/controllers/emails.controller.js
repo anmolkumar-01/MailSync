@@ -223,11 +223,11 @@ const send = asyncHandler(async (req, res) => {
         try {
 
             const emailDoc = await Email.create({
-                orgId: currentOrg._id,
+                senderId: currentOrg._id,
                 recipientEmail: email
             });
 
-            const pixelUrl = `https://mailsync.onrender.com/email/open/${emailDoc._id}.png`;
+            const pixelUrl = `https://mailsync.onrender.com/emails/open/${emailDoc._id}.png`;
             const htmlWithPixel = `
                 ${html}
                 <img src="${pixelUrl}" width="1" height="1" " />
