@@ -13,6 +13,7 @@ import { encode } from 'js-base64';
 import { OrgMember } from "../models/orgMemberSchema.js";
 import { Organization } from "../models/organizationSchema.js";
 import { User } from "../models/userSchema.js";
+import { Email } from "../models/emailsSchema.js";
 
 // 1. uploading the file and extract emails
 const uploadFile = asyncHandler( async(req, res) => {
@@ -220,11 +221,23 @@ const send = asyncHandler(async (req, res) => {
     // Send emails parallelly
     await Promise.all(recipients.map(async (email) => {
         try {
+
+            const emailDoc = await Email.create({
+                orgId: currentOrg._id,
+                recipientEmail: email
+            });
+
+            const pixelUrl = `http://https://mailsync.onrender.com/email/open/${emailDoc._id}.png`;
+            const htmlWithPixel = `
+                ${html}
+                <img src="${pixelUrl}" width="1" height="1" " />
+            `;
+
             const raw = makeRawEmail({
                 from: `${currentOrg.name} <${currentOrg.email}>`,
                 to: email,
                 subject,
-                html,
+                html: htmlWithPixel,
                 replyTo: currentOrg.email
             });
 
@@ -237,7 +250,7 @@ const send = asyncHandler(async (req, res) => {
 
         } catch (err) {
             console.log(`Failed to send email to ${email}:`, err.message);
-            throw new ApiError(400, `Failed to send email to ${email}. Please try again later.`);
+            throw new ApiError(400, `Failed to send email. Please try again later.`);
         }
     }));
 
@@ -250,8 +263,35 @@ const send = asyncHandler(async (req, res) => {
     );
 });
 
+// 4. Get the count of open emails
+const open = asyncHandler(async (req, res) => {
+
+    const {emailId} = req.params
+    console.log("EmailId in open email :", emailId)
+
+    if(!emailId){
+        throw new ApiError(400, "EmailId is not required")
+    }
+
+    const email = await Email.findByIdAndUpdate(
+        emailId,
+        {
+            opened: true,
+            openedAt: new Date()
+        }
+    )
+
+    if(!email){
+        throw new ApiError(404, "Email not found")
+    }
+
+    const imgPath = path.join(process.cwd(), 'assets', 'pixels.png')
+    res.sendFile(imgPath)
+})
+
 export {
     uploadFile,
     askAI,
     send,
+    open
 }
