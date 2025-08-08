@@ -227,7 +227,7 @@ const send = asyncHandler(async (req, res) => {
                 recipientEmail: email
             });
 
-            const pixelUrl = `http://https://mailsync.onrender.com/email/open/${emailDoc._id}.png`;
+            const pixelUrl = `https://https://mailsync.onrender.com/email/open/${emailDoc._id}.png`;
             const htmlWithPixel = `
                 ${html}
                 <img src="${pixelUrl}" width="1" height="1" " />
