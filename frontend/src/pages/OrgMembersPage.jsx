@@ -292,7 +292,11 @@ const OrgMembersPage = () => {
                     
                     <TableBody>
 
-                        {filteredMembers.map(member => (
+                        {filteredMembers.map(member => {
+
+                            const date = new Date(member.lastActivityAt);
+
+                            return (
                             <TableRow key={member._id} className="hover:bg-slate-50">
                                 <TableCell className="pl-6">
                                     <div className="flex items-center gap-3">
@@ -334,9 +338,9 @@ const OrgMembersPage = () => {
                                     <StatusBadge status={member.status} /> {/* todo: Invite member status field */}
                                 </TableCell>
                                 
-                                <TableCell className="hidden md:table-cell text-slate-600">{new Date(member.createdAt).toLocaleDateString()}</TableCell>
-                                <TableCell className="hidden lg:table-cell text-slate-600">{new Date(member.lastActivityAt).toLocaleDateString()}</TableCell>
-                                
+                                <TableCell className="hidden md:table-cell text-slate-600">{new Date(member.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</TableCell>
+                                <TableCell className="hidden lg:table-cell text-slate-600">{date.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }) +' '+date.getHours() + ':' + String(date.getMinutes()).padStart(2, '0') }</TableCell>
+                        
                                 <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -357,7 +361,7 @@ const OrgMembersPage = () => {
                                     </DropdownMenu>
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )})}
 
                     </TableBody>
                 </Table>

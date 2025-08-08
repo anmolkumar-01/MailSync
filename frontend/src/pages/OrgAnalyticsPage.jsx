@@ -1,7 +1,8 @@
 import React, {useEffect} from 'react'
-import { AnalyticsChartPlaceholder,StatCard } from '@/components';
+import { StatCard } from '@/components';
 import { Users, Send, Activity, Star } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
+import  AnalyticsChartPlaceholder  from '@/components/dashboard/AnalyticsChartPlaceholder';
 
 function OrgAnalyticsPage() {
 

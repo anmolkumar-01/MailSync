@@ -23,7 +23,7 @@ const orgMemberSchema = new Schema(
         },
         lastActivityAt: {
             type: Date,
-            default: Date.now
+            default: Date.now()
         }
 
     },

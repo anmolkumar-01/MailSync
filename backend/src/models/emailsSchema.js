@@ -11,13 +11,6 @@ const emailSchema = new Schema(
             type: String,
             required: true
         },
-        opened:{
-            type: Boolean,
-            default: false
-        },
-        openedAt:{
-            type: Date,
-        },
     }
     ,
     {timestamps: true}

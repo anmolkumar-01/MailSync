@@ -143,6 +143,10 @@ const send = asyncHandler(async (req, res) => {
         throw new ApiError(403, 'You are not a member of this organization');
     }
 
+    isMember[0].lastActivityAt = Date.now()
+    await isMember[0].save()
+    console.log(isMember)
+
     // recipients list must not be greater than daily Limit
     if(currentOrg.dailyLimit == 0){
         throw new ApiError(403, `Daily email sending limit exceeded. Please try again tomorrow`);
@@ -263,35 +267,10 @@ const send = asyncHandler(async (req, res) => {
     );
 });
 
-// 4. Get the count of open emails
-const open = asyncHandler(async (req, res) => {
 
-    const {emailId} = req.params
-    console.log("EmailId in open email :", emailId)
-
-    if(!emailId){
-        throw new ApiError(400, "EmailId is not required")
-    }
-
-    const email = await Email.findByIdAndUpdate(
-        emailId,
-        {
-            opened: true,
-            openedAt: new Date()
-        }
-    )
-
-    if(!email){
-        throw new ApiError(404, "Email not found")
-    }
-
-    const imgPath = path.join(process.cwd(), 'assets', 'pixels.png')
-    res.sendFile(imgPath)
-})
 
 export {
     uploadFile,
     askAI,
     send,
-    open
 }
