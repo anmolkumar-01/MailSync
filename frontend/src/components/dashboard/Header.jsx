@@ -6,7 +6,7 @@ import { useAppStore } from '@/store/useAppStore';
 
 const Header = ({ dashboardTitle, currentUser, handleBackToUserDashboard }) => {
     const {selectedOrg} = useAppStore();
-    console.log("selected org " ,selectedOrg)
+    // console.log("selected org " ,selectedOrg)
 
     return (
     <header className="flex h-[60px] items-center gap-4 border-b border-slate-200 bg-white px-6">

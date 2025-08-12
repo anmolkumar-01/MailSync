@@ -14,6 +14,7 @@ import { OrgMember } from "../models/orgMemberSchema.js";
 import { Organization } from "../models/organizationSchema.js";
 import { User } from "../models/userSchema.js";
 import { Email } from "../models/emailsSchema.js";
+import mongoose from "mongoose";
 
 // 1. uploading the file and extract emails
 const uploadFile = asyncHandler( async(req, res) => {
@@ -267,10 +268,97 @@ const send = asyncHandler(async (req, res) => {
     );
 });
 
+// 4. All emails as per week
+
+const weeklyEmailAnalytics = async (req, res) => {
+    const now = new Date();
+
+    // Get current week/year in ISO format
+    const currentWeek = getISOWeek(now);
+    const currentYear = getISOWeekYear(now);
+
+    // senderId filter from request
+    const { orgId: senderId } = req.params; // or req.params, depending on API design
+    if(!senderId){
+        throw new ApiError(400, "Sender id is required")
+    }
+
+    console.log("Sender id in weekly emails analytics, ", senderId)
+
+    const result = await Email.aggregate([
+    // Add derived fields
+    {
+        $addFields: {
+            weekday: { $dayOfWeek: "$createdAt" }, // 1=Sunday
+            week: { $isoWeek: "$createdAt" },      // ISO week number (1–53)
+            year: { $isoWeekYear: "$createdAt" }   // ISO week year
+        }
+    },
+
+    // filter for specific organization
+    ...(senderId ? [{ $match: { senderId : new mongoose.Types.ObjectId(senderId) } }] : []),
+
+    // Run two pipelines in parallel
+    {
+        $facet: {
+        // This Week's Data
+        thisWeek: [
+            { $match: { week: currentWeek, year: currentYear } },
+            { $group: { _id: "$weekday", count: { $sum: 1 } } },
+            { $sort: { _id: 1 } }
+        ],
+
+        // All-Time Data
+        allWeeks: [
+        // Group by year, week, weekday to get totals per week
+        {
+            $group: {
+                _id: { year: "$year", week: "$week", day: "$weekday" },
+                total: { $sum: 1 }
+            }
+        },
+        // Group by weekday only to get average across weeks
+        {
+            $group: {
+                _id: "$_id.day",
+                avgCount: { $avg: "$total" }
+            }
+        },
+        { $sort: { _id: 1 } }
+        ]
+        }
+    }
+    ]);
+
+    // console.log("result in weekly email analytics : ", result[0])
+    return res.status(201).json(
+        new ApiResponse(200, result[0], "Emails fetched successfully")
+    );
+
+};
+
+function getISOWeek(date) {
+    const tmp = new Date(date.valueOf());
+    const dayNum = (date.getUTCDay() + 6) % 7;
+    tmp.setUTCDate(tmp.getUTCDate() - dayNum + 3);
+    const firstThursday = tmp.valueOf();
+    tmp.setUTCMonth(0, 1);
+    if (tmp.getUTCDay() !== 4) {
+        tmp.setUTCMonth(0, 1 + ((4 - tmp.getUTCDay()) + 7) % 7);
+    }
+    return 1 + Math.ceil((firstThursday - tmp) / 604800000);
+}
+
+function getISOWeekYear(date) {
+    const tmp = new Date(date.valueOf());
+    tmp.setUTCDate(tmp.getUTCDate() - ((date.getUTCDay() + 6) % 7) + 3);
+    return tmp.getUTCFullYear();
+}
 
 
 export {
     uploadFile,
     askAI,
     send,
+    weeklyEmailAnalytics
 }

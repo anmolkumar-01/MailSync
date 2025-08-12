@@ -177,7 +177,7 @@ persist(
             const res = await axiosInstance.get(`/org/${orgId}/org-current-member`);
             // console.log("current user's role in current org in app store : ", res);
             const user = res.data?.data;
-            console.log(user)
+            // console.log(user)
             set({ orgCurrentUser: user,
                 orgSubView: user.role === 'orgAdmin'? 'analytics' : 'send-email'
             });
@@ -429,6 +429,26 @@ persist(
             get().triggerNotification(error.response?.data?.message || "Internal server error. Please try again", "appError")
         }finally{
             set({isSendingEmail: false})
+        }
+    },
+
+    weeklyEmailAnalytics: null,
+    isFetchingWeeklyEmailAnalytics: false,
+    // 4. Weekly email analytics
+    fetchWeeklyEmailAnalytics: async({orgId}) => {
+        set({isFetchingWeeklyEmailAnalytics: true})
+        try {
+
+            const res = await axiosInstance.get(`/emails/weekly-email-analytics/${orgId}`)
+            console.log("data coming in weekly email analytics route from axios is " , res?.data?.data)
+            set({weeklyEmailAnalytics: res?.data?.data})
+            return res.data.data;
+
+        } catch (error) {
+            console.error(error.response?.data?.message);
+            get().triggerNotification(error.response?.data?.message || "Internal server error. Please try again", "appError")
+        }finally{
+            set({isFetchingWeeklyEmailAnalytics: false})
         }
     },
 

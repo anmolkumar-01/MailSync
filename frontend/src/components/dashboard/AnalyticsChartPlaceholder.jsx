@@ -1,6 +1,6 @@
 'use client'; // Required for charts
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     ChartContainer,
@@ -9,17 +9,7 @@ import {
 } from "@/components/ui/chart";
 // 👇 The crucial change: We import and use AreaChart instead of LineChart
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-
-// --- MOCK DATA (Unchanged) ---
-const chartData = [
-    { day: 'Monday', thisWeek: 50, average: 90 },
-    { day: 'Tuesday', thisWeek: 20, average: 28 },
-    { day: 'Wednesday', thisWeek: 30, average: 35 },
-    { day: 'Thursday', thisWeek: 40, average: 42 },
-    { day: 'Friday', thisWeek: 60, average: 48 },
-    { day: 'Saturday', thisWeek: 55, average: 52 },
-    { day: 'Sunday', thisWeek: 85, average: 55 },
-];
+import { useAppStore } from '@/store/useAppStore';
 
 // --- CHART CONFIGURATION (Unchanged) ---
 const chartConfig = {
@@ -35,6 +25,41 @@ const chartConfig = {
 
 // --- MAIN CHART COMPONENT ---
 export const EmailAnalyticsChart = () => {
+
+    const {fetchWeeklyEmailAnalytics, weeklyEmailAnalytics, selectedOrg} = useAppStore()
+    const [thisWeek, setThisWeek] = useState([]);
+    const [allWeeks, setAllWeeks] = useState([]);
+
+    useEffect(() => {
+        const loadAnalytics = async () => {
+            const data = await fetchWeeklyEmailAnalytics({ orgId: selectedOrg._id });
+            setThisWeek(data?.thisWeek || []);
+            setAllWeeks(data?.allWeeks || []);
+        };
+        loadAnalytics();
+    }, [selectedOrg]);
+
+    const weekdayNames = {
+        1: 'Sunday',
+        2: 'Monday',
+        3: 'Tuesday',
+        4: 'Wednesday',
+        5: 'Thursday',
+        6: 'Friday',
+        7: 'Saturday'
+    };
+    const thisWeekMap = Object.fromEntries(thisWeek.map(d => [d._id, d.count]));
+    const allWeeksMap = Object.fromEntries(allWeeks.map(d => [d._id, d.avgCount]));
+
+    // Build chartData for all days (Sunday → Saturday)
+    const chartData = Object.keys(weekdayNames).map(dayNum => ({
+    day: weekdayNames[dayNum],
+    thisWeek: thisWeekMap[dayNum] || 0,
+    average: allWeeksMap[dayNum] || 0
+    }));
+
+    // console.log(chartData);
+    
     return (
         <Card className="shadow-sm border-slate-200">
             <CardHeader>
