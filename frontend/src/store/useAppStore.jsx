@@ -45,10 +45,10 @@ persist(
 
     handleSelectOrg: (org) => {
         if (org.id === 'admin-panel') {
-            get().setSelectedOrg(null);
             get().setCurrentView('admin-panel');
             // get().setOrgSubView('')
         } else {
+            get().setCurrentView('org-dashboard');
             set({
                 extractedEmails: [],
                 selectedEmails: [],
@@ -58,7 +58,6 @@ persist(
                 attachmentsAvailable: false,
             })
             get().setSelectedOrg(org);
-            get().setCurrentView('org-dashboard');
             get().setOrgSubView(currentUser.email === org.email? 'analytics' : 'send-email')
 
         }

@@ -15,7 +15,8 @@ const Sidebar = ({handleBackToUserDashboard, }) => {
         orgCurrentUser,
         fetchOrgCurrentUser,
         orgSubView,
-        setOrgSubView 
+        setOrgSubView ,
+        setCurrentView
     } = useAppStore()
 
     // console.log("selected org", selectedOrg)
@@ -54,13 +55,17 @@ const Sidebar = ({handleBackToUserDashboard, }) => {
 
         // --- Logic for contextual menu items remains the same ---
         let orgMenuItems = [];
+        const handleOrgSubView = (view) => {
+            setOrgSubView(view);
+            setCurrentView('org-dashboard')
+        }
         if (orgSubView) {
             orgMenuItems = [
-                { label: 'Send Email', icon: Send, viewId: 'send-email', onClick: () => setOrgSubView('send-email') },
+                { label: 'Send Email', icon: Send, viewId: 'send-email', onClick: () => handleOrgSubView('send-email') },
             ];
             if (orgCurrentUser?.role === 'orgAdmin') {
-                orgMenuItems.unshift({ label: 'Members', icon: Users, viewId: 'members', onClick: () => setOrgSubView('members') });
-                orgMenuItems.unshift({ label: 'Analytics', icon: LineChart, viewId: 'analytics', onClick: () => setOrgSubView('analytics') });
+                orgMenuItems.unshift({ label: 'Members', icon: Users, viewId: 'members', onClick: () => handleOrgSubView('members') });
+                orgMenuItems.unshift({ label: 'Analytics', icon: LineChart, viewId: 'analytics', onClick: () => handleOrgSubView('analytics') });
             }
 
             // make item active whose viewId = orgSubView
