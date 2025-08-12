@@ -56,6 +56,8 @@ const Organizations = () => {
     const [newOrgDescription, setNewOrgDescription] = useState('');
     const [editingOrg, setEditingOrg] = useState(null);
 
+    const myOrgExists = orgs.filter(o => o.email === currentUser.email).length
+
     // ----- fetching the all organizations or a user -------
     useEffect(() => {
         if (currentUser && orgs.length === 0) {
@@ -116,9 +118,9 @@ const Organizations = () => {
                                     {/* <CardTitle className="text-slate-800">Your Organizations</CardTitle> */}
                                     <CardDescription>Select an organization to manage its dashboard.</CardDescription>
                                 </div>
-                                <Button size="sm" onClick={() => setPricingDialogOpen(true)}>
+                                {!myOrgExists && <Button size="sm" onClick={() => setPricingDialogOpen(true)}>
                                     <Plus className="mr-2 h-3 w-4" /> Add New
-                                </Button>
+                                </Button>}
                             </div>
                         </CardHeader>
 

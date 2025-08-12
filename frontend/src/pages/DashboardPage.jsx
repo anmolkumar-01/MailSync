@@ -20,6 +20,7 @@ const DashboardPage = () => {
 
 
   const handleBackToUserDashboard = () => {
+    setOrgSubView('')
     setSelectedOrg(null);
     setCurrentView('user-dashboard');
   };

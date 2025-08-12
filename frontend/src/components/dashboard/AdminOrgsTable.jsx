@@ -29,8 +29,8 @@ const AdminOrgsTable = () => {
     return (
         <Card className="shadow-sm bg-white h-full flex flex-col">
             <CardHeader className="px-7 flex-shrink-0">
-                <CardTitle className="text-slate-800">Order Activities</CardTitle>
-                <CardDescription>Keep track of recent order activities.</CardDescription>
+                <CardTitle className="text-slate-800">Organizations</CardTitle>
+                <CardDescription>Keep track of recent organization activities.</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 overflow-y-auto px-7">
                 <Table>
@@ -53,7 +53,7 @@ const AdminOrgsTable = () => {
                                 <TableCell><div className="font-medium text-slate-700">{truncateName(org.name, 20)}</div></TableCell>
                                 <TableCell className="hidden sm:table-cell text-slate-600">{org.email}</TableCell>
                                 <TableCell className="hidden md:table-cell text-slate-600">{new Date(org.createdAt).toLocaleDateString()}</TableCell>
-                                <TableCell  className="text-right"> <Badge variant="outline" className={`font-semibold border-2 ${planStyles.badge}`}>{org.tier}</Badge></TableCell>
+                                <TableCell  className="text-right"> <Badge variant="outline" className={`${planStyles.badge}`}>{org.tier}</Badge></TableCell>
                                 
                                 <TableCell className="flex justify-center items-center">
                                     <DropdownMenu>

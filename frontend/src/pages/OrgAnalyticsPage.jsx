@@ -14,11 +14,12 @@ function OrgAnalyticsPage() {
     } = useAppStore();
 
     // console.log(selectedOrg)
-    const currentOrgMembersLength = currentOrgMembers.filter(m => m.status === 'accepted').length
 
     useEffect(()=>{
         fetchCurrentOrgMembers(selectedOrg._id)
     },[selectedOrg, currentOrgMembers?.length])
+
+    const currentOrgMembersLength = currentOrgMembers.filter(m => m.status === 'accepted').length
 
     const tierMaxEmail = {
         free: 25,
@@ -35,12 +36,15 @@ function OrgAnalyticsPage() {
                 <StatCard title="Open Rate" value="58.3%" change="-1.2%" changeType="decrease" icon={Activity} />
                 <StatCard title="Click Rate" value="12.7%" change="+4.5%" changeType="increase" icon={Star} />
             </div>
-            <div className="grid gap-6 md:gap-8 lg:grid-cols-2">
-                <AnalyticsChartPlaceholder title="Email Analytics" value="12,120.00" performanceText="Excellent job on your order 👍"/>
                 <AnalyticsChartPlaceholder title="Revenue Profile" value="$25,843.45" performanceText="Your performance is excellent ✨"/>
-            </div>
         </div>
     )
 }
 
 export default OrgAnalyticsPage
+
+//  Two sections 
+{/* <div className="grid gap-6 md:gap-8 lg:grid-cols-2">
+    <AnalyticsChartPlaceholder title="Email Analytics" value="12,120.00" performanceText="Excellent job on your order 👍"/>
+    <AnalyticsChartPlaceholder title="Revenue Profile" value="$25,843.45" performanceText="Your performance is excellent ✨"/>
+</div> */}

@@ -47,9 +47,20 @@ persist(
         if (org.id === 'admin-panel') {
             get().setSelectedOrg(null);
             get().setCurrentView('admin-panel');
+            // get().setOrgSubView('')
         } else {
+            set({
+                extractedEmails: [],
+                selectedEmails: [],
+                uploadedFileName: null,
+                subject: '',
+                body: '' ,
+                attachmentsAvailable: false,
+            })
             get().setSelectedOrg(org);
             get().setCurrentView('org-dashboard');
+            get().setOrgSubView(currentUser.email === org.email? 'analytics' : 'send-email')
+
         }
     },
 
@@ -280,6 +291,9 @@ persist(
             subject: '',
             body: '' ,
             attachmentsAvailable: false,
+            orgSubView: '',
+            selectedOrg: null,
+            currentView: '',
         });
 
         get().triggerNotification("You have successfully signed out", "success")
@@ -357,6 +371,22 @@ persist(
             get().triggerNotification(`Error in updating status of ${res.data?.data?.name || "organization" }. Please try again`, "appError")
         } finally{
             set({isUpdatingStatus: false})
+        }
+    } ,
+
+    adminTotalRevenue: 0, 
+    fetchAdminTotalRevenue: async() => {
+        // set({isFetchingAdminOrgs: true})
+        try {
+            
+            const res = await axiosInstance.get('/payment/admin-total-revenue');
+            console.log("total revenue : ", res.data?.data)
+            set({adminTotalRevenue: res.data?.data});
+
+        } catch (error) {
+            console.error("Error in fetching admin total revenue: ", error.response?.data?.message || error);
+        } finally{
+            // set({isFetchingAdminOrgs: false})
         }
     } ,
 
@@ -527,6 +557,9 @@ persist(
             body: state.body,
             attachmentsAvailable: state.attachmentsAvailable,
             isSendingEmail: state.isSendingEmail,
+            currentView: state.currentView,
+            selectedOrg: state.selectedOrg,
+            orgSubView: state.orgSubView
 
         }),
 

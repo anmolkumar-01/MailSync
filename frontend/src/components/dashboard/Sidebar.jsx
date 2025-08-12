@@ -54,7 +54,7 @@ const Sidebar = ({handleBackToUserDashboard, }) => {
 
         // --- Logic for contextual menu items remains the same ---
         let orgMenuItems = [];
-        if (currentView === 'org-dashboard' && selectedOrg) {
+        if (orgSubView) {
             orgMenuItems = [
                 { label: 'Send Email', icon: Send, viewId: 'send-email', onClick: () => setOrgSubView('send-email') },
             ];

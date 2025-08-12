@@ -37,7 +37,7 @@ const Navbar = () => {
     //- Navigations links for authenticated users
     const userNavLinks = [
         { name: 'Home', href: '/', icon: <Home className="h-4 w-4 text-sky-500" /> },
-        { name: 'Organization', href: '/organization', icon: <Building2 className="h-4 w-4 text-violet-500" /> },
+        { name: 'Organization', href: '/dashboard', icon: <Building2 className="h-4 w-4 text-violet-500" /> },
         { name: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="h-4 w-4 text-amber-500" /> },
     ];
 

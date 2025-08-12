@@ -74,6 +74,23 @@ const verify = asyncHandler(async (req, res) => {
 
 });
 
+// 2. Total Revenue
+const adminTotalRevenue = asyncHandler( async( req, res) => {
+
+    const result = await Payment.aggregate([
+        { $match: { paymentStatus: 'completed' } }, // filter completed payments
+        { $group: { _id: null, totalAmount: { $sum: "$amount" } } } // sum amounts
+    ]);
+
+    // result will be something like: [{ _id: null, totalAmount: 12345 }]
+    const amount =  result.length > 0 ? result[0].totalAmount : 0;
+
+    return res.status(200).json(
+        new ApiResponse(200, amount , "Amount successfully fetched")
+    );
+})
+
 export {
     verify,
+    adminTotalRevenue
 }
