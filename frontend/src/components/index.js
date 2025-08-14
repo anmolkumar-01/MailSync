@@ -43,7 +43,7 @@ import OrgsTabs from "./dashboard/OrgsTabs";
 
 
 // ---------- Skeletons -------------
-import HomePageSkeleton from "./skeletons/HomepageSkeleton";
+import HomePageSkeleton from "./skeletons/HomePageSkeleton";
 
 
 

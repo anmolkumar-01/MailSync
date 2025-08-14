@@ -150,6 +150,7 @@ const Organizations = () => {
 
             </Tabs>
 
+
             {/* ------------ Pricing dialog box ---------------- */}
             <PricingDialog
                 open={isPricingDialogOpen}
