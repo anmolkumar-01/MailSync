@@ -59,7 +59,7 @@ const Sidebar = ({handleBackToUserDashboard, }) => {
             setOrgSubView(view);
             setCurrentView('org-dashboard')
         }
-        if (orgSubView) {
+        if (selectedOrg) {
             orgMenuItems = [
                 { label: 'Send Email', icon: Send, viewId: 'send-email', onClick: () => handleOrgSubView('send-email') },
             ];

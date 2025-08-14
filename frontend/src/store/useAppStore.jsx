@@ -46,7 +46,7 @@ persist(
     handleSelectOrg: (org) => {
         if (org.id === 'admin-panel') {
             get().setCurrentView('admin-panel');
-            // get().setOrgSubView('')
+            get().setOrgSubView('')
         } else {
             get().setCurrentView('org-dashboard');
             set({

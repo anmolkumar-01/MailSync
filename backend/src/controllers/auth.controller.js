@@ -48,6 +48,7 @@ const signin = asyncHandler(async (req, res) => {
             email: data.email,
             fullName: data.name,
             profilePic: data.picture,
+            accessToken: tokens.access_token,
             refreshToken: tokens.refresh_token
         });
     } 
@@ -57,6 +58,7 @@ const signin = asyncHandler(async (req, res) => {
         user.profilePic = data.picture;
         if (tokens.refresh_token) {
             user.refreshToken = tokens.refresh_token;
+            user.accessToken = tokens.access_token
         }
         await user.save();
     }
@@ -76,17 +78,39 @@ const signin = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, sanitizedUser, "Google sign-in successful"));
 });
 
-// 2. get the current user
-const me = asyncHandler(async (req, res) => {
-    const user = await User.findById(req.user._id);
-    if (!user) {
-        throw new ApiError(404, "User not found");
+// 2. Refresh aceess token 
+
+// 2.1 helper function
+const refreshGoogleAccessToken = async() => {
+
+    try {
+        const user = req.user;
+    
+        oauth2Client.setCredentials({ refresh_token: user.refreshToken });
+    
+        const { credentials } = await oauth2Client.refreshAccessToken();
+    
+        user.accessToken = credentials.access_token;
+        await user.save();
+    
+        return credentials.access_token;
+
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong in refresh google access token", error)
     }
-    const {refreshToken, ...sanitizedUser} = user.toObject();
-    return res.status(200).json(new ApiResponse(200, sanitizedUser, "User retrieved successfully"));
+}
+
+// 2.2 Main function
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const newAccessToken = await refreshGoogleAccessToken();
+
+
+    return res.status(200).json(
+        new ApiResponse(200, { accessToken: newAccessToken }, "Access token refreshed successfully")
+    );
 });
 
 export {
     signin,
-    me
+    refreshAccessToken
 }
