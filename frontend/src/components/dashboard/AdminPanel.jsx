@@ -20,7 +20,7 @@ const AdminPanel = () => {
 
     return (
         // This outer container sets up the full-height flex column. This is correct.
-        <div className="h-full flex flex-col gap-6 p-6">
+        <div className="h-full flex flex-col gap-6">
         
         {/* This top section of stat cards should not grow. This is correct. */}
         <div className="flex-shrink-0">
