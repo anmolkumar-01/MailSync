@@ -42,6 +42,10 @@ import PricingDialog from "./dashboard/PricingDialog";
 import OrgsTabs from "./dashboard/OrgsTabs";
 
 
+// ---------- Skeletons -------------
+import HomePageSkeleton from "./skeletons/HomepageSkeleton";
+
+
 
 export {
     Navbar,
@@ -83,5 +87,8 @@ export {
     
     MOCK_USERS,
     MOCK_ORGS,
-    MOCK_ACTIVITIES
+    MOCK_ACTIVITIES,
+
+    // ---------------- skeletons --------------
+    HomePageSkeleton
 }

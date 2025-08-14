@@ -49,7 +49,7 @@ const DashboardPage = () => {
       <ResizablePanelGroup direction="horizontal">
           
         {/* --------- Sidebar Panel ---------- */}
-        <ResizablePanel defaultSize={15} minSize={12} maxSize={25}>
+        <ResizablePanel defaultSize={15} minSize={0} maxSize={20}>
           <Sidebar 
             handleBackToUserDashboard={handleBackToUserDashboard}
           />

@@ -99,7 +99,7 @@ const Organizations = () => {
 
     return (
 
-        <div>
+        <>
 
             {/* ------------- Organization Card ( tabs )---------------- */}
             <Tabs defaultValue="accepted-orgs">
@@ -150,7 +150,6 @@ const Organizations = () => {
 
             </Tabs>
 
-
             {/* ------------ Pricing dialog box ---------------- */}
             <PricingDialog
                 open={isPricingDialogOpen}
@@ -199,7 +198,7 @@ const Organizations = () => {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </>
     );
 };
 

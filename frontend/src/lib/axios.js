@@ -23,6 +23,7 @@ axiosInstance.interceptors.response.use(
             } catch (refreshErr) {
                 useAppStore.getState().logout();
                 window.location.href = '/';
+                useAppStore.getState().triggerNotification("Access token expired. Please login again", 'notify')
 
             }
         }
