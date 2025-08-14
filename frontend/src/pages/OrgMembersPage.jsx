@@ -15,7 +15,7 @@ import { useAppStore } from '@/store/useAppStore';
 // Helper to generate a simple avatar with initials
 const Avatar = ({ name }) => (
     <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center font-semibold text-slate-600 text-sm">
-        {name.charAt(0).toUpperCase()}
+        {name?.charAt(0).toUpperCase()}
     </div>
 );
 
@@ -145,22 +145,22 @@ const OrgMembersPage = () => {
         if (searchQuery.trim()) {
             const lowercasedQuery = searchQuery.toLowerCase();
             membersToFilter = membersToFilter.filter(member => {
-                const nameMatch = member.userId?.fullName.toLowerCase().includes(lowercasedQuery);
-                const emailMatch = member.userId?.email.toLowerCase().includes(lowercasedQuery);
-                const roleMatch = member.role.toLowerCase().includes(lowercasedQuery);
+                const nameMatch = member?.userId?.fullName.toLowerCase().includes(lowercasedQuery);
+                const emailMatch = member?.userId?.email.toLowerCase().includes(lowercasedQuery);
+                const roleMatch = member?.role.toLowerCase().includes(lowercasedQuery);
                 return nameMatch || emailMatch || roleMatch;
             });
         }
 
         // 2. Apply Role Filter (if not 'all')
         if (roleFilter !== 'all') {
-            membersToFilter = membersToFilter.filter(member => member.role === roleFilter);
+            membersToFilter = membersToFilter.filter(member => member?.role === roleFilter);
         }
 
         // 3. Apply Status Filter (if not 'all')
         if (statusFilter !== 'all') {
             // The status is called 'status' in your mock data
-            membersToFilter = membersToFilter.filter(member => member.status === statusFilter);
+            membersToFilter = membersToFilter.filter(member => member?.status === statusFilter);
         }
 
         return membersToFilter;
@@ -294,16 +294,16 @@ const OrgMembersPage = () => {
 
                         {filteredMembers.map(member => {
 
-                            const date = new Date(member.lastActivityAt);
+                            const date = new Date(member?.lastActivityAt);
 
                             return (
-                            <TableRow key={member._id} className="hover:bg-slate-50">
+                            <TableRow key={member?._id} className="hover:bg-slate-50">
                                 <TableCell className="pl-6">
                                     <div className="flex items-center gap-3">
-                                        <Avatar name={member.userId?.fullName} />
+                                        <Avatar name={member?.userId?.fullName} />
                                         <div>
-                                            <p className="font-medium text-slate-800">{member.userId?.fullName}</p>
-                                            <p className="text-sm text-slate-500 hidden sm:block">{member.userId.email}</p>
+                                            <p className="font-medium text-slate-800">{member?.userId?.fullName}</p>
+                                            <p className="text-sm text-slate-500 hidden sm:block">{member?.userId?.email}</p>
                                         </div>
                                     </div>
                                 </TableCell>
@@ -319,26 +319,26 @@ const OrgMembersPage = () => {
                                                     flex items-center justify-between
                                                     w-28
                                                     px-2.5 py-1
-                                                    ${getRoleButtonClasses(member.role)}
+                                                    ${getRoleButtonClasses(member?.role)}
                                                 `}
                                             >
-                                                <span className="capitalize">{member.role === 'orgAdmin' ? 'Admin' : 'Member'}</span>
+                                                <span className="capitalize">{member?.role === 'orgAdmin' ? 'Admin' : 'Member'}</span>
                                                 <ChevronDown className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Change Role</DropdownMenuLabel>
-                                            <DropdownMenuItem onSelect={() => handleRoleChange(member._id, 'orgMember')}>Member</DropdownMenuItem>
-                                            <DropdownMenuItem onSelect={() => handleRoleChange(member._id, 'orgAdmin')}>Admin</DropdownMenuItem>
+                                            <DropdownMenuItem onSelect={() => handleRoleChange(member?._id, 'orgMember')}>Member</DropdownMenuItem>
+                                            <DropdownMenuItem onSelect={() => handleRoleChange(member?._id, 'orgAdmin')}>Admin</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
                                 
                                 <TableCell>
-                                    <StatusBadge status={member.status} /> {/* todo: Invite member status field */}
+                                    <StatusBadge status={member?.status} /> {/* todo: Invite member status field */}
                                 </TableCell>
                                 
-                                <TableCell className="hidden md:table-cell text-slate-600">{new Date(member.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</TableCell>
+                                <TableCell className="hidden md:table-cell text-slate-600">{new Date(member?.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</TableCell>
                                 <TableCell className="hidden lg:table-cell text-slate-600">{date.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }) +' '+date.getHours() + ':' + String(date.getMinutes()).padStart(2, '0') }</TableCell>
                         
                                 <TableCell>
@@ -352,7 +352,7 @@ const OrgMembersPage = () => {
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                             <DropdownMenuItem
-                                                onSelect={() => handleDeleteMember(member._id)}
+                                                onSelect={() => handleDeleteMember(member?._id)}
                                                 className="text-red-500 focus:text-red-600 focus:bg-red-50"
                                             >
                                                 Remove Member

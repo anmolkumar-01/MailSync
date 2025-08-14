@@ -61,7 +61,7 @@ export const EmailAnalyticsChart = () => {
     // console.log(chartData);
     
     return (
-        <Card className="shadow-sm border-slate-200">
+        <Card className=" h-full flex flex-col shadow-sm border-slate-200">
             <CardHeader>
                 <CardTitle className="font-bold text-lg text-slate-900">Email Analytics</CardTitle>
                 <CardDescription className="text-slate-600">
@@ -69,7 +69,7 @@ export const EmailAnalyticsChart = () => {
                 </CardDescription>
             </CardHeader>
             
-            <CardContent>
+            <CardContent className="flex-1 min-h-0">
                 <ChartContainer config={chartConfig} className="h-[250px] w-full">
                     {/* 👇 Using the correct AreaChart wrapper component */}
                     <AreaChart

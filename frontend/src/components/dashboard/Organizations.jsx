@@ -41,9 +41,9 @@ const Organizations = () => {
 
     const {
         orgs,
+        invitedOrgs,
         fetchUserOrgs,
         createOrg,
-        deleteOrg,
         updateOrg,
         currentUser
     } = useAppStore();
@@ -99,55 +99,57 @@ const Organizations = () => {
 
     return (
 
-        <>
+        <div className="h-full flex flex-col">
 
             {/* ------------- Organization Card ( tabs )---------------- */}
-            <Tabs defaultValue="accepted-orgs">
-
-                <TabsList className="grid  grid-cols-2">
+            <Tabs defaultValue="accepted-orgs" className="flex-1 flex min-h-0">
+                
+                {/* The TabsList is like the "Stat Cards" section - it has a fixed height. */}
+                <TabsList className="grid grid-cols-2 flex-shrink-0">
                     <TabsTrigger value="accepted-orgs">All Organizations</TabsTrigger>
                     <TabsTrigger value="invited-orgs">Invited Organizations</TabsTrigger>
                 </TabsList>
 
-                {/* --- Tab 1 Content : Accepted organizations --- */}
-                <TabsContent value="accepted-orgs" >
-                    <Card className="bg-white shadow-sm border">
-                        <CardHeader>
+                {/* --- Tab 1 Content --- */}
+                <TabsContent value="accepted-orgs" className="flex-1 flex flex-col min-h-0">
+                    <Card className="bg-white shadow-sm border flex-1 flex flex-col">
+                        <CardHeader className="flex-shrink-0">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    {/* <CardTitle className="text-slate-800">Your Organizations</CardTitle> */}
-                                    <CardDescription>Select an organization to manage its dashboard.</CardDescription>
+                                    <CardDescription>{orgs.length? 'Select an organization to manage its dashboard.' : 'Create a new organization'}</CardDescription>
                                 </div>
                                 {!myOrgExists && <Button size="sm" onClick={() => setPricingDialogOpen(true)}>
                                     <Plus className="mr-2 h-3 w-4" /> Add New
                                 </Button>}
                             </div>
                         </CardHeader>
-
-                        <CardContent>
-                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 p-2">
+                        
+                        
+                        <CardContent className="flex-1 overflow-y-auto min-h-0 px-6">
+                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                                 <OrgsTabs inviteStatus="accepted" setEditingOrg={setEditingOrg} setEditDialogOpen={setEditDialogOpen}/>
                             </div>
                         </CardContent>
                     </Card>
                 </TabsContent>
 
-                {/* --- Tab 2 Content : Invited organizations --- */}
-                <TabsContent value="invited-orgs">
-                    <Card className="bg-white shadow-sm border">
-                        <CardHeader>
-                            <CardDescription className="my-2"
-                            >Accept or decline the invite from an organization.</CardDescription>
+                {/* --- Tab 2 Content --- */}
+                <TabsContent value="invited-orgs" className="flex-1 flex flex-col min-h-0">
+                    <Card className="bg-white shadow-sm border flex-1 flex flex-col">
+                        <CardHeader className="flex-shrink-0">
+                            <CardDescription className="my-2">{invitedOrgs.length? 'Accept or decline the invite from an organization.' :'No invitations available'}
+                                
+                            </CardDescription>
                         </CardHeader>
 
-                        <CardContent>
-                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 p-2">
+                        
+                        <CardContent className="flex-1 overflow-y-auto min-h-0 p-2">
+                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                                 <OrgsTabs inviteStatus="invited"/>
                             </div>
                         </CardContent>
                     </Card>
                 </TabsContent>
-
             </Tabs>
 
 
@@ -199,7 +201,7 @@ const Organizations = () => {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </>
+        </div>
     );
 };
 

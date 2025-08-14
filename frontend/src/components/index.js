@@ -34,7 +34,7 @@ import Header from "./dashboard/Header";
 import AdminPanel from './dashboard/AdminPanel'
 import OrgDashboard from './dashboard/OrgDashboard'
 import Organizations from './dashboard/Organizations'
-import AnalyticsChartPlaceholder from './dashboard/AnalyticsChartPlaceholder'
+import EmailAnalyticsChart from './dashboard/EmailAnalyticsChart'
 import AdminOrgsTable from './dashboard/AdminOrgsTable'
 import Sidebar from "./dashboard/Sidebar";
 import StatCard from './dashboard/StatCard'
@@ -78,7 +78,7 @@ export {
     AdminPanel, 
     OrgDashboard,
     Organizations,
-    AnalyticsChartPlaceholder,
+    EmailAnalyticsChart,
     AdminOrgsTable,
     Sidebar,
     StatCard,

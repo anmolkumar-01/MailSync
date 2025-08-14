@@ -7,7 +7,7 @@ const OrgDashboard = () => {
     console.log("currentView:", currentView)
 
     return (
-        <div>
+        <div className="h-full">
             {orgSubView === 'analytics' && <OrgAnalyticsPage />}
             {orgSubView === 'members' && <OrgMembersPage />}
             {orgSubView === 'send-email' && <SendEmailsPage />}

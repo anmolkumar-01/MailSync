@@ -1,8 +1,7 @@
 import React, {useEffect} from 'react'
-import { StatCard } from '@/components';
+import { StatCard, EmailAnalyticsChart } from '@/components';
 import { Users, Send, Activity, Star } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
-import  AnalyticsChartPlaceholder  from '@/components/dashboard/AnalyticsChartPlaceholder';
 
 function OrgAnalyticsPage() {
 
@@ -28,15 +27,18 @@ function OrgAnalyticsPage() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-                {/* todo: organization members .length */}
-                <StatCard title="Team Members" value={currentOrgMembersLength} change="+2" changeType="increase" icon={Users} />
-                <StatCard title="Emails Sent" value={selectedOrg.totalEmailsSent} change="+35%" changeType="increase" icon={Send} />
-                <StatCard title="Open Rate" value="58.3%" change="-1.2%" changeType="decrease" icon={Activity} />
-                <StatCard title="Click Rate" value="12.7%" change="+4.5%" changeType="increase" icon={Star} />
+        <div className=" h-full flex flex-col space-y-6">
+            <div className="flex-shrink-0">
+                <div className="grid gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+                    <StatCard title="Team Members" value={currentOrgMembersLength} change="+2" changeType="increase" icon={Users} />
+                    <StatCard title="Emails Sent" value={selectedOrg?.totalEmailsSent || 0} change="+35%" changeType="increase" icon={Send} />
+                    <StatCard title="Open Rate" value="58.3%" change="-1.2%" changeType="decrease" icon={Activity} />
+                    <StatCard title="Click Rate" value="12.7%" change="+4.5%" changeType="increase" icon={Star} />
+                </div>
             </div>
-                <AnalyticsChartPlaceholder title="Revenue Profile" value="$25,843.45" performanceText="Your performance is excellent ✨"/>
+            <div className="flex-1 min-h-0">
+                <EmailAnalyticsChart />
+            </div>
         </div>
     )
 }
