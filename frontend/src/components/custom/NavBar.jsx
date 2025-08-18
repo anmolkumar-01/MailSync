@@ -19,7 +19,7 @@ const NavBar = () => {
     flow: 'auth-code',
     onSuccess: async (codeResponse) => {
 
-      console.log("Google login code response: ", codeResponse);
+      // console.log("Google login code response: ", codeResponse);
       await signin({ code: codeResponse.code }); 
     },
     onError: () => console.log("Google login failed"),
