@@ -5,7 +5,7 @@ import { Building2, CreditCard, Users, Star } from 'lucide-react';
 
 const AdminPanel = () => {
 
-    const {currentUser, adminOrgs, fetchAdminOrgs, adminTotalRevenue , fetchAdminTotalRevenue} = useAppStore()
+    const {currentUser, adminOrgs, fetchAdminOrgs, adminTotalRevenue , fetchAdminTotalRevenue, onlineUsers} = useAppStore()
 
     useEffect(() => {
         if (currentUser) {
@@ -16,7 +16,8 @@ const AdminPanel = () => {
 
     const totalRevenue = (adminTotalRevenue / 1000).toFixed(1) + "K";
     const pendingOrgsCount = adminOrgs.filter(org => org.status === 'pending').length
-
+    const onlineOrgs = adminOrgs.filter(org => onlineUsers.includes(org.owner?._id) );
+    console.log("Online Oranizations: ", adminOrgs)
 
     return (
         // This outer container sets up the full-height flex column. This is correct.
@@ -27,7 +28,7 @@ const AdminPanel = () => {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <StatCard title="Total Organizations" value={adminOrgs.length} change="+5%" changeType="increase" icon={Building2} />
             <StatCard title="Total Revenue" value={`₹${totalRevenue}`} change="+18.1%" changeType="increase" icon={CreditCard} />
-            <StatCard title="Active Organizations" value="1,250" change="+22%" changeType="increase" icon={Users} />
+            <StatCard title="Online Organizations" value={onlineOrgs?.length} change="+22%" changeType="increase" icon={Users} />
             <StatCard title="Pending Organizations" value={pendingOrgsCount} change="+5%" changeType="increase" icon={Star} />
             </div>
         </div>

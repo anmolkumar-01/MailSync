@@ -22,12 +22,13 @@ const Avatar = ({ name }) => (
 // Helper to render the correct status badge based on status
 const StatusBadge = ({ status }) => {
     const styles = {
+
         'accepted': { icon: Waves, color: 'text-green-600' },
         'invited': { icon: User, color: 'text-gray-400' },
         'rejected': {icon : X, color: 'text-red-400'},
         'left': {icon : LogOut, color: 'text-red-400'},
 
-        'Active': { icon: Waves, color: 'text-green-600' },
+        'active': { icon: Waves, color: 'text-green-600' },
         'Top 10%': { icon: Star, color: 'text-amber-500' },
         'Inactive': { icon: Moon, color: 'text-slate-500' },
         'Lurker': { icon: User, color: 'text-sky-500' },
@@ -40,18 +41,6 @@ const StatusBadge = ({ status }) => {
             <span>{status}</span>
         </div>
     );
-};
-
-// Helper function for styling the role dropdown buttons
-const getRoleButtonClasses = (role) => {
-    switch (role) {
-        case 'orgAdmin': // Approved style
-            return 'bg-green-100 text-green-700 hover:bg-green-200';
-        case 'orgMember': // Pending style
-            return 'bg-blue-100 text-blue-700 hover:bg-blue-200';
-        default:
-            return 'bg-slate-200 text-slate-800 hover:bg-slate-300';
-    }
 };
 
 const getStatusFilterButtonClasses = (status) => {
@@ -79,6 +68,19 @@ const getStatusFilterButtonClasses = (status) => {
     }
 };
 
+// Helper function for styling the role dropdown buttons
+const getRoleButtonClasses = (role) => {
+    switch (role) {
+        case 'orgAdmin': // Approved style
+            return 'bg-green-100 text-green-700 hover:bg-green-200';
+        case 'orgMember': // Pending style
+            return 'bg-blue-100 text-blue-700 hover:bg-blue-200';
+        default:
+            return 'bg-slate-200 text-slate-800 hover:bg-slate-300';
+    }
+};
+
+
 // --- MAIN MEMBERS VIEW COMPONENT ---
 
 const OrgMembersPage = () => {
@@ -90,7 +92,8 @@ const OrgMembersPage = () => {
         inviteMember,
         removeMember,
         changeRole,
-        triggerNotification
+        triggerNotification,
+        onlineUsers
     } = useAppStore();
 
     const [isInviteMemberDialogOpen, setInviteMemberDialogOpen] = useState(false);
@@ -335,7 +338,8 @@ const OrgMembersPage = () => {
                                 </TableCell>
                                 
                                 <TableCell>
-                                    <StatusBadge status={member?.status} /> {/* todo: Invite member status field */}
+                                    {console.log(onlineUsers, member.userId)}
+                                    <StatusBadge status={onlineUsers?.includes(member?.userId?._id)? 'active' :  (member?.status === 'accepted'? 'Inactive' : member?.status)} /> {/* todo: Invite member status field */}
                                 </TableCell>
                                 
                                 <TableCell className="hidden md:table-cell text-slate-600">{new Date(member?.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</TableCell>

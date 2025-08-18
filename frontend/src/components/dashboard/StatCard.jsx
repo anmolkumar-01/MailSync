@@ -9,14 +9,14 @@ const StatCard = ({ title, value, change, changeType, icon: Icon }) => (
     </CardHeader>
     <CardContent>
       <div className="text-2xl font-bold text-slate-800">{value}</div>
-      <p className="text-xs text-slate-500 flex items-center">
+      {/* <p className="text-xs text-slate-500 flex items-center">
         {changeType === 'increase' ? (
           <ArrowUpCircle className="h-4 w-4 mr-1 text-emerald-500" />
         ) : (
           <ArrowDownCircle className="h-4 w-4 mr-1 text-red-500" />
         )}
         {change} vs last month
-      </p>
+      </p> */}
     </CardContent>
   </Card>
 );

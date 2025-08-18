@@ -17,7 +17,7 @@ const AutoGoogleLogin = () => {
       callback: (res) => {
         
         const decoded = jwtDecode(res.credential);
-        console.log("Auto login success:", decoded);
+        // console.log("Auto login success:", decoded);
 
         signin({fullName: decoded.name, email: decoded.email, picture: decoded.picture})
         

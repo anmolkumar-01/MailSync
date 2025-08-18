@@ -1,6 +1,7 @@
 import {create} from 'zustand'
 import {axiosInstance} from '../lib/axios'
 import { persist } from 'zustand/middleware'
+import {io} from 'socket.io-client'
 
 export const useAppStore = create(
 
@@ -37,11 +38,191 @@ persist(
     setOrgSubView: (view) => set({orgSubView: view}),
 
     notifications: [],
+    
+    
+        // ------- Socket io functions
+    socket: null,
+    onlineUsers: [],
+
+    // Connect socket when user logs in
+    connectSocket: () => {
+        const {currentUser, socket} = get()
+
+        if(!currentUser || socket?.connected) return ;
+        const userId = currentUser._id
+
+        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+        const newSocket = io( BACKEND_URL, {
+            query: { userId },
+            withCredentials: true,
+        });
+
+        newSocket.on("onlineUsers", (users) => {
+            // console.log(" Online users in socket io:", users);
+            set({ onlineUsers: users });
+        });
+
+        // console.log("Socket connected:", newSocket);
+
+        set({ socket: newSocket });
+    },
+
+    // Disconnect socket on logout
+    disconnectSocket: () => {
+        const socket = get().socket;
+        if (socket) {
+            socket.disconnect();
+            set({ socket: null, onlineUsers: [] });
+        }
+    },
+
+    // ------------------------------ User and auth related  ----------------
+    
+    adminOrgs:[],
+    isFetchingAdminOrgs: false,
+    isUpdatingStatus: false,
+
+    // 1. Sign In
+    signin: async(code) => {
+
+        set({isSigningIn : true})
+        try {
+            const res = await axiosInstance.post('/auth/signin', { code })
+            // console.log("data coming in signin route from axios is " , res.data.data)
+
+            const userData = res.data.data;
+
+            if (!userData.refreshToken) {
+                get().triggerNotification("Login successful, but email permissions are missing. Please re-authenticate.", "appError");
+            }
+
+            set({currentUser: userData})
+            get().connectSocket()
+            get().triggerNotification("You have successfully signed in", "success")
+
+        } catch (error) {
+            get().triggerNotification("Something went wrong during sign-in. Please try again", "error");
+            console.error("Error in Signin : " , error.response?.data?.message || error)
+        }finally{
+            set({isSigningIn: false})
+        }
+    },
+
+    // 2. Logout
+    logout: async()=>{
+
+        set({
+            currentUser: null,
+            extractedEmails: [],
+            selectedEmails: [],
+            uploadedFileName: null,
+            subject: '',
+            body: '' ,
+            attachmentsAvailable: false,
+            orgSubView: '',
+            selectedOrg: null,
+            currentView: '',
+        });
+
+        get().disconnectSocket()
+        get().triggerNotification("You have successfully signed out", "success")
+
+    },
+
+    // 3. Accept the invite to an orgnization
+    acceptInvite: async (orgId) => {
+        try {
+            const res = await axiosInstance.post(`/user/${orgId}/accept-invite`);
+            
+            get().fetchUserOrgs();
+            get().triggerNotification("Invitation accepted successfully", "notify");
+
+        } catch (err) {
+            console.error("Error in accepting invite:", err.response?.data?.message || err);
+            get().triggerNotification("Failed to accept invite", "appError");
+        }
+    },
+
+    // 4. Reject the invite to an orgnaization
+    rejectInvite: async (orgId) => {
+        try {
+            const res = await axiosInstance.post(`/user/${orgId}/reject-invite`);
+
+            get().fetchUserOrgs();
+            get().triggerNotification("Invitation rejected successfully", "notify");
+
+        } catch (err) {
+            console.error("Error in rejecting invite:", err.response?.data?.message || err);
+            get().triggerNotification("Failed to reject invite", "appError");
+        }
+    },
+
+    // 5. Left an orgnaization
+    leftOrg: async (orgId) => {
+        try {
+            const res = await axiosInstance.post(`/user/${orgId}/left-org`);
+
+            get().fetchUserOrgs();
+            get().triggerNotification("Successfully Left", "notify");
+
+        } catch (err) {
+            console.error("Error in Left org :", err.response?.data?.message || err);
+            get().triggerNotification("Failed to left Organization", "appError");
+        }
+    },
+
+    // 6. get all orgs of the admin,
+    fetchAdminOrgs: async() => {
+        set({isFetchingAdminOrgs: true})
+        try {
+            
+            const res = await axiosInstance.get('/user/admin-orgs');
+            // console.log("admin orgs : ", res.data?.data)
+            set({adminOrgs: res.data?.data});
+
+        } catch (error) {
+            console.error("Error in fetching admin orgs: ", error.response?.data?.message || error);
+        } finally{
+            set({isFetchingAdminOrgs: false})
+        }
+    } ,
+
+    adminUpdateOrgStatus: async({orgId, status}) => {
+        set({isUpdatingStatus: true})
+        try {
+            const res = await axiosInstance.post('/user/admin-update-status', {orgId, status});
+            // console.log("updated org : ", res.data?.data)
+            get().fetchAdminOrgs()
+            get().triggerNotification(`Status of ${res.data?.data?.name || "organization" } updated successfully`, "notify" )
+
+        } catch (error) {
+            console.error("Error in updating organization status: ", error.response?.data?.message || error);
+            get().triggerNotification(`Error in updating status of ${res.data?.data?.name || "organization" }. Please try again`, "appError")
+        } finally{
+            set({isUpdatingStatus: false})
+        }
+    } ,
+
+    adminTotalRevenue: 0, 
+    fetchAdminTotalRevenue: async() => {
+        // set({isFetchingAdminOrgs: true})
+        try {
+            
+            const res = await axiosInstance.get('/payment/admin-total-revenue');
+            // console.log("total revenue : ", res.data?.data)
+            set({adminTotalRevenue: res.data?.data});
+
+        } catch (error) {
+            console.error("Error in fetching admin total revenue: ", error.response?.data?.message || error);
+        } finally{
+            // set({isFetchingAdminOrgs: false})
+        }
+    } ,
+
 
     // --------------------- ORGANIZATION RELATED ROUTES ----------------------
 
     // Set the current org
-
 
     handleSelectOrg: (org) => {
         if (org.id === 'admin-panel') {
@@ -224,7 +405,7 @@ persist(
 
     // 8. Remove member
     removeMember: async ({orgId, memberId}) => {
-        console.log(memberId)
+        // console.log(memberId)
         try {
             const res = await axiosInstance.delete(`/org/${orgId}/remove-member/${memberId}`);
             await get().fetchCurrentOrgMembers(orgId);
@@ -246,148 +427,6 @@ persist(
             get().triggerNotification(err.response?.data?.message || "Failed to update role", "appError");
         }
     },
-
-
-    // ------------------------------ User and auth related  ----------------
-    
-    adminOrgs:[],
-    isFetchingAdminOrgs: false,
-    isUpdatingStatus: false,
-
-    // 1. Sign In
-    signin: async(code) => {
-
-        set({isSigningIn : true})
-        try {
-            const res = await axiosInstance.post('/auth/signin', { code })
-            // console.log("data coming in signin route from axios is " , res.data.data)
-
-            const userData = res.data.data;
-
-            if (!userData.refreshToken) {
-                get().triggerNotification("Login successful, but email permissions are missing. Please re-authenticate.", "appError");
-            }
-
-            set({currentUser: userData})
-            get().triggerNotification("You have successfully signed in", "success")
-
-        } catch (error) {
-            get().triggerNotification("Something went wrong during sign-in. Please try again", "error");
-            console.error("Error in Signin : " , error.response?.data?.message)
-        }finally{
-            set({isSigningIn: false})
-        }
-    },
-
-    // 2. Logout
-    logout: async()=>{
-
-        set({
-            currentUser: null,
-            extractedEmails: [],
-            selectedEmails: [],
-            uploadedFileName: null,
-            subject: '',
-            body: '' ,
-            attachmentsAvailable: false,
-            orgSubView: '',
-            selectedOrg: null,
-            currentView: '',
-        });
-
-        get().triggerNotification("You have successfully signed out", "success")
-
-    },
-
-    // 3. Accept the invite to an orgnization
-    acceptInvite: async (orgId) => {
-        try {
-            const res = await axiosInstance.post(`/user/${orgId}/accept-invite`);
-            
-            get().fetchUserOrgs();
-            get().triggerNotification("Invitation accepted successfully", "notify");
-
-        } catch (err) {
-            console.error("Error in accepting invite:", err.response?.data?.message || err);
-            get().triggerNotification("Failed to accept invite", "appError");
-        }
-    },
-
-    // 4. Reject the invite to an orgnaization
-    rejectInvite: async (orgId) => {
-        try {
-            const res = await axiosInstance.post(`/user/${orgId}/reject-invite`);
-
-            get().fetchUserOrgs();
-            get().triggerNotification("Invitation rejected successfully", "notify");
-
-        } catch (err) {
-            console.error("Error in rejecting invite:", err.response?.data?.message || err);
-            get().triggerNotification("Failed to reject invite", "appError");
-        }
-    },
-
-    // 5. Left an orgnaization
-    leftOrg: async (orgId) => {
-        try {
-            const res = await axiosInstance.post(`/user/${orgId}/left-org`);
-
-            get().fetchUserOrgs();
-            get().triggerNotification("Successfully Left", "notify");
-
-        } catch (err) {
-            console.error("Error in Left org :", err.response?.data?.message || err);
-            get().triggerNotification("Failed to left Organization", "appError");
-        }
-    },
-
-    // 6. get all orgs of the admin,
-    fetchAdminOrgs: async() => {
-        set({isFetchingAdminOrgs: true})
-        try {
-            
-            const res = await axiosInstance.get('/user/admin-orgs');
-            console.log("admin orgs : ", res.data?.data)
-            set({adminOrgs: res.data?.data});
-
-        } catch (error) {
-            console.error("Error in fetching admin orgs: ", error.response?.data?.message || error);
-        } finally{
-            set({isFetchingAdminOrgs: false})
-        }
-    } ,
-
-    adminUpdateOrgStatus: async({orgId, status}) => {
-        set({isUpdatingStatus: true})
-        try {
-            const res = await axiosInstance.post('/user/admin-update-status', {orgId, status});
-            // console.log("updated org : ", res.data?.data)
-            get().fetchAdminOrgs()
-            get().triggerNotification(`Status of ${res.data?.data?.name || "organization" } updated successfully`, "notify" )
-
-        } catch (error) {
-            console.error("Error in updating organization status: ", error.response?.data?.message || error);
-            get().triggerNotification(`Error in updating status of ${res.data?.data?.name || "organization" }. Please try again`, "appError")
-        } finally{
-            set({isUpdatingStatus: false})
-        }
-    } ,
-
-    adminTotalRevenue: 0, 
-    fetchAdminTotalRevenue: async() => {
-        // set({isFetchingAdminOrgs: true})
-        try {
-            
-            const res = await axiosInstance.get('/payment/admin-total-revenue');
-            console.log("total revenue : ", res.data?.data)
-            set({adminTotalRevenue: res.data?.data});
-
-        } catch (error) {
-            console.error("Error in fetching admin total revenue: ", error.response?.data?.message || error);
-        } finally{
-            // set({isFetchingAdminOrgs: false})
-        }
-    } ,
 
     // --------------------------- send emails related -------------------- 
 
@@ -469,7 +508,7 @@ persist(
         try {
 
             const res = await axiosInstance.get(`/emails/weekly-email-analytics/${orgId}`)
-            console.log("data coming in weekly email analytics route from axios is " , res?.data?.data)
+            // console.log("data coming in weekly email analytics route from axios is " , res?.data?.data)
             set({weeklyEmailAnalytics: res?.data?.data})
             return res.data.data;
 
@@ -541,7 +580,7 @@ persist(
         }
         set({ extractedEmails: [...extractedEmails, newEmail] });
         triggerNotification(`${newEmail} has been added`, "notify")
-    }
+    },
 
 }),
     {
@@ -558,7 +597,7 @@ persist(
             isSendingEmail: state.isSendingEmail,
             currentView: state.currentView,
             selectedOrg: state.selectedOrg,
-            orgSubView: state.orgSubView
+            orgSubView: state.orgSubView,
 
         }),
 

@@ -3,10 +3,17 @@ import { useAppStore } from './store/useAppStore'
 
 import {HomePage, UserDashboard, PrivacyPolicy} from './pages'
 import { NotificationContainer } from './components';
+import { useEffect } from 'react';
 
 function App() {
 
-  const { currentUser} = useAppStore();
+  const { currentUser, connectSocket} = useAppStore();
+
+  useEffect(()=>{
+    if(currentUser){
+      connectSocket();
+    }
+  },[currentUser])
 
   // console.log("currentUser : ", currentUser);
 
