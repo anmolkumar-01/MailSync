@@ -52,7 +52,7 @@ const AdminOrgsTable = () => {
                             <TableRow key={org._id} className="hover:bg-slate-50">
                                 <TableCell><div className="font-medium text-slate-700">{truncateName(org.name, 20)}</div></TableCell>
                                 <TableCell className="hidden sm:table-cell text-slate-600">{org.email}</TableCell>
-                                <TableCell className="hidden md:table-cell text-slate-600">{new Date(org.createdAt).toLocaleDateString()}</TableCell>
+                                <TableCell className="hidden md:table-cell text-slate-600">{new Date(org.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</TableCell>
                                 <TableCell  className="text-right"> <Badge variant="outline" className={`${planStyles.badge}`}>{org.tier}</Badge></TableCell>
                                 
                                 <TableCell className="flex justify-center items-center">

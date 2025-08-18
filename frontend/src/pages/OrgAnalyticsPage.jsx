@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react'
 import { StatCard, EmailAnalyticsChart } from '@/components';
-import { Users, Send, UserPlus, Star } from 'lucide-react';
+import { Users, Send, UserPlus, Timer } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 
 function OrgAnalyticsPage() {
@@ -36,7 +36,7 @@ function OrgAnalyticsPage() {
                     <StatCard title="Team Members" value={currentOrgMembersLength} change="+2" changeType="increase" icon={Users} />
                     <StatCard title="Emails Sent" value={selectedOrg?.totalEmailsSent || 0} change="+35%" changeType="increase" icon={Send} />
                     <StatCard title="Online members" value={onlineMembers?.length} change="-1.2%" changeType="decrease" icon={UserPlus} />
-                    <StatCard title="Click Rate" value="12.7%" change="+4.5%" changeType="increase" icon={Star} />
+                    <StatCard title="Organization Since" value={new Date(selectedOrg.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} change="+4.5%" changeType="increase" icon={Timer} />
                 </div>
             </div>
             <div className="flex-1 min-h-0">

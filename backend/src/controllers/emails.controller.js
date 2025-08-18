@@ -192,13 +192,7 @@ const send = asyncHandler(async (req, res) => {
     <div style="margin: 0; padding: 0; font-family: sans-serif;">
         <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 700px; margin: 20px auto; border: 1px solid black; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
             <tr>
-                <td align="center" style="background-color: #3b82f6; padding: 20px; border-radius: 12px 12px 0 0;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/893/893257.png" alt="Logo" width="40" style="border:0; display:inline-block; vertical-align:middle; margin-right: 10px;">
-                    <span style="color: #ffffff; font-size: 24px; font-weight: bold;">MailSync</span>
-                </td>
-            </tr>
-            <tr>
-                <td style="background-color: #ffffff; padding: 20px 30px; border-radius: 0 0 12px 12px;">
+                <td style="background-color: #ffffff; padding: 20px 30px; border-radius: 12px;">
                     <div>${body}</div>
                     ${filesHTML}
                 </td>
@@ -227,22 +221,12 @@ const send = asyncHandler(async (req, res) => {
     await Promise.all(recipients.map(async (email) => {
         try {
 
-            const emailDoc = await Email.create({
-                senderId: currentOrg._id,
-                recipientEmail: email
-            });
-
-            const pixelUrl = `https://mailsync.onrender.com/emails/open/${emailDoc._id}.png`;
-            const htmlWithPixel = `
-                ${html}
-                <img src="${pixelUrl}" width="1" height="1" " />
-            `;
 
             const raw = makeRawEmail({
                 from: `${currentOrg.name} <${currentOrg.email}>`,
                 to: email,
                 subject,
-                html: htmlWithPixel,
+                html: html,
                 replyTo: currentOrg.email
             });
 
