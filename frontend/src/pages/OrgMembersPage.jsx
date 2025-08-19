@@ -103,6 +103,9 @@ const OrgMembersPage = () => {
     const [roleFilter, setRoleFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
 
+    const onlineMembers = currentOrgMembers.filter(m=> (onlineUsers.includes(m.userId._id) && m.status === 'accepted'));
+    console.log("online Members", onlineMembers);
+
     useEffect(()=>{
         fetchCurrentOrgMembers(selectedOrg._id)
     },[selectedOrg, currentOrgMembers?.length])
@@ -338,8 +341,8 @@ const OrgMembersPage = () => {
                                 </TableCell>
                                 
                                 <TableCell>
-                                    {console.log(onlineUsers, member.userId)}
-                                    <StatusBadge status={onlineUsers?.includes(member?.userId?._id)? 'active' :  (member?.status === 'accepted'? 'Inactive' : member?.status)} /> {/* todo: Invite member status field */}
+                                    {console.log(onlineMembers, member.userId)}
+                                    <StatusBadge status={onlineMembers?.includes(member)? 'active' :  (member?.status === 'accepted'? 'Inactive' : member?.status)} /> {/* todo: Invite member status field */}
                                 </TableCell>
                                 
                                 <TableCell className="hidden md:table-cell text-slate-600">{new Date(member?.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</TableCell>
