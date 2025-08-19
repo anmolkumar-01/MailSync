@@ -239,7 +239,7 @@ persist(
                 attachmentsAvailable: false,
             })
             get().setSelectedOrg(org);
-            get().setOrgSubView(currentUser.email === org.email? 'analytics' : 'send-email')
+            get().setOrgSubView(get().currentUser.email === org.email? 'analytics' : 'send-email')
 
         }
     },

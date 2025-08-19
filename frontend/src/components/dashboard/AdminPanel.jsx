@@ -34,7 +34,7 @@ const AdminPanel = () => {
         </div>
         
         {/*  reason for scrollability - min-h-0 and h-full of activity table*/}
-        <div className="flex-1 flex gap-6 md:gap-8 min-h-0">
+        <div className="flex-1 flex gap-6 md:gap-8 lg:min-h-0">
                 
                 <div className="w-full flex flex-col">
                     <AdminOrgsTable />
