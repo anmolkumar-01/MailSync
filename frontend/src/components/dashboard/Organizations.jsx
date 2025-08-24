@@ -146,7 +146,7 @@ const Organizations = () => {
                         </CardHeader>
 
                         
-                        <CardContent className="flex-1 overflow-y-auto min-h-0 p-2">
+                        <CardContent className="flex-1 overflow-y-auto min-h-0 px-6">
                             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                                 <OrgsTabs inviteStatus="invited"/>
                             </div>
