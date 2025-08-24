@@ -4,7 +4,7 @@ import { useAppStore } from '@/store/useAppStore';
 const OrgDashboard = () => {
 
     const {orgSubView, currentView} = useAppStore()
-    // console.log("currentView:", currentView)
+    console.log("orgSubView:", orgSubView)
 
     return (
         <div className="h-full">

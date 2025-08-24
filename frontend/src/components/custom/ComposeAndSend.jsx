@@ -14,7 +14,22 @@ import { useEffect } from "react";
 
 const ComposeAndSend = () => {
 
-  const {selectedOrg, selectedEmails, currentUser, askAI, isAskingAi, subject, body, setSubject, setBody, triggerNotification, isSendingEmail, send, setAttachmentsAvailable, attachmentsAvailable} = useAppStore()
+  const {
+    selectedOrg, 
+    selectedEmails, 
+    currentUser, 
+    askAI, 
+    isAskingAi, 
+    subject, 
+    body, 
+    setSubject, 
+    setBody, 
+    triggerNotification, 
+    isSendingEmail, 
+    send, 
+    setAttachmentsAvailable, 
+    attachmentsAvailable,
+  } = useAppStore()
 
   const [attachments, setAttachments] = useState([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);

@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Plus } from 'lucide-react';
 
 import { useAppStore } from '@/store/useAppStore';
-import { PricingDialog, OrgsTabs } from '..'; 
+import { PricingDialog, OrgsTabs, OrganizationSkeleton } from '..'; 
 
 // Helper function for styling plans, todo : move this to utility functions 
 const getPlanStyles = (plan) => {
@@ -45,7 +45,8 @@ const Organizations = () => {
         fetchUserOrgs,
         createOrg,
         updateOrg,
-        currentUser
+        currentUser,
+        fetchUserOrgsLoader
     } = useAppStore();
 
     const [isPricingDialogOpen, setPricingDialogOpen] = useState(false);
@@ -96,6 +97,8 @@ const Organizations = () => {
         });
         setEditDialogOpen(false);
     };
+
+    if (fetchUserOrgsLoader) return <OrganizationSkeleton />;
 
     return (
 

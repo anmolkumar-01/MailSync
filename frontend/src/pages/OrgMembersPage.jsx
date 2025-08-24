@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from '@/components/ui/input';
 import { Search, MoreHorizontal, User, Waves, Moon, Star, ChevronDown, UserPlus, X, LogOut } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
+import { OrgMembersSkeleton } from '@/components';
 
 
 // --- HELPER COMPONENTS & FUNCTIONS ---
@@ -89,6 +90,7 @@ const OrgMembersPage = () => {
         selectedOrg,
         currentOrgMembers,
         fetchCurrentOrgMembers,
+        isFetchingCurrentOrgMembers,
         inviteMember,
         removeMember,
         changeRole,
@@ -104,7 +106,7 @@ const OrgMembersPage = () => {
     const [statusFilter, setStatusFilter] = useState('all');
 
     const onlineMembers = currentOrgMembers.filter(m=> (onlineUsers.includes(m.userId._id) && m.status === 'accepted'));
-    console.log("online Members", onlineMembers);
+    // console.log("online Members", onlineMembers);
 
     useEffect(()=>{
         fetchCurrentOrgMembers(selectedOrg._id)
@@ -283,11 +285,12 @@ const OrgMembersPage = () => {
             </CardHeader>
 
             {/* --- SCROLLABLE TABLE CONTENT --- */}
-            <CardContent className="flex-1 overflow-y-auto p-0 min-h-0">
+
+                <CardContent className="flex-1 overflow-y-auto p-0 min-h-0">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="pl-6">Member</TableHead>
+                            <TableHead className="pl-6">Members</TableHead>
                             <TableHead>Role</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead className="hidden md:table-cell">Member since</TableHead>
@@ -296,6 +299,12 @@ const OrgMembersPage = () => {
                         </TableRow>
                     </TableHeader>
                     
+                    { isFetchingCurrentOrgMembers? 
+                    (
+                        <OrgMembersSkeleton/>
+                    )
+                    :                          
+                    (
                     <TableBody>
 
                         {filteredMembers.map(member => {
@@ -341,7 +350,7 @@ const OrgMembersPage = () => {
                                 </TableCell>
                                 
                                 <TableCell>
-                                    {console.log(onlineMembers, member.userId)}
+                                    {/* console.log(onlineMembers, member.userId) */}
                                     <StatusBadge status={onlineMembers?.includes(member)? 'active' :  (member?.status === 'accepted'? 'Inactive' : member?.status)} /> {/* todo: Invite member status field */}
                                 </TableCell>
                                 
@@ -371,8 +380,10 @@ const OrgMembersPage = () => {
                         )})}
 
                     </TableBody>
+                    )}
                 </Table>
-            </CardContent>
+                </CardContent>
+            
         </Card>
     );
 };

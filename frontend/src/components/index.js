@@ -44,6 +44,9 @@ import OrgsTabs from "./dashboard/OrgsTabs";
 
 // ---------- Skeletons -------------
 import HomePageSkeleton from "./skeletons/HomePageSkeleton";
+import OrganizationSkeleton from "./skeletons/OrganizationSkeleton";
+import ExtractingEmailsSkeleton from "./skeletons/ExtractingEmailsSkeleton";
+import OrgMembersSkeleton from "./skeletons/OrgMembersSkeleton";
 
 
 
@@ -90,5 +93,8 @@ export {
     MOCK_ACTIVITIES,
 
     // ---------------- skeletons --------------
-    HomePageSkeleton
+    HomePageSkeleton,
+    OrganizationSkeleton,
+    ExtractingEmailsSkeleton,
+    OrgMembersSkeleton
 }

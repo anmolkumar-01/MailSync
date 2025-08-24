@@ -12,15 +12,49 @@ import { getPlanStyles } from '@/lib/helperFxns';
 
 // Data remains the same, but we will use the new `icon` from the style helper
 const pricingPlans = {
-    monthly: [
-        { name: 'free', price: '$0', description: "Ideal for new investors or those with smaller portfolios.", features: ['Market data and news', 'Basic portfolio tracking', 'Limited customer support'] },
-        { name: 'pro', price: '$59', description: "A comprehensive plan for investors seeking more advanced features.", features: ['All features from Free', 'Advanced portfolio analysis', 'Personalized recommendations', 'Priority customer support'], highlighted: true },
-        { name: 'premium', price: '$299', description: "Tailored for experienced investors and companies with complex needs.", features: ['All features from Pro', 'Exclusive research & analysis', 'Dedicated account manager', 'Exclusive investment opportunities'] }
+monthly: [
+    { 
+        name: 'free', 
+        price: '₹0', 
+        description: "Ideal for individuals and small teams testing bulk email", 
+        features: [
+        'Send up to 25 emails/day', 
+        'Extract recipients from TXT & CSV files', 
+        'Basic AI-personalized email generation', 
+        'Role-based access (Admin + Member)', 
+        'Basic analytics'
+        ] 
+    },
+    { 
+        name: 'pro', 
+        price: '₹199', 
+        description: "Ideal for growing teams managing outreach at scale", 
+        features: [
+        'All features from Free', 
+        'Send up to 250 emails/day', 
+        'Extract recipients from TXT, CSV, Excel & PDF files', 
+        'Advanced AI-personalization (tone, context, length)', 
+        'Priority customer support'
+        ], 
+        highlighted: true 
+    },
+    { 
+        name: 'premium', 
+        price: '₹299', 
+        description: "Ideal for organizations with high-volume professional outreach", 
+        features: [
+        'All features from Pro', 
+        'Send up to 500 emails/day', 
+        'Scheduled sending & campaign automation', 
+        'Advanced analytics dashboard', 
+        '24/7 premium customer support'
+        ] 
+    }
     ],
     annually: [
-        { name: 'free', price: '$0', description: "Ideal for new investors or those with smaller portfolios.", features: ['Market data and news', 'Basic portfolio tracking', 'Limited customer support'] },
-        { name: 'pro', price: '$590', description: "A comprehensive plan for investors seeking more advanced features.", features: ['All features from Free', 'Advanced portfolio analysis', 'Personalized recommendations', 'Priority customer support'], highlighted: true },
-        { name: 'premium', price: '$2990', description: "Tailored for experienced investors and companies with complex needs.", features: ['All features from Pro', 'Exclusive research & analysis', 'Dedicated account manager', 'Exclusive investment opportunities'] }
+        { name: 'free', price: '₹0', description: "Ideal for new investors or those with smaller portfolios.", features: ['Market data and news', 'Basic portfolio tracking', 'Limited customer support'] },
+        { name: 'pro', price: '₹1990', description: "A comprehensive plan for investors seeking more advanced features.", features: ['All features from Free', 'Advanced portfolio analysis', 'Personalized recommendations', 'Priority customer support'], highlighted: true },
+        { name: 'premium', price: '₹2990', description: "Tailored for experienced investors and companies with complex needs.", features: ['All features from Pro', 'Exclusive research & analysis', 'Dedicated account manager', 'Exclusive investment opportunities'] }
     ]
 };
 
@@ -78,14 +112,15 @@ export const PricingDialog = ({ open, onOpenChange, onPlanSelect }) => {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="w-auto bg-white border-none shadow-2xl p-8 sm:p-10 lg:w-4xl max-w-lg lg:max-w-7xl flex flex-col max-h-[90vh]">
+            <DialogContent className="w-auto bg-white border-none shadow-2xl p-8 sm:p-10 lg:w-4xl max-w-lg lg:max-w-full flex flex-col max-h-[90vh]">
                 
-                {/* 👇 Header is now a flex row with items spaced apart */}
                 <DialogHeader className="flex-col justify-between items-center flex-shrink-0">
                     <DialogTitle className="text-3xl font-bold tracking-tight text-slate-900">
                         Choose <span className="text-blue-600">The Plan</span> That's Right For You!
                     </DialogTitle>
-                    <div className="flex items-center space-x-3">
+
+                    {/* ---------- Monthly and yearly billing -------- */}
+                    {/* <div className="flex items-center space-x-3">
                         <label htmlFor="billing-cycle" className="font-medium text-sm text-slate-700">Monthly</label>
                         <Switch 
                             id="billing-cycle" 
@@ -93,7 +128,7 @@ export const PricingDialog = ({ open, onOpenChange, onPlanSelect }) => {
                             onCheckedChange={(checked) => setBillingCycle(checked ? 'annually' : 'monthly')}
                         />
                         <label htmlFor="billing-cycle" className="font-medium text-sm text-slate-700">Annually</label>
-                    </div>
+                    </div> */}
                 </DialogHeader>
 
                 {/* Scrollable content area */}

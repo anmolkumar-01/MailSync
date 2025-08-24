@@ -364,8 +364,6 @@ const initiatePayment = async ({ userId, tier, amount }) => {
     return { order, paymentId: payment._id };
 };
 
-
-
 export {
     createOrg,
     updateOrg,

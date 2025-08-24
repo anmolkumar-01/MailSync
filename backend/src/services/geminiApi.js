@@ -11,7 +11,7 @@ export const geminiAI = async(prompt)=>{
     responseMimeType: 'text/plain',
   };
 
-  const model = 'gemini-2.5-pro';
+  const model = 'gemini-1.5-flash';
   const contents = [
     {
       role: 'user',

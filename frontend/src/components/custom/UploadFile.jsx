@@ -2,9 +2,10 @@ import { useState, useRef } from "react";
 import { UploadCloud } from "lucide-react";
 import { useAppStore } from "../../store/useAppStore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
+import { ExtractingEmailsSkeleton } from "..";
 
 function UploadFile() {
-  const { uploadFile, uploadedFileName, setUploadedFileName, triggerNotification, clearRecipients } = useAppStore();
+  const { uploadFile, uploadedFileName, setUploadedFileName, triggerNotification, clearRecipients, isExtractingEmails } = useAppStore();
   const [isDragging, setIsDragging] = useState(false);
 
   const fileInputRef = useRef(null);
@@ -59,6 +60,7 @@ function UploadFile() {
     }
   };
 
+  if(isExtractingEmails) return <ExtractingEmailsSkeleton />;
 
   return (
     <Card className="shadow-md border-blue-100">

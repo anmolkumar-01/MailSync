@@ -39,7 +39,6 @@ persist(
 
     notifications: [],
     
-    
         // ------- Socket io functions
     socket: null,
     onlineUsers: [],
@@ -244,8 +243,10 @@ persist(
         }
     },
 
+    fetchUserOrgsLoader: false,
     // 1. Fetch all orgs where current user is a member
     fetchUserOrgs: async () => {
+        set({fetchUserOrgsLoader: true})
         try {
             const res = await axiosInstance.get("/org/allOrgs");
             // console.log("user organizations : ", res.data.data);
@@ -266,6 +267,8 @@ persist(
         } catch (err) {
             console.error("Error fetching orgs:", err);
             get().triggerNotification("Failed to load organizations", "appError");
+        } finally{
+            set({fetchUserOrgsLoader: false})
         }
     },
 
@@ -370,7 +373,7 @@ persist(
             const user = res.data?.data;
             // console.log(user)
             set({ orgCurrentUser: user,
-                orgSubView: user.role === 'orgAdmin'? 'analytics' : 'send-email'
+
             });
 
         } catch (err) {
@@ -380,7 +383,9 @@ persist(
     },
 
     // 6. Fetch all members of current org
+    isFetchingCurrentOrgMembers: false,
     fetchCurrentOrgMembers: async (orgId) => {
+        set({ isFetchingCurrentOrgMembers: true });
         try {
             const res = await axiosInstance.get(`/org/${orgId}/all-members`);
             // console.log("current org members : ", res.data?.data?.[0])
@@ -388,6 +393,8 @@ persist(
         } catch (err) {
             console.error("Error fetching members:", err);
             get().triggerNotification("Failed to load members", "appError");
+        } finally {
+            set({ isFetchingCurrentOrgMembers: false });
         }
     },
 
@@ -427,7 +434,7 @@ persist(
             get().triggerNotification(err.response?.data?.message || "Failed to update role", "appError");
         }
     },
-
+    
     // --------------------------- send emails related -------------------- 
 
     // 1. Upload files
@@ -488,6 +495,12 @@ persist(
             
             // console.log("data coming in send email route from axios is " , res)
             get().triggerNotification(res.data.message, "success")
+
+            await get().fetchUserOrgs()
+            const currentOrg = get().orgs.filter(o => o._id === get().selectedOrg?._id)
+            // console.log("currentOrg" , currentOrg)
+            set({selectedOrg: currentOrg[0]})
+            // console.log(get().orgSubView)
 
             get().setSubject('');
             get().setBody('');
