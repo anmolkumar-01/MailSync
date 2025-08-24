@@ -54,7 +54,6 @@ const createOrg = asyncHandler(async (req, res) => {
             status: "accepted", 
         })
 
-        // console.log("Paid organization ", organization);
         return res.status(201).json(
             new ApiResponse(201, organization, "Organization created with free tier. Awaiting admin approval.")
         );

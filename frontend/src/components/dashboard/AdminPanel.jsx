@@ -17,7 +17,7 @@ const AdminPanel = () => {
     const totalRevenue = (adminTotalRevenue / 1000).toFixed(1) + "K";
     const pendingOrgsCount = adminOrgs.filter(org => org.status === 'pending').length
     const onlineOrgs = adminOrgs.filter(org => onlineUsers.includes(org.owner?._id) );
-    console.log("Online Oranizations: ", adminOrgs)
+    // console.log("Online Oranizations: ", adminOrgs)
 
     return (
         // This outer container sets up the full-height flex column. This is correct.

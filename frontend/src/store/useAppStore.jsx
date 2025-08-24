@@ -274,6 +274,7 @@ persist(
 
     // payment gateway
     openRazorpayCheckout: (order, orgInfo) => {
+        // console.log(order, orgInfo)
         try {
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID,
