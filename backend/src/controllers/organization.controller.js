@@ -44,7 +44,7 @@ const createOrg = asyncHandler(async (req, res) => {
             description,
             tier,
             dailyLimit: tierLimits[tier],
-            status: "pending"  // Requires admin approval
+            status: "approved"
         });
 
         await OrgMember.create({
@@ -55,7 +55,7 @@ const createOrg = asyncHandler(async (req, res) => {
         })
 
         return res.status(201).json(
-            new ApiResponse(201, organization, "Organization created with free tier. Awaiting admin approval.")
+            new ApiResponse(201, organization, "Organization created with free tier.")
         );
     }
 

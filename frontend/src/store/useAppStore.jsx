@@ -325,7 +325,7 @@ persist(
             const data = res.data?.data;
 
             if (data?.tier === "free") {
-                get().triggerNotification("Organization created. Awaiting admin approval.", "success");
+                get().triggerNotification("Organization created.", "success");
             } else {
                 // redirect user to Razorpay checkout using returned order ID
                 const { razorpayOrder, paymentId, tier, amount, orgInfo } = data;
